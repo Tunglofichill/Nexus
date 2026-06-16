@@ -71,7 +71,7 @@ export default function Chibi3D({
             </group>
             
             {/* Head Group (Chibi heads are big and low) */}
-            <group position={[0, 2.0, 0]}>
+            <group position={[0, 1.85, 0]} scale={[0.75, 0.75, 0.75]}>
               {/* Head Sphere */}
               <mesh position={[0, 0, 0]}>
                 <sphereGeometry args={[0.9, 32, 32]} />
