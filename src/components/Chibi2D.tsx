@@ -150,23 +150,24 @@ export default function Chibi2D({
 
           {/* ═══════════════ BACK HAIR ═══════════════ */}
           <g className={`chibi-hair-${uid}`}>
-            {/* Hair cap (back part) — large ellipse behind head */}
+            {/* Hair volume (back) — NOT a perfect ellipse, has a peaked top */}
             {hairId !== 'hair_bald' && (
-              <ellipse cx="250" cy="110" rx="100" ry="88" fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2.5" />
+              <path d="M 155 140 C 155 100, 170 55, 250 48 C 330 55, 345 100, 345 140 C 348 160, 345 175, 340 180 L 160 180 C 155 175, 152 160, 155 140 Z"
+                    fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2.5" />
             )}
-            {/* Long hair back */}
+            {/* Long hair flowing down back */}
             {hairId === 'hair_long' && (
-              <path d="M 155 130 C 145 220, 150 320, 170 370 Q 250 385 330 370 C 350 320, 355 220, 345 130"
+              <path d="M 160 160 C 148 230, 150 310, 175 365 Q 250 380 325 365 C 350 310, 352 230, 340 160"
                     fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2" />
             )}
             {hairId === 'hair_twintails' && (<>
-              <path d="M 155 120 C 110 180, 80 290, 100 360 C 120 370, 140 340, 155 280 C 155 220, 155 160, 155 120"
+              <path d="M 160 140 C 120 180, 85 280, 105 355 C 120 365, 140 340, 150 280 C 155 220, 158 170, 160 140"
                     fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2" />
-              <path d="M 345 120 C 390 180, 420 290, 400 360 C 380 370, 360 340, 345 280 C 345 220, 345 160, 345 120"
+              <path d="M 340 140 C 380 180, 415 280, 395 355 C 380 365, 360 340, 350 280 C 345 220, 342 170, 340 140"
                     fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2" />
             </>)}
             {hairId === 'hair_ponytail' && (
-              <path d="M 230 85 C 200 100, 200 200, 220 340 C 240 360, 260 360, 280 340 C 290 240, 300 100, 270 85"
+              <path d="M 235 70 C 210 85, 210 200, 225 340 C 240 358, 260 358, 275 340 C 290 200, 290 85, 265 70"
                     fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2" />
             )}
           </g>
@@ -367,42 +368,61 @@ export default function Chibi2D({
             )}
 
             {/* ═══════════════ FRONT HAIR ═══════════════ */}
-            <g className={`chibi-hair-${uid}`} clipPath={`url(#headClip-${uid})`}>
+            <g className={`chibi-hair-${uid}`}>
               {hairId !== 'hair_bald' && (<>
-                {/* Hair cap top */}
-                <ellipse cx="250" cy="95" rx="95" ry="55" fill={`url(#hg-${uid})`} />
-                {/* Bangs */}
-                {hairId === 'hair_short' && (
-                  <path d="M 160 120 C 170 85, 200 65, 250 60 C 300 65, 330 85, 340 120 C 330 135, 310 110, 280 125 C 265 108, 235 108, 220 125 C 190 110, 170 135, 160 120 Z"
-                        fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
-                )}
-                {(hairId === 'hair_long' || hairId === 'hair_ponytail' || hairId === 'hair_samurai') && (
-                  <path d="M 158 130 C 165 90, 195 60, 250 55 C 305 60, 335 90, 342 130 C 330 145, 315 115, 290 135 C 275 115, 225 115, 210 135 C 185 115, 170 145, 158 130 Z"
-                        fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
-                )}
-                {hairId === 'hair_twintails' && (
-                  <path d="M 155 130 C 162 85, 195 55, 250 50 C 305 55, 338 85, 345 130 C 335 148, 318 120, 295 138 C 278 118, 222 118, 205 138 C 182 120, 165 148, 155 130 Z"
-                        fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
-                )}
-                {hairId === 'hair_curly' && (
-                  <path d="M 155 135 C 140 80, 200 35, 250 40 C 300 35, 360 80, 345 135 C 350 100, 310 70, 280 95 C 270 70, 230 70, 220 95 C 190 70, 150 100, 155 135 Z"
-                        fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
-                )}
-                {hairId === 'hair_mohawk' && (<>
-                  <rect x="220" y="40" width="60" height="70" rx="30" fill={hairColor} stroke={outlineColor} strokeWidth="2" />
-                  <rect x="230" y="20" width="40" height="50" rx="20" fill={hairLight} />
+                {/* Hair top volume (visible above head outline) */}
+                <path d="M 160 130 C 160 95, 180 55, 250 48 C 320 55, 340 95, 340 130"
+                      fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2" />
+                {/* Highlight streak */}
+                <path d="M 220 65 C 235 55, 260 55, 275 68" fill="none" stroke={hairLight} strokeWidth="4" opacity="0.4" strokeLinecap="round" />
+
+                {/* === BANGS (individual strands that end ABOVE the eyes) === */}
+                {hairId === 'hair_short' && (<>
+                  {/* 3 chunky bang strands */}
+                  <path d="M 170 90 C 175 70, 200 60, 215 60 C 215 80, 200 105, 185 115 C 175 110, 168 100, 170 90 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 210 70 C 220 55, 245 50, 260 50 C 258 70, 245 95, 230 110 C 220 105, 210 90, 210 70 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 255 50 C 275 52, 300 60, 310 75 C 312 90, 305 105, 295 112 C 282 100, 268 80, 255 50 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 305 75 C 320 80, 330 90, 335 105 C 330 112, 318 115, 310 112 C 305 100, 305 85, 305 75 Z" fill={hairDark} stroke={outlineColor} strokeWidth="1.5" />
                 </>)}
-                {hairId === 'hair_messy' && (
-                  <path d="M 150 135 C 145 70, 200 30, 250 35 C 300 30, 355 70, 350 135 C 360 105, 340 60, 300 80 C 310 50, 260 25, 250 55 C 240 25, 190 50, 200 80 C 160 60, 140 105, 150 135 Z"
-                        fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
-                )}
+                {(hairId === 'hair_long' || hairId === 'hair_ponytail' || hairId === 'hair_samurai') && (<>
+                  <path d="M 165 100 C 170 75, 195 58, 220 55 C 218 78, 205 100, 190 115 C 178 110, 165 105, 165 100 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 215 60 C 235 50, 260 48, 275 52 C 272 75, 258 100, 240 115 C 228 105, 218 85, 215 60 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 270 52 C 290 55, 310 65, 320 80 C 318 100, 308 112, 295 118 C 285 105, 275 80, 270 52 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 318 80 C 330 88, 338 100, 340 115 C 335 120, 325 118, 318 112 C 315 100, 318 88, 318 80 Z" fill={hairDark} stroke={outlineColor} strokeWidth="1.5" />
+                </>)}
+                {hairId === 'hair_twintails' && (<>
+                  <path d="M 158 105 C 165 78, 190 58, 220 52 C 218 75, 200 100, 185 115 C 172 110, 158 108, 158 105 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 215 55 C 238 48, 262 48, 285 55 C 280 78, 265 100, 250 112 C 235 100, 220 78, 215 55 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 280 52 C 310 58, 335 78, 342 105 C 342 108, 328 110, 315 115 C 300 100, 282 75, 280 52 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                </>)}
+                {hairId === 'hair_curly' && (<>
+                  <circle cx="185" cy="85" r="25" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <circle cx="220" cy="68" r="28" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <circle cx="260" cy="62" r="30" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <circle cx="300" cy="72" r="26" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <circle cx="325" cy="95" r="22" fill={hairDark} stroke={outlineColor} strokeWidth="1.5" />
+                </>)}
+                {hairId === 'hair_mohawk' && (<>
+                  <path d="M 220 100 C 220 50, 235 10, 250 0 C 265 10, 280 50, 280 100 Z" fill={hairColor} stroke={outlineColor} strokeWidth="2" />
+                  <path d="M 232 80 C 232 45, 242 15, 250 8 C 258 15, 268 45, 268 80 Z" fill={hairLight} />
+                </>)}
+                {hairId === 'hair_messy' && (<>
+                  <path d="M 155 110 C 160 75, 190 50, 215 48 C 210 72, 195 100, 180 115 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 200 55 C 225 40, 255 38, 270 45 C 262 70, 245 100, 228 112 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 260 42 C 290 45, 320 65, 330 90 C 322 108, 305 115, 290 110 Z" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 325 85 C 340 95, 348 110, 345 125 C 338 118, 328 112, 325 100 Z" fill={hairDark} stroke={outlineColor} strokeWidth="1.5" />
+                  {/* Spiky bits sticking up */}
+                  <path d="M 190 55 L 175 25 L 205 48" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 250 42 L 255 10 L 265 40" fill={hairLight} stroke={outlineColor} strokeWidth="1.5" />
+                  <path d="M 310 60 L 330 35 L 325 65" fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                </>)}
               </>)}
             </g>
             {/* Sideburns (outside clip) */}
             {['hair_long','hair_twintails','hair_ponytail','hair_samurai'].includes(hairId) && (<>
-              <path d="M 160 125 C 155 155, 152 185, 155 200 C 160 205, 170 195, 170 180 C 170 155, 168 140, 165 125 Z"
+              <path d="M 162 130 C 155 155, 150 185, 155 208 C 160 215, 172 205, 172 185 C 172 160, 170 145, 167 130 Z"
                     fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="1.5" />
-              <path d="M 340 125 C 345 155, 348 185, 345 200 C 340 205, 330 195, 330 180 C 330 155, 332 140, 335 125 Z"
+              <path d="M 338 130 C 345 155, 350 185, 345 208 C 340 215, 328 205, 328 185 C 328 160, 330 145, 333 130 Z"
                     fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="1.5" />
             </>)}
 
