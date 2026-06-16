@@ -1,6 +1,6 @@
 import { useRef, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Environment, ContactShadows, Float, SoftShadows } from '@react-three/drei'
+import { OrbitControls, Environment, ContactShadows, Float } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import * as THREE from 'three'
 
@@ -74,7 +74,6 @@ export default function Chibi3D({
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
       <Canvas shadows camera={{ position: [0, 1.5, 5], fov: 45 }}>
-        <SoftShadows size={15} samples={10} focus={0.5} />
         <ambientLight intensity={0.2} />
         <directionalLight position={[3, 5, 3]} intensity={0.8} castShadow shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
         
