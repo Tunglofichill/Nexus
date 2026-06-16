@@ -174,80 +174,73 @@ export default function Chibi2D({
 
           {/* ═══════════════ LEGS ═══════════════ */}
           <g>
-            {/* Left leg skin */}
-            <path d="M 210 305 C 208 330, 207 360, 210 388 C 213 395, 228 395, 230 388 C 232 360, 231 330, 230 305 Z"
+            {/* Left leg */}
+            <path d="M 215 310 C 212 335, 210 360, 213 378 C 216 384, 228 384, 231 378 C 234 360, 232 335, 229 310 Z"
                   fill={`url(#sk-${uid})`} stroke={outlineColor} strokeWidth="2" />
-            {/* Right leg skin */}
-            <path d="M 270 305 C 268 330, 267 360, 270 388 C 273 395, 288 395, 290 388 C 292 360, 291 330, 290 305 Z"
+            {/* Right leg */}
+            <path d="M 271 310 C 268 335, 266 360, 269 378 C 272 384, 284 384, 287 378 C 290 360, 288 335, 285 310 Z"
                   fill={`url(#sk-${uid})`} stroke={outlineColor} strokeWidth="2" />
 
-            {/* Pants overlay */}
+            {/* Pants */}
             {bottomsId === 'bottom_jeans' && (<>
-              <path d="M 208 305 C 207 330, 207 355, 209 375 C 212 380, 229 380, 231 375 C 233 355, 233 330, 232 305 Z"
-                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="2" />
-              <path d="M 268 305 C 267 330, 267 355, 269 375 C 272 380, 289 380, 291 375 C 293 355, 293 330, 292 305 Z"
-                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="2" />
+              <path d="M 214 310 C 211 332, 210 358, 212 372 C 215 378, 229 378, 232 372 C 234 358, 233 332, 230 310 Z"
+                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="1.5" />
+              <path d="M 270 310 C 267 332, 266 358, 268 372 C 271 378, 285 378, 288 372 C 290 358, 289 332, 286 310 Z"
+                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="1.5" />
             </>)}
             {bottomsId === 'bottom_shorts' && (<>
-              <path d="M 208 305 C 207 320, 208 335, 210 340 C 213 344, 228 344, 231 340 C 233 335, 233 320, 232 305 Z"
-                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="2" />
-              <path d="M 268 305 C 267 320, 268 335, 270 340 C 273 344, 288 344, 291 340 C 293 335, 293 320, 292 305 Z"
-                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="2" />
+              <path d="M 214 310 C 213 322, 213 332, 215 338 C 218 342, 227 342, 230 338 C 232 332, 232 322, 230 310 Z"
+                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="1.5" />
+              <path d="M 270 310 C 269 322, 269 332, 271 338 C 274 342, 283 342, 286 338 C 288 332, 288 322, 286 310 Z"
+                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="1.5" />
             </>)}
 
-            {/* Shoes */}
-            <ellipse cx="220" cy="395" rx="18" ry="10" fill="#292524" stroke={outlineColor} strokeWidth="2" />
-            <ellipse cx="220" cy="393" rx="14" ry="6" fill="#3f3f46" />
-            <ellipse cx="280" cy="395" rx="18" ry="10" fill="#292524" stroke={outlineColor} strokeWidth="2" />
-            <ellipse cx="280" cy="393" rx="14" ry="6" fill="#3f3f46" />
+            {/* Shoes — round cute sneakers */}
+            <ellipse cx="222" cy="388" rx="16" ry="9" fill="#292524" stroke={outlineColor} strokeWidth="1.5" />
+            <ellipse cx="222" cy="386" rx="11" ry="5" fill="#44403c" />
+            <ellipse cx="278" cy="388" rx="16" ry="9" fill="#292524" stroke={outlineColor} strokeWidth="1.5" />
+            <ellipse cx="278" cy="386" rx="11" ry="5" fill="#44403c" />
           </g>
 
           {/* ═══════════════ BODY ═══════════════ */}
           <g>
-            {/* Left arm */}
-            <path d="M 195 242 C 178 260, 168 290, 172 310 C 175 318, 185 318, 188 310 C 192 290, 196 270, 205 252"
-                  fill={['clothes_casual','clothes_robe'].includes(clothesId) ? `url(#sk-${uid})` : `url(#cg-${uid})`}
+            {/* Left arm — short rounded sausage */}
+            <path d="M 193 245 C 180 258, 172 280, 175 298 C 178 305, 186 305, 189 298 C 192 282, 194 265, 200 250"
+                  fill={clothesId === 'clothes_casual' ? `url(#sk-${uid})` : `url(#cg-${uid})`}
                   stroke={outlineColor} strokeWidth="2" />
-            {/* Left hand */}
-            <circle cx="180" cy="314" r="10" fill={skinColor} stroke={outlineColor} strokeWidth="2" />
+            <circle cx="182" cy="302" r="9" fill={skinColor} stroke={outlineColor} strokeWidth="1.5" />
 
             {/* Right arm */}
-            <path d="M 305 242 C 322 260, 332 290, 328 310 C 325 318, 315 318, 312 310 C 308 290, 304 270, 295 252"
-                  fill={['clothes_casual','clothes_robe'].includes(clothesId) ? `url(#sk-${uid})` : `url(#cg-${uid})`}
+            <path d="M 307 245 C 320 258, 328 280, 325 298 C 322 305, 314 305, 311 298 C 308 282, 306 265, 300 250"
+                  fill={clothesId === 'clothes_casual' ? `url(#sk-${uid})` : `url(#cg-${uid})`}
                   stroke={outlineColor} strokeWidth="2" />
-            {/* Right hand */}
-            <circle cx="320" cy="314" r="10" fill={skinColor} stroke={outlineColor} strokeWidth="2" />
+            <circle cx="318" cy="302" r="9" fill={skinColor} stroke={outlineColor} strokeWidth="1.5" />
 
             {/* Neck */}
-            <rect x="237" y="205" width="26" height="30" rx="13" fill={skinDark} stroke={outlineColor} strokeWidth="1.5" />
+            <ellipse cx="250" cy="215" rx="14" ry="12" fill={skinDark} />
 
-            {/* Skirt (if applicable) */}
+            {/* Skirt */}
             {bottomsId === 'bottom_skirt' && (
-              <path d="M 195 290 C 195 285, 305 285, 305 290 L 320 345 C 320 355, 180 355, 180 345 Z"
+              <path d="M 200 295 Q 250 300 300 295 L 315 340 Q 250 355 185 340 Z"
                     fill={bottomsColor} stroke={outlineColor} strokeWidth="2" />
             )}
 
-            {/* Torso */}
-            <path d="M 195 235 C 195 215, 305 215, 305 235 L 310 300 C 310 315, 190 315, 190 300 Z"
-                  fill={`url(#cg-${uid})`} stroke={outlineColor} strokeWidth="2.5" />
+            {/* Torso — rounded bean shape */}
+            <ellipse cx="250" cy="268" rx="58" ry="42" fill={`url(#cg-${uid})`} stroke={outlineColor} strokeWidth="2.5" />
 
             {/* Clothes details */}
             {clothesId === 'clothes_casual' && (<>
-              {/* Collar */}
-              <path d="M 230 220 L 250 240 L 270 220" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" opacity="0.7" />
-              {/* Sleeve hems — subtle line marks */}
-              <path d="M 198 252 Q 200 250 205 252" fill="none" stroke={clothesDark} strokeWidth="1.5" />
-              <path d="M 302 252 Q 300 250 295 252" fill="none" stroke={clothesDark} strokeWidth="1.5" />
+              <path d="M 232 232 L 250 248 L 268 232" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" opacity="0.7" />
             </>)}
             {clothesId === 'clothes_suit' && (<>
-              <path d="M 235 220 L 250 240 L 265 220" fill="#fff" stroke="none" opacity="0.9" />
-              <path d="M 247 232 L 250 285 L 253 232" fill="#ef4444" />
-              <line x1="250" y1="220" x2="230" y2="305" stroke={clothesDark} strokeWidth="2.5" />
-              <line x1="250" y1="220" x2="270" y2="305" stroke={clothesDark} strokeWidth="2.5" />
+              <path d="M 237 232 L 250 248 L 263 232" fill="#fff" opacity="0.9" />
+              <path d="M 247 242 L 250 285 L 253 242" fill="#ef4444" />
+              <line x1="250" y1="235" x2="220" y2="300" stroke={clothesDark} strokeWidth="2" />
+              <line x1="250" y1="235" x2="280" y2="300" stroke={clothesDark} strokeWidth="2" />
             </>)}
             {clothesId === 'clothes_hoodie' && (<>
-              <ellipse cx="250" cy="222" rx="30" ry="14" fill={clothesDark} stroke={outlineColor} strokeWidth="1.5" />
-              <path d="M 220 270 Q 250 280 280 270" fill="none" stroke={clothesDark} strokeWidth="2" />
+              <ellipse cx="250" cy="238" rx="28" ry="12" fill={clothesDark} stroke={outlineColor} strokeWidth="1.5" />
+              <path d="M 225 275 Q 250 285 275 275" fill="none" stroke={clothesDark} strokeWidth="2" />
             </>)}
           </g>
 
