@@ -116,18 +116,18 @@ export default function OnboardingPage() {
   const hasColorPalette = Object.keys(COLOR_PALETTES).includes(activeTab)
 
   return (
-    <div className="w-full h-full flex p-6 gap-6 overflow-hidden bg-slate-950 text-slate-200">
+    <div className="w-full h-full flex p-6 gap-6 overflow-hidden bg-gradient-to-br from-sky-200 via-pink-100 to-purple-200 text-slate-800">
       
       {/* Left: Avatar Preview Panel */}
-      <div className="w-2/5 flex flex-col bg-slate-900/40 shadow-2xl rounded-3xl border border-slate-800 relative overflow-hidden backdrop-blur-xl">
-        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-purple-500/5 pointer-events-none"></div>
+      <div className="w-2/5 flex flex-col bg-white/40 shadow-xl border-white/50 rounded-3xl border border-white/5 relative overflow-hidden backdrop-blur-xl">
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-purple-500/10 pointer-events-none"></div>
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
         
-        <div className="p-6 border-b border-slate-800/50 flex items-center gap-3 absolute z-20 w-full">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border-indigo-500/30 flex items-center justify-center border backdrop-blur-md">
-            <User size={16} className="text-indigo-400" />
+        <div className="p-6 border-b border-slate-200/50 flex items-center gap-3 absolute z-20 w-full">
+          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border-indigo-500/20 flex items-center justify-center border border-indigo-500/50 backdrop-blur-md">
+            <User size={16} className="text-indigo-600" />
           </div>
-          <h2 className="font-bold tracking-widest uppercase text-sm drop-shadow-md text-slate-100">Chibi Preview 2D</h2>
+          <h2 className="font-bold tracking-widest uppercase text-sm drop-shadow-md text-slate-800">Chibi Preview 2D</h2>
         </div>
 
         <div className="flex-1 w-full h-full relative cursor-move">
@@ -157,10 +157,10 @@ export default function OnboardingPage() {
 
       {/* Right: Controls Panel */}
       <div className="w-3/5 flex flex-col gap-6">
-        <div className="bg-slate-900/60 shadow-[0_10px_50px_rgba(0,0,0,0.5)] border-slate-800 rounded-3xl p-6 border backdrop-blur-2xl flex-1 flex flex-col overflow-hidden">
+        <div className="bg-white/60 shadow-[0_10px_50px_rgba(0,0,0,0.1)] border-white/60 rounded-3xl p-6 border border-indigo-500/20 backdrop-blur-2xl flex-1 flex flex-col overflow-y-auto custom-scrollbar">
           
           {/* Tab Navigation (Scrollable horizontally) */}
-          <div className="flex gap-2 p-1.5 bg-slate-950/50 rounded-2xl mb-6 border border-slate-800 overflow-x-auto custom-scrollbar flex-nowrap shrink-0">
+          <div className="flex gap-2 p-1.5 bg-white/50 rounded-2xl mb-6 border border-white/5 overflow-x-auto custom-scrollbar flex-nowrap shrink-0">
             {(Object.keys(AVATAR_OPTIONS) as Array<keyof typeof AVATAR_OPTIONS>).map((tab) => (
               <button
                 key={tab}
@@ -168,7 +168,7 @@ export default function OnboardingPage() {
                 className={`flex-none px-6 py-3.5 text-xs font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-300 relative overflow-hidden ${
                   activeTab === tab 
                     ? 'text-white shadow-[0_0_20px_rgba(99,102,241,0.3)]' 
-                    : 'text-slate-400 hover:text-indigo-300 hover:bg-slate-800/50'
+                    : 'text-zinc-500 hover:text-indigo-600 hover:bg-white/50'
                 }`}
               >
                 {/* Active Tab Background */}
@@ -186,7 +186,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* Options Grid */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 mb-4">
+          <div className="mb-4">
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {AVATAR_OPTIONS[activeTab].map((item) => {
                 const isActive = avatarData[activeTab] === item.id;
@@ -201,8 +201,8 @@ export default function OnboardingPage() {
                     onClick={() => setAvatarData({ ...avatarData, [activeTab]: item.id })}
                     className={`relative p-5 rounded-2xl text-left transition-all duration-300 overflow-hidden group flex flex-col items-center text-center ${
                       isActive 
-                        ? 'bg-indigo-950/60 border border-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.2)]' 
-                        : 'bg-slate-950/40 border border-slate-800 hover:border-indigo-500/30 hover:bg-slate-800/40'
+                        ? 'bg-indigo-600/10 border border-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.1)]' 
+                        : 'bg-white/40 border border-white/50 hover:border-indigo-500/30 hover:bg-white/60'
                     }`}
                   >
                     {/* Background Glow */}
@@ -237,7 +237,7 @@ export default function OnboardingPage() {
                       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/30"></div>
                     </div>
                     
-                    <h3 className={`font-bold text-xs tracking-wide w-full leading-tight ${isActive ? 'text-white' : 'text-zinc-300'}`}>
+                    <h3 className={`font-bold text-xs tracking-wide w-full leading-tight ${isActive ? 'text-indigo-600' : 'text-slate-600'}`}>
                       {item.name}
                     </h3>
                     
@@ -256,12 +256,12 @@ export default function OnboardingPage() {
 
           {/* Color Palette (Only shows if the active tab has a color palette) */}
           {hasColorPalette && (
-            <div className="mt-auto pt-4 border-t border-slate-800 shrink-0">
-              <div className="flex items-center gap-2 mb-3 text-slate-400">
+            <div className="mt-auto pt-4 border-t border-slate-200/50 shrink-0">
+              <div className="flex items-center gap-2 mb-3 text-zinc-500">
                 <Palette size={14} />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Select Color</span>
               </div>
-              <div className="flex flex-wrap gap-3 max-h-[160px] overflow-y-auto custom-scrollbar pr-2 pb-2">
+              <div className="flex flex-wrap gap-3 pb-2">
                 {COLOR_PALETTES[activeTab].map((color) => {
                   const isActiveColor = (avatarData as any)[`${activeTab}Color`] === color;
                   return (
@@ -286,7 +286,7 @@ export default function OnboardingPage() {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="w-full py-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 font-black tracking-[0.2em] uppercase text-sm shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] transition-all flex justify-center items-center gap-3 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed border border-indigo-500/30 shrink-0"
+          className="w-full py-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 font-black tracking-[0.2em] uppercase text-sm shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] transition-all flex justify-center items-center gap-3 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed border border-white/50 shrink-0 mt-auto"
         >
           <span className="relative z-10 flex items-center gap-2 text-white">
             <Sparkles size={18} className="animate-pulse" />
