@@ -34,11 +34,13 @@ export default function Chibi3D({
 
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
-      <Canvas camera={{ position: [0, 0.5, 6], fov: 45 }}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1.5} />
-        <pointLight position={[-10, -10, -10]} intensity={1} color="#6366f1" />
-        <pointLight position={[0, 5, -5]} intensity={2} color="#a855f7" />
+      <Canvas camera={{ position: [0, 1.5, 5], fov: 45 }}>
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[5, 5, 5]} intensity={1.2} />
+        <pointLight position={[-5, -5, -5]} intensity={0.5} color="#6366f1" />
+        <pointLight position={[0, 5, -5]} intensity={1.5} color="#a855f7" />
+        {/* Fill light for face */}
+        <pointLight position={[0, 1.5, 3]} intensity={0.8} color="#ffffff" />
         
         <Suspense fallback={null}>
           <group position={[0, -1, 0]}>
@@ -304,13 +306,14 @@ export default function Chibi3D({
         
         <OrbitControls 
           enableZoom={true} 
-          minDistance={3}
-          maxDistance={10}
+          minDistance={2}
+          maxDistance={8}
           enablePan={false} 
           autoRotate 
           autoRotateSpeed={1.5}
           maxPolarAngle={Math.PI / 1.5}
           minPolarAngle={Math.PI / 4}
+          target={[0, 1.2, 0]}
         />
       </Canvas>
     </div>
