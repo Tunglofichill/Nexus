@@ -188,10 +188,12 @@ export default function Chibi3D({
 
                   {/* Bangs */}
                   {hairId !== 'hair_curly' && (
-                    <mesh position={[0, 0.55, 0.8]} rotation={[0.2, 0, Math.PI / 2]}>
-                      <capsuleGeometry args={[0.15, 1.2, 16, 16]} />
-                      <meshStandardMaterial color={hairColor} roughness={0.9} />
-                    </mesh>
+                    <group position={[0, 0.5, 0.72]} rotation={[0.3, 0, 0]}>
+                      <mesh rotation={[0, 0, Math.PI / 2]}>
+                        <capsuleGeometry args={[0.18, 1.3, 16, 16]} />
+                        <meshStandardMaterial color={hairColor} roughness={0.9} />
+                      </mesh>
+                    </group>
                   )}
 
                   {/* Long hair extension */}
@@ -255,19 +257,19 @@ export default function Chibi3D({
               )}
 
               {accessoryId === 'acc_cybermask' && (
-                <group position={[0, -0.25, 0.85]}>
+                <group position={[0, -0.22, 0.8]}>
                   {/* Main Mask Body */}
-                  <mesh rotation={[0.2, 0, 0]}>
-                    <boxGeometry args={[0.9, 0.45, 0.3]} />
+                  <mesh rotation={[0.1, 0, Math.PI/2]}>
+                    <capsuleGeometry args={[0.22, 0.5, 16, 32]} />
                     <meshStandardMaterial color="#1a1a1a" roughness={0.4} metalness={0.8} />
                   </mesh>
                   {/* Top glowing LED slit */}
-                  <mesh position={[0, 0.08, 0.16]} rotation={[0.2, 0, 0]}>
+                  <mesh position={[0, 0.08, 0.2]} rotation={[0.1, 0, 0]}>
                     <boxGeometry args={[0.6, 0.04, 0.05]} />
                     <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={2} />
                   </mesh>
                   {/* Bottom glowing LED slit */}
-                  <mesh position={[0, -0.08, 0.16]} rotation={[0.2, 0, 0]}>
+                  <mesh position={[0, -0.05, 0.2]} rotation={[0.1, 0, 0]}>
                     <boxGeometry args={[0.4, 0.04, 0.05]} />
                     <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={2} />
                   </mesh>
