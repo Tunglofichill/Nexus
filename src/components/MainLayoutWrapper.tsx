@@ -17,6 +17,7 @@ export default function MainLayoutWrapper({ children }: { children: React.ReactN
   if (pathname?.startsWith('/explore')) windowTitle = "Khám Phá";
   else if (pathname?.startsWith('/messages')) windowTitle = "Trạm Liên Lạc";
   else if (pathname?.startsWith('/profile')) windowTitle = "Hồ Sơ";
+  else if (pathname?.startsWith('/onboarding')) windowTitle = "Phòng Thay Đồ";
 
   return (
     <>
