@@ -180,83 +180,66 @@ export default function Chibi2D({
           {/* ═══════════════ LEGS & BOTTOMS ═══════════════ */}
           <g>
             {/* Left Leg */}
-            <g transform="translate(-30, 0)">
-              <rect x="230" y="270" width="40" height="110" rx="20" fill={skinColor} />
-              {/* Pants/Shorts */}
-              {bottomsId !== 'bottom_skirt' && (
-                <path d="M 228 260 L 272 260 L 270 350 C 270 360, 230 360, 230 350 Z" 
-                      fill={bottomsId === 'bottom_shorts' ? 'none' : bottomsDark} 
-                      stroke={bottomsId === 'bottom_shorts' ? 'none' : '#111'} strokeWidth="2" />
-              )}
-              {bottomsId === 'bottom_shorts' && (
-                <path d="M 228 260 L 272 260 L 270 300 C 270 310, 230 310, 230 300 Z" fill={bottomsDark} stroke="#111" strokeWidth="2" />
-              )}
-              {/* Shoe */}
-              <path d="M 225 365 C 225 355, 275 355, 275 365 L 280 395 C 280 405, 220 405, 220 395 Z" fill="#1c1917" />
-              {/* Shoe highlight */}
-              <ellipse cx="240" cy="375" rx="6" ry="3" fill="#fff" opacity="0.2" transform="rotate(-15 240 375)" />
-            </g>
+            <line x1="215" y1="280" x2="215" y2="370" stroke={skinColor} strokeWidth="26" strokeLinecap="round" />
+            {bottomsId === 'bottom_shorts' && <line x1="215" y1="280" x2="215" y2="320" stroke={bottomsColor} strokeWidth="28" strokeLinecap="round" />}
+            {bottomsId === 'bottom_jeans' && <line x1="215" y1="280" x2="215" y2="360" stroke={bottomsColor} strokeWidth="28" strokeLinecap="round" />}
+            {/* Shoe */}
+            <path d="M 195 370 C 195 350, 235 350, 235 370 C 240 385, 190 385, 195 370 Z" fill="#1c1917" />
+            <ellipse cx="205" cy="375" rx="5" ry="3" fill="#fff" opacity="0.2" transform="rotate(-15 205 375)" />
 
             {/* Right Leg */}
-            <g transform="translate(30, 0)">
-              <rect x="230" y="270" width="40" height="110" rx="20" fill={skinColor} />
-              {/* Pants/Shorts */}
-              {bottomsId !== 'bottom_skirt' && (
-                <path d="M 228 260 L 272 260 L 270 350 C 270 360, 230 360, 230 350 Z" 
-                      fill={bottomsId === 'bottom_shorts' ? 'none' : bottomsDark} 
-                      stroke={bottomsId === 'bottom_shorts' ? 'none' : '#111'} strokeWidth="2" />
-              )}
-              {bottomsId === 'bottom_shorts' && (
-                <path d="M 228 260 L 272 260 L 270 300 C 270 310, 230 310, 230 300 Z" fill={bottomsDark} stroke="#111" strokeWidth="2" />
-              )}
-              {/* Shoe */}
-              <path d="M 225 365 C 225 355, 275 355, 275 365 L 280 395 C 280 405, 220 405, 220 395 Z" fill="#1c1917" />
-              {/* Shoe highlight */}
-              <ellipse cx="260" cy="375" rx="6" ry="3" fill="#fff" opacity="0.2" transform="rotate(15 260 375)" />
-            </g>
+            <line x1="285" y1="280" x2="285" y2="370" stroke={skinColor} strokeWidth="26" strokeLinecap="round" />
+            {bottomsId === 'bottom_shorts' && <line x1="285" y1="280" x2="285" y2="320" stroke={bottomsColor} strokeWidth="28" strokeLinecap="round" />}
+            {bottomsId === 'bottom_jeans' && <line x1="285" y1="280" x2="285" y2="360" stroke={bottomsColor} strokeWidth="28" strokeLinecap="round" />}
+            {/* Shoe */}
+            <path d="M 265 370 C 265 350, 305 350, 305 370 C 310 385, 260 385, 265 370 Z" fill="#1c1917" />
+            <ellipse cx="295" cy="375" rx="5" ry="3" fill="#fff" opacity="0.2" transform="rotate(15 295 375)" />
           </g>
 
           {/* ═══════════════ TORSO & ARMS ═══════════════ */}
           <g>
-            {/* Left Arm (Behind Torso slightly) */}
-            <path d="M 190 220 C 160 250, 160 300, 180 320 C 190 330, 210 320, 210 300 L 220 220 Z" fill={clothesId === 'clothes_casual' ? skinColor : clothesDark} />
-            <circle cx="190" cy="315" r="15" fill={skinColor} />
+            {/* Back Skirt (if applicable) */}
+            {bottomsId === 'bottom_skirt' && (
+              <path d="M 190 280 L 310 280 L 335 330 C 335 340, 165 340, 165 330 Z" fill={bottomsDark} />
+            )}
+
+            {/* Left Arm */}
+            <line x1="190" y1="230" x2="170" y2="300" stroke={clothesId === 'clothes_casual' || clothesId === 'clothes_ninja' ? skinColor : clothesDark} strokeWidth="20" strokeLinecap="round" />
+            {clothesId !== 'clothes_casual' && clothesId !== 'clothes_ninja' && <line x1="190" y1="230" x2="180" y2="260" stroke={clothesColor} strokeWidth="22" strokeLinecap="round" />}
+            <circle cx="170" cy="300" r="10" fill={skinColor} />
 
             {/* Right Arm */}
-            <path d="M 310 220 C 340 250, 340 300, 320 320 C 310 330, 290 320, 290 300 L 280 220 Z" fill={clothesId === 'clothes_casual' ? skinColor : clothesDark} />
-            <circle cx="310" cy="315" r="15" fill={skinColor} />
+            <line x1="310" y1="230" x2="330" y2="300" stroke={clothesId === 'clothes_casual' || clothesId === 'clothes_ninja' ? skinColor : clothesDark} strokeWidth="20" strokeLinecap="round" />
+            {clothesId !== 'clothes_casual' && clothesId !== 'clothes_ninja' && <line x1="310" y1="230" x2="320" y2="260" stroke={clothesColor} strokeWidth="22" strokeLinecap="round" />}
+            <circle cx="330" cy="300" r="10" fill={skinColor} />
 
-            {/* Base Neck */}
-            <rect x="235" y="180" width="30" height="40" rx="15" fill={skinDark} />
+            {/* Neck */}
+            <rect x="235" y="190" width="30" height="40" rx="15" fill={skinDark} />
 
-            {/* Skirt (Behind Torso, Above Legs) */}
+            {/* Front Skirt */}
             {bottomsId === 'bottom_skirt' && (
-              <path d="M 190 280 L 310 280 L 340 340 C 340 350, 160 350, 160 340 Z" fill={bottomsColor} stroke="#111" strokeWidth="2" />
+              <path d="M 190 280 L 310 280 L 335 320 C 335 325, 165 325, 165 320 Z" fill={bottomsColor} filter="url(#softShadow)" />
             )}
 
             {/* Torso Base */}
-            <path d="M 200 220 C 200 200, 300 200, 300 220 L 310 280 C 310 300, 190 300, 190 280 Z" fill={clothesColor} stroke="#111" strokeWidth="2" />
-            {/* Torso Shading */}
-            <path d="M 200 220 C 200 200, 300 200, 300 220 L 310 280 C 310 300, 190 300, 190 280 Z" fill="url(#skinShade)" />
-
+            <path d="M 200 220 C 200 200, 300 200, 300 220 L 305 285 C 305 295, 195 295, 195 285 Z" fill={clothesColor} />
+            
             {/* Clothes Details */}
             {clothesId === 'clothes_casual' && (
               <path d="M 220 210 C 250 230, 280 210, 280 210 L 260 225 L 240 225 Z" fill="#fff" opacity="0.8" />
             )}
             {clothesId === 'clothes_suit' && (
               <>
-                {/* Shirt & Tie */}
                 <path d="M 230 210 L 270 210 L 250 250 Z" fill="#fff" />
                 <path d="M 245 220 L 255 220 L 250 270 Z" fill="#ef4444" />
-                {/* Lapels */}
-                <path d="M 200 220 L 240 250 L 230 290 Z" fill={clothesDark} />
-                <path d="M 300 220 L 260 250 L 270 290 Z" fill={clothesDark} />
+                <path d="M 200 220 L 240 250 L 230 290" fill="none" stroke={clothesDark} strokeWidth="4" />
+                <path d="M 300 220 L 260 250 L 270 290" fill="none" stroke={clothesDark} strokeWidth="4" />
               </>
             )}
             {clothesId === 'clothes_hoodie' && (
               <>
-                <path d="M 190 210 C 190 190, 310 190, 310 210 C 310 240, 190 240, 190 210 Z" fill={clothesDark} stroke="#111" strokeWidth="2" />
-                <rect x="210" y="260" width="80" height="30" rx="10" fill={clothesDark} />
+                <path d="M 190 210 C 190 190, 310 190, 310 210 C 310 230, 190 230, 190 210 Z" fill={clothesDark} />
+                <rect x="210" y="260" width="80" height="25" rx="10" fill={clothesDark} opacity="0.5" />
               </>
             )}
           </g>
@@ -350,23 +333,23 @@ export default function Chibi2D({
             {/* ═══════════════ FRONT HAIR / BANGS ═══════════════ */}
             {hairId !== 'hair_bald' && (
               <g filter="url(#softShadow)">
-                {/* Bangs (common base for most styles) */}
+                {/* Cute Anime Bangs (Spiky zig-zag base) */}
                 {!['hair_mohawk'].includes(hairId) && (
-                  <path d="M 150 130 C 180 80, 320 80, 350 130 C 330 150, 300 110, 250 120 C 200 110, 170 150, 150 130 Z" fill="url(#hairGrad)" />
+                  <path d="M 155 120 A 95 95 0 0 1 345 120 Q 330 160 310 120 Q 280 170 250 120 Q 220 170 190 120 Q 170 160 155 120 Z" fill="url(#hairGrad)" />
                 )}
                 {/* Specific bang details */}
-                {hairId === 'hair_short' && <path d="M 160 90 C 200 60, 300 60, 340 90 C 360 140, 350 170, 320 150 C 300 120, 200 120, 180 150 C 150 170, 140 140, 160 90 Z" fill="url(#hairGrad)" />}
+                {hairId === 'hair_short' && <path d="M 170 90 A 80 80 0 0 1 330 90 Q 340 140 320 120 Q 290 150 250 110 Q 210 150 180 120 Q 160 140 170 90 Z" fill="url(#hairGrad)" opacity="0.5" />}
                 {hairId === 'hair_messy' && (
                   <>
-                    <path d="M 140 100 Q 200 20 280 80 Q 360 40 370 120" fill="none" stroke="url(#hairGrad)" strokeWidth="30" strokeLinecap="round" />
-                    <path d="M 170 60 L 150 30 M 250 50 L 260 20 M 320 70 L 350 40" stroke="url(#hairGrad)" strokeWidth="8" strokeLinecap="round" />
+                    <path d="M 180 60 L 160 30 M 250 50 L 260 20 M 320 70 L 350 40" stroke="url(#hairGrad)" strokeWidth="8" strokeLinecap="round" />
+                    <path d="M 190 120 Q 210 160 230 120 M 270 120 Q 290 160 310 120" fill="none" stroke="url(#hairGrad)" strokeWidth="12" strokeLinecap="round" />
                   </>
                 )}
                 {/* Sideburns / Frame */}
                 {['hair_long', 'hair_twintails', 'hair_ponytail', 'hair_samurai'].includes(hairId) && (
                   <>
-                    <path d="M 140 120 Q 150 200 130 220 Q 160 180 160 120" fill="url(#hairGrad)" />
-                    <path d="M 360 120 Q 350 200 370 220 Q 340 180 340 120" fill="url(#hairGrad)" />
+                    <path d="M 155 120 Q 160 180 140 200 Q 170 160 170 120" fill="url(#hairGrad)" />
+                    <path d="M 345 120 Q 340 180 360 200 Q 330 160 330 120" fill="url(#hairGrad)" />
                   </>
                 )}
               </g>
