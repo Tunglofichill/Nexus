@@ -2,7 +2,7 @@
 
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, ContactShadows, Environment } from '@react-three/drei'
-import { Suspense, useRef } from 'react'
+import { Suspense } from 'react'
 
 export default function Chibi3D({ 
   skinColor, 
@@ -10,15 +10,27 @@ export default function Chibi3D({
   clothesColor,
   hairId,
   accessoryId,
-  accessoryColor
+  accessoryColor,
+  bodyId,
+  eyesId,
+  mouthId
 }: { 
   skinColor: string, 
   hairColor: string, 
   clothesColor: string,
   hairId: string,
   accessoryId: string,
-  accessoryColor: string
+  accessoryColor: string,
+  bodyId: string,
+  eyesId: string,
+  mouthId: string
 }) {
+
+  // Determine Body Scale
+  let bodyScale: [number, number, number] = [1, 1, 1]
+  if (bodyId === 'body_chubby') bodyScale = [1.4, 0.85, 1.4]
+  if (bodyId === 'body_tall') bodyScale = [0.85, 1.3, 0.85]
+  if (bodyId === 'body_muscular') bodyScale = [1.5, 1.1, 1.0]
 
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
@@ -32,7 +44,7 @@ export default function Chibi3D({
           <group position={[0, -1, 0]}>
             
             {/* Body Group */}
-            <group position={[0, 0.7, 0]}>
+            <group position={[0, 0.7, 0]} scale={bodyScale}>
               {/* Torso */}
               <mesh position={[0, 0, 0]}>
                 <capsuleGeometry args={[0.35, 0.4, 16, 32]} />
@@ -73,8 +85,14 @@ export default function Chibi3D({
                 <meshStandardMaterial color={clothesColor} roughness={0.7} />
               </mesh>
             </group>
+
+            {/* Neck */}
+            <mesh position={[0, 1.4, 0]}>
+              <cylinderGeometry args={[0.15, 0.2, 0.2, 16]} />
+              <meshStandardMaterial color={skinColor} roughness={0.4} />
+            </mesh>
             
-            {/* Head Group (Chibi heads are big and low) */}
+            {/* Head Group */}
             <group position={[0, 1.85, 0]} scale={[0.75, 0.75, 0.75]}>
               {/* Head Sphere */}
               <mesh position={[0, 0, 0]}>
@@ -84,29 +102,42 @@ export default function Chibi3D({
 
               {/* Face Elements */}
               <group position={[0, -0.2, 0.8]}>
-                {/* Left Eye */}
-                <mesh position={[-0.35, 0, 0]}>
-                  <sphereGeometry args={[0.12, 16, 16]} />
-                  <meshBasicMaterial color="#000000" />
-                </mesh>
-                {/* Left Highlight */}
-                <mesh position={[-0.38, 0.04, 0.1]}>
-                  <sphereGeometry args={[0.04, 8, 8]} />
-                  <meshBasicMaterial color="#ffffff" />
-                </mesh>
+                
+                {/* Eyes */}
+                {eyesId === 'eyes_closed' ? (
+                  <>
+                    <mesh position={[-0.35, 0, 0]} scale={[1, 0.1, 1]}>
+                      <sphereGeometry args={[0.12, 16, 16]} />
+                      <meshBasicMaterial color="#000000" />
+                    </mesh>
+                    <mesh position={[0.35, 0, 0]} scale={[1, 0.1, 1]}>
+                      <sphereGeometry args={[0.12, 16, 16]} />
+                      <meshBasicMaterial color="#000000" />
+                    </mesh>
+                  </>
+                ) : (
+                  <>
+                    {/* Normal / Big Eyes */}
+                    <mesh position={[-0.35, 0, 0]}>
+                      <sphereGeometry args={[eyesId === 'eyes_big' ? 0.16 : 0.12, 16, 16]} />
+                      <meshBasicMaterial color="#000000" />
+                    </mesh>
+                    <mesh position={[-0.38, 0.04, 0.1]}>
+                      <sphereGeometry args={[0.04, 8, 8]} />
+                      <meshBasicMaterial color="#ffffff" />
+                    </mesh>
+                    <mesh position={[0.35, 0, 0]}>
+                      <sphereGeometry args={[eyesId === 'eyes_big' ? 0.16 : 0.12, 16, 16]} />
+                      <meshBasicMaterial color="#000000" />
+                    </mesh>
+                    <mesh position={[0.32, 0.04, 0.1]}>
+                      <sphereGeometry args={[0.04, 8, 8]} />
+                      <meshBasicMaterial color="#ffffff" />
+                    </mesh>
+                  </>
+                )}
 
-                {/* Right Eye */}
-                <mesh position={[0.35, 0, 0]}>
-                  <sphereGeometry args={[0.12, 16, 16]} />
-                  <meshBasicMaterial color="#000000" />
-                </mesh>
-                {/* Right Highlight */}
-                <mesh position={[0.32, 0.04, 0.1]}>
-                  <sphereGeometry args={[0.04, 8, 8]} />
-                  <meshBasicMaterial color="#ffffff" />
-                </mesh>
-
-                {/* Blush (Flattened) */}
+                {/* Blush */}
                 <mesh position={[-0.5, -0.15, 0]} scale={[1, 1, 0.2]}>
                   <sphereGeometry args={[0.18, 16, 16]} />
                   <meshStandardMaterial color="#ff9999" transparent opacity={0.6} depthWrite={false} />
@@ -116,31 +147,50 @@ export default function Chibi3D({
                   <meshStandardMaterial color="#ff9999" transparent opacity={0.6} depthWrite={false} />
                 </mesh>
 
-                {/* Little Mouth */}
-                <mesh position={[0, -0.15, 0.08]} scale={[1, 0.5, 0.2]}>
+                {/* Mouth */}
+                <mesh 
+                  position={[0, -0.15, 0.08]} 
+                  scale={mouthId === 'mouth_open' ? [1, 1, 0.2] : [1, 0.5, 0.2]}
+                  rotation={mouthId === 'mouth_sad' ? [0, 0, Math.PI] : [0, 0, 0]}
+                >
                   <sphereGeometry args={[0.06, 16, 16]} />
-                  <meshStandardMaterial color="#ffaaaa" />
+                  <meshStandardMaterial color={mouthId === 'mouth_open' ? '#ff5555' : '#ffaaaa'} />
                 </mesh>
               </group>
 
               {/* Hair Group */}
               {hairId !== 'hair_bald' && (
                 <group position={[0, 0, 0]}>
-                  {/* Main Hair Volume */}
-                  <mesh position={[0, 0.15, -0.1]}>
-                    <sphereGeometry args={[0.96, 32, 32]} />
-                    {hairId === 'hair_neon' ? (
-                      <meshStandardMaterial color={hairColor} emissive={hairColor} emissiveIntensity={0.8} />
-                    ) : (
-                      <meshStandardMaterial color={hairColor} roughness={0.9} />
-                    )}
-                  </mesh>
+                  
+                  {/* Curly Hair (Multiple spheres) */}
+                  {hairId === 'hair_curly' ? (
+                    <group position={[0, 0.2, 0]}>
+                      {[[-0.5,0,0], [0.5,0,0], [0,0.5,0], [-0.4,0.4,0.4], [0.4,0.4,0.4], [0,-0.2,-0.5]].map((pos, i) => (
+                        <mesh key={i} position={pos as any}>
+                          <sphereGeometry args={[0.5, 16, 16]} />
+                          <meshStandardMaterial color={hairColor} roughness={0.9} />
+                        </mesh>
+                      ))}
+                    </group>
+                  ) : (
+                    // Default Volume
+                    <mesh position={[0, 0.15, -0.1]}>
+                      <sphereGeometry args={[0.96, 32, 32]} />
+                      {hairId === 'hair_neon' ? (
+                        <meshStandardMaterial color={hairColor} emissive={hairColor} emissiveIntensity={0.8} />
+                      ) : (
+                        <meshStandardMaterial color={hairColor} roughness={0.9} />
+                      )}
+                    </mesh>
+                  )}
 
-                  {/* Bangs (positioned on forehead) */}
-                  <mesh position={[0, 0.6, 0.7]} rotation={[0.2, 0, 0]}>
-                    <capsuleGeometry args={[0.15, 1.2, 16, 16]} rotation={[0, 0, Math.PI / 2]} />
-                    <meshStandardMaterial color={hairColor} roughness={0.9} />
-                  </mesh>
+                  {/* Bangs */}
+                  {hairId !== 'hair_curly' && (
+                    <mesh position={[0, 0.6, 0.7]} rotation={[0.2, 0, 0]}>
+                      <capsuleGeometry args={[0.15, 1.2, 16, 16]} rotation={[0, 0, Math.PI / 2]} />
+                      <meshStandardMaterial color={hairColor} roughness={0.9} />
+                    </mesh>
+                  )}
 
                   {/* Long hair extension */}
                   {hairId === 'hair_long' && (
@@ -148,6 +198,20 @@ export default function Chibi3D({
                       <capsuleGeometry args={[0.6, 1.5, 16, 16]} />
                       <meshStandardMaterial color={hairColor} roughness={0.9} />
                     </mesh>
+                  )}
+
+                  {/* Twin Tails */}
+                  {hairId === 'hair_twintails' && (
+                    <group>
+                      <mesh position={[-0.9, -0.3, 0]} rotation={[0, 0, 0.4]}>
+                        <capsuleGeometry args={[0.3, 1.2, 16, 16]} />
+                        <meshStandardMaterial color={hairColor} roughness={0.9} />
+                      </mesh>
+                      <mesh position={[0.9, -0.3, 0]} rotation={[0, 0, -0.4]}>
+                        <capsuleGeometry args={[0.3, 1.2, 16, 16]} />
+                        <meshStandardMaterial color={hairColor} roughness={0.9} />
+                      </mesh>
+                    </group>
                   )}
                 </group>
               )}
@@ -157,6 +221,43 @@ export default function Chibi3D({
                 <mesh position={[0, 0.05, 0.88]}>
                   <boxGeometry args={[1.3, 0.35, 0.2]} />
                   <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={1} opacity={0.9} transparent />
+                </mesh>
+              )}
+              {accessoryId === 'acc_shades' && (
+                <group position={[0, 0.05, 0.95]}>
+                  <mesh position={[-0.35, 0, 0]}>
+                    <boxGeometry args={[0.5, 0.3, 0.1]} />
+                    <meshStandardMaterial color="#111" />
+                  </mesh>
+                  <mesh position={[0.35, 0, 0]}>
+                    <boxGeometry args={[0.5, 0.3, 0.1]} />
+                    <meshStandardMaterial color="#111" />
+                  </mesh>
+                  <mesh position={[0, 0.1, 0]}>
+                    <boxGeometry args={[0.4, 0.05, 0.05]} />
+                    <meshStandardMaterial color="#111" />
+                  </mesh>
+                </group>
+              )}
+              {accessoryId === 'acc_cybermask' && (
+                <mesh position={[0, -0.3, 0.8]}>
+                  <boxGeometry args={[0.8, 0.4, 0.3]} />
+                  <meshStandardMaterial color="#111" emissive={accessoryColor} emissiveIntensity={0.5} />
+                </mesh>
+              )}
+              {accessoryId === 'acc_gasmask' && (
+                <mesh position={[0, -0.3, 0.9]}>
+                  <cylinderGeometry args={[0.3, 0.4, 0.4, 16]} rotation={[Math.PI/2, 0, 0]} />
+                  <meshStandardMaterial color="#222" />
+                  {/* Filters */}
+                  <mesh position={[-0.3, 0, 0.2]} rotation={[0, Math.PI/4, 0]}>
+                    <cylinderGeometry args={[0.15, 0.15, 0.2, 16]} rotation={[Math.PI/2, 0, 0]} />
+                    <meshStandardMaterial color="#444" />
+                  </mesh>
+                  <mesh position={[0.3, 0, 0.2]} rotation={[0, -Math.PI/4, 0]}>
+                    <cylinderGeometry args={[0.15, 0.15, 0.2, 16]} rotation={[Math.PI/2, 0, 0]} />
+                    <meshStandardMaterial color="#444" />
+                  </mesh>
                 </mesh>
               )}
               {accessoryId === 'acc_catears' && (
@@ -179,17 +280,14 @@ export default function Chibi3D({
               )}
               {accessoryId === 'acc_headphones' && (
                 <group position={[0, 0, 0]}>
-                  {/* Headband */}
                   <mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
                     <torusGeometry args={[0.98, 0.08, 16, 32]} />
                     <meshStandardMaterial color="#18181b" roughness={0.8} />
                   </mesh>
-                  {/* Earcup Left */}
                   <mesh position={[-0.98, 0, 0]} rotation={[0, Math.PI/2, 0]}>
                     <cylinderGeometry args={[0.3, 0.3, 0.2, 32]} />
                     <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.4} />
                   </mesh>
-                  {/* Earcup Right */}
                   <mesh position={[0.98, 0, 0]} rotation={[0, Math.PI/2, 0]}>
                     <cylinderGeometry args={[0.3, 0.3, 0.2, 32]} />
                     <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.4} />

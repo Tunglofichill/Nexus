@@ -7,15 +7,33 @@ import { toast } from 'react-hot-toast'
 import Chibi3D from '@/components/Chibi3D'
 
 const AVATAR_OPTIONS = {
+  body: [
+    { id: 'body_standard', name: 'Standard', color: '#a8a29e', displayBg: 'bg-stone-400' },
+    { id: 'body_chubby', name: 'Chubby', color: '#fb923c', displayBg: 'bg-orange-400' },
+    { id: 'body_tall', name: 'Tall', color: '#60a5fa', displayBg: 'bg-blue-400' },
+    { id: 'body_muscular', name: 'Muscular', color: '#f43f5e', displayBg: 'bg-rose-400' },
+  ],
   skin: [
     { id: 'skin_light', name: 'Light', color: '#ffdbac', displayBg: 'bg-[#ffdbac]' },
     { id: 'skin_medium', name: 'Medium', color: '#e0ac69', displayBg: 'bg-[#e0ac69]' },
     { id: 'skin_dark', name: 'Dark', color: '#8d5524', displayBg: 'bg-[#8d5524]' },
     { id: 'skin_cyber', name: 'Cyber Blue', color: '#6366f1', displayBg: 'bg-[#6366f1]' },
   ],
+  eyes: [
+    { id: 'eyes_normal', name: 'Normal', color: '#000000', displayBg: 'bg-black' },
+    { id: 'eyes_big', name: 'Big Anime', color: '#4338ca', displayBg: 'bg-indigo-800' },
+    { id: 'eyes_closed', name: 'Closed', color: '#71717a', displayBg: 'bg-zinc-500' },
+  ],
+  mouth: [
+    { id: 'mouth_smile', name: 'Smile', color: '#fca5a5', displayBg: 'bg-red-300' },
+    { id: 'mouth_open', name: 'Open (Happy)', color: '#ef4444', displayBg: 'bg-red-500' },
+    { id: 'mouth_sad', name: 'Sad/Pout', color: '#9ca3af', displayBg: 'bg-gray-400' },
+  ],
   hair: [
     { id: 'hair_short', name: 'Short Spiky', color: '#27272a', displayBg: 'bg-zinc-800' },
     { id: 'hair_long', name: 'Long Flowing', color: '#9333ea', displayBg: 'bg-purple-600' },
+    { id: 'hair_curly', name: 'Curly Afro', color: '#fbbf24', displayBg: 'bg-amber-400' },
+    { id: 'hair_twintails', name: 'Twin Tails', color: '#ec4899', displayBg: 'bg-pink-500' },
     { id: 'hair_neon', name: 'Neon Cyber', color: '#22d3ee', displayBg: 'bg-cyan-400' },
     { id: 'hair_bald', name: 'Clean', color: 'transparent', displayBg: 'bg-transparent border border-white/20' },
   ],
@@ -31,13 +49,19 @@ const AVATAR_OPTIONS = {
     { id: 'acc_catears', name: 'Cat Ears', color: '#ffffff', displayBg: 'bg-white' },
     { id: 'acc_halo', name: 'Neon Halo', color: '#eab308', displayBg: 'bg-yellow-500' },
     { id: 'acc_headphones', name: 'Headphones', color: '#22c55e', displayBg: 'bg-green-500' },
+    { id: 'acc_shades', name: 'Shades', color: '#000000', displayBg: 'bg-black border border-white/20' },
+    { id: 'acc_gasmask', name: 'Gas Mask', color: '#4b5563', displayBg: 'bg-gray-600' },
+    { id: 'acc_cybermask', name: 'Cyber Mask', color: '#06b6d4', displayBg: 'bg-cyan-500' },
   ]
 }
 
 export default function OnboardingPage() {
-  const [activeTab, setActiveTab] = useState<'skin' | 'hair' | 'clothes' | 'accessory'>('skin')
+  const [activeTab, setActiveTab] = useState<keyof typeof AVATAR_OPTIONS>('body')
   const [avatarData, setAvatarData] = useState({
+    body: AVATAR_OPTIONS.body[0].id,
     skin: AVATAR_OPTIONS.skin[0].id,
+    eyes: AVATAR_OPTIONS.eyes[0].id,
+    mouth: AVATAR_OPTIONS.mouth[0].id,
     hair: AVATAR_OPTIONS.hair[0].id,
     clothes: AVATAR_OPTIONS.clothes[0].id,
     accessory: AVATAR_OPTIONS.accessory[0].id
@@ -64,8 +88,8 @@ export default function OnboardingPage() {
   return (
     <div className="w-full h-full flex p-6 gap-6 overflow-hidden bg-black/20 text-white">
       
-      {/* Left: Avatar Preview Panel */}
-      <div className="w-1/2 flex flex-col bg-black/40 rounded-3xl border border-white/5 relative overflow-hidden backdrop-blur-xl">
+      {/* Left: Avatar Preview Panel (Widened slightly but keeps good proportion) */}
+      <div className="w-2/5 flex flex-col bg-black/40 rounded-3xl border border-white/5 relative overflow-hidden backdrop-blur-xl">
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-purple-500/10 pointer-events-none"></div>
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
         
@@ -82,7 +106,10 @@ export default function OnboardingPage() {
           
           <div className="absolute inset-0 z-10">
             <Chibi3D 
+              bodyId={avatarData.body}
               skinColor={currentSkin?.color || '#ffdbac'} 
+              eyesId={avatarData.eyes}
+              mouthId={avatarData.mouth}
               hairColor={currentHair?.color || '#27272a'} 
               clothesColor={currentClothes?.color || '#f97316'} 
               hairId={avatarData.hair}
@@ -97,17 +124,17 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      {/* Right: Controls Panel */}
-      <div className="w-1/2 flex flex-col gap-6">
-        <div className="bg-black/60 rounded-3xl p-6 border border-indigo-500/20 backdrop-blur-2xl flex-1 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+      {/* Right: Controls Panel (Widened to 60%) */}
+      <div className="w-3/5 flex flex-col gap-6">
+        <div className="bg-black/60 rounded-3xl p-6 border border-indigo-500/20 backdrop-blur-2xl flex-1 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
           
-          {/* Tab Navigation */}
-          <div className="flex gap-2 p-1.5 bg-black/50 rounded-2xl mb-6 border border-white/5">
-            {(['skin', 'hair', 'clothes', 'accessory'] as const).map((tab) => (
+          {/* Tab Navigation (Scrollable horizontally) */}
+          <div className="flex gap-2 p-1.5 bg-black/50 rounded-2xl mb-6 border border-white/5 overflow-x-auto custom-scrollbar flex-nowrap shrink-0">
+            {(Object.keys(AVATAR_OPTIONS) as Array<keyof typeof AVATAR_OPTIONS>).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-3.5 text-xs font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-300 relative overflow-hidden ${
+                className={`flex-none px-6 py-3.5 text-xs font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-300 relative overflow-hidden ${
                   activeTab === tab 
                     ? 'text-white shadow-[0_0_20px_rgba(99,102,241,0.3)]' 
                     : 'text-zinc-500 hover:text-indigo-300 hover:bg-white/5'
@@ -129,7 +156,7 @@ export default function OnboardingPage() {
 
           {/* Options Grid */}
           <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {AVATAR_OPTIONS[activeTab].map((item) => {
                 const isActive = avatarData[activeTab] === item.id;
                 
@@ -137,7 +164,7 @@ export default function OnboardingPage() {
                   <button
                     key={item.id}
                     onClick={() => setAvatarData({ ...avatarData, [activeTab]: item.id })}
-                    className={`relative p-5 rounded-2xl text-left transition-all duration-300 overflow-hidden group ${
+                    className={`relative p-5 rounded-2xl text-left transition-all duration-300 overflow-hidden group flex flex-col items-center text-center ${
                       isActive 
                         ? 'bg-indigo-950/40 border border-indigo-500/50' 
                         : 'bg-white/5 border border-white/5 hover:border-indigo-500/30 hover:bg-white/10'
@@ -146,7 +173,7 @@ export default function OnboardingPage() {
                     {/* Background Glow based on item color */}
                     <div 
                       className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none`}
-                      style={{ background: `radial-gradient(circle at top right, ${item.color}, transparent)` }}
+                      style={{ background: `radial-gradient(circle at center, ${item.color}, transparent)` }}
                     ></div>
 
                     {isActive && (
@@ -156,7 +183,7 @@ export default function OnboardingPage() {
                     )}
                     
                     {/* Visual representation of the item */}
-                    <div className="w-14 h-14 rounded-full mb-4 overflow-hidden border-2 flex items-center justify-center relative shadow-lg"
+                    <div className="w-14 h-14 rounded-full mb-4 overflow-hidden border-2 flex items-center justify-center relative shadow-lg shrink-0"
                          style={{ 
                            borderColor: isActive ? item.color : 'rgba(255,255,255,0.1)',
                            boxShadow: isActive ? `0 0 20px ${item.color}40` : 'none'
@@ -172,15 +199,9 @@ export default function OnboardingPage() {
                       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/30"></div>
                     </div>
                     
-                    <h3 className={`font-bold text-sm tracking-wide ${isActive ? 'text-white' : 'text-zinc-300'}`}>
+                    <h3 className={`font-bold text-xs tracking-wide w-full truncate ${isActive ? 'text-white' : 'text-zinc-300'}`}>
                       {item.name}
                     </h3>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }}></div>
-                      <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono">
-                        {item.id.split('_')[1]}
-                      </p>
-                    </div>
                     
                     {/* Cyberpunk corner accent */}
                     {isActive && (
@@ -199,7 +220,7 @@ export default function OnboardingPage() {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="w-full py-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 font-black tracking-[0.2em] uppercase text-sm shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] transition-all flex justify-center items-center gap-3 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed border border-white/10"
+          className="w-full py-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 font-black tracking-[0.2em] uppercase text-sm shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] transition-all flex justify-center items-center gap-3 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed border border-white/10 shrink-0"
         >
           <span className="relative z-10 flex items-center gap-2 text-white">
             <Sparkles size={18} className="animate-pulse" />
