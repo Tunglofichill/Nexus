@@ -7,12 +7,6 @@ import { toast } from 'react-hot-toast'
 import Chibi2D from '@/components/Chibi2D'
 
 const AVATAR_OPTIONS = {
-  body: [
-    { id: 'body_standard', name: 'Standard', icon: '🧍' },
-    { id: 'body_chubby', name: 'Chubby', icon: '🐻' },
-    { id: 'body_tall', name: 'Tall', icon: '🦒' },
-    { id: 'body_muscular', name: 'Muscular', icon: '💪' },
-  ],
   skin: [
     { id: 'skin_light', name: 'Light', color: '#ffdbac', icon: '🖐🏻' },
     { id: 'skin_medium', name: 'Medium', color: '#e0ac69', icon: '🖐🏽' },
@@ -20,114 +14,64 @@ const AVATAR_OPTIONS = {
     { id: 'skin_cyber', name: 'Cyber Blue', color: '#6366f1', icon: '👽' },
     { id: 'skin_alien', name: 'Alien Green', color: '#4ade80', icon: '👾' },
   ],
+  hair: [
+    { id: 'hair_default', name: 'Capsule Hair', icon: '💇' },
+  ],
+  clothes: [
+    { id: 'clothes_default', name: 'Capsule Suit', icon: '👕' },
+  ],
   eyes: [
     { id: 'eyes_normal', name: 'Normal', icon: '👁️' },
     { id: 'eyes_big', name: 'Big Anime', icon: '🥺' },
     { id: 'eyes_closed', name: 'Closed', icon: '😌' },
-    { id: 'eyes_angry', name: 'Angry/Fierce', icon: '😠' },
-    { id: 'eyes_sad', name: 'Sad/Shy', icon: '😢' },
-    { id: 'eyes_star', name: 'Star Idol', icon: '🤩' },
-    { id: 'eyes_heart', name: 'Heartstruck', icon: '😍' },
-    { id: 'eyes_cyber', name: 'Cyber Slit', icon: '🤖' },
+    { id: 'eyes_angry', name: 'Angry', icon: '😠' },
+    { id: 'eyes_star', name: 'Star', icon: '🤩' },
   ],
   mouth: [
-    { id: 'mouth_smile', name: 'Smile', icon: '👄' },
-    { id: 'mouth_open', name: 'Open (Happy)', icon: '😃' },
-    { id: 'mouth_sad', name: 'Sad/Pout', icon: '撇' },
+    { id: 'mouth_smile', name: 'Smile', icon: '😊' },
+    { id: 'mouth_open', name: 'Open', icon: '😃' },
+    { id: 'mouth_sad', name: 'Sad', icon: '😢' },
     { id: 'mouth_cat', name: 'Cat :3', icon: '😸' },
-    { id: 'mouth_vampire', name: 'Vampire Fangs', icon: '🧛' },
-  ],
-  hair: [
-    { id: 'hair_short', name: 'Short Spiky', icon: '👦' },
-    { id: 'hair_long', name: 'Long Flowing', icon: '👩' },
-    { id: 'hair_curly', name: 'Curly Afro', icon: '🧑‍🦱' },
-    { id: 'hair_twintails', name: 'Twin Tails', icon: '👧' },
-    { id: 'hair_mohawk', name: 'Punk Mohawk', icon: '🦹' },
-    { id: 'hair_ponytail', name: 'High Ponytail', icon: '👱‍♀️' },
-    { id: 'hair_samurai', name: 'Samurai Knot', icon: '🥷' },
-    { id: 'hair_messy', name: 'Messy Hero', icon: '🌪️' },
-    { id: 'hair_bald', name: 'Clean / Bald', icon: '🦲' },
-  ],
-  clothes: [
-    { id: 'clothes_casual', name: 'Streetwear', icon: '👕' },
-    { id: 'clothes_suit', name: 'Corpo Suit', icon: '👔' },
-    { id: 'clothes_tech', name: 'Techwear', icon: '🦺' },
-    { id: 'clothes_robe', name: 'Hacker Robe', icon: '👘' },
-    { id: 'clothes_ninja', name: 'Ninja Stealth', icon: '🥷' },
-    { id: 'clothes_hoodie', name: 'Oversized Hoodie', icon: '🧥' },
-    { id: 'clothes_armor', name: 'Knight Armor', icon: '🛡️' },
-  ],
-  bottoms: [
-    { id: 'bottom_jeans', name: 'Casual Jeans', icon: '👖' },
-    { id: 'bottom_shorts', name: 'Shorts', icon: '🩳' },
-    { id: 'bottom_skirt', name: 'Pleated Skirt', icon: '👗' },
-    { id: 'bottom_tech', name: 'Tech Cargo', icon: '🪖' },
-    { id: 'bottom_suit', name: 'Suit Pants', icon: '👖' },
-    { id: 'bottom_ninja', name: 'Ninja Pants', icon: '🥷' },
+    { id: 'mouth_vampire', name: 'Fangs', icon: '🧛' },
   ],
   accessory: [
     { id: 'acc_none', name: 'None', icon: '🚫' },
-    { id: 'acc_visor', name: 'Cyber Visor', icon: '🥽' },
     { id: 'acc_catears', name: 'Cat Ears', icon: '🐱' },
-    { id: 'acc_halo', name: 'Neon Halo', icon: '😇' },
-    { id: 'acc_headphones', name: 'Headphones', icon: '🎧' },
+    { id: 'acc_halo', name: 'Halo', icon: '😇' },
     { id: 'acc_shades', name: 'Shades', icon: '🕶️' },
-    { id: 'acc_gasmask', name: 'Gas Mask', icon: '😷' },
-    { id: 'acc_cybermask', name: 'Cyber Mask', icon: '🤿' },
-    { id: 'acc_crown', name: 'Floating Crown', icon: '👑' },
-    { id: 'acc_horns', name: 'Demon Horns', icon: '😈' },
-    { id: 'acc_goggles', name: 'Steam Goggles', icon: '👓' },
-    { id: 'acc_eyepatch', name: 'Pirate Patch', icon: '🏴‍☠️' },
-    { id: 'acc_kitsune', name: 'Kitsune Mask', icon: '🦊' },
+    { id: 'acc_crown', name: 'Crown', icon: '👑' },
   ],
   decals: [
     { id: 'decal_none', name: 'None', icon: '🚫' },
     { id: 'decal_scar', name: 'Scar', icon: '⚡' },
-    { id: 'decal_bandage', name: 'Bandage', icon: '🩹' },
-    { id: 'decal_cyber', name: 'Cyber Lines', icon: '🔌' },
-    { id: 'decal_freckles', name: 'Cute Freckles', icon: '😚' },
-    { id: 'decal_star', name: 'Star Tattoo', icon: '⭐' },
-    { id: 'decal_tear', name: 'Tear Drop', icon: '💧' },
+    { id: 'decal_freckles', name: 'Freckles', icon: '😚' },
   ],
-  stage: [
-    { id: 'stage_none', name: 'None', icon: '🚫' },
-    { id: 'stage_holo', name: 'Holo Deck', icon: '🧊' },
-    { id: 'stage_ring', name: 'Neon Ring', icon: '⭕' },
-    { id: 'stage_pedestal', name: 'Cyber Pedestal', icon: '🪨' },
-    { id: 'stage_magic', name: 'Magic Circle', icon: '🔯' },
-    { id: 'stage_rocks', name: 'Floating Rocks', icon: '☄️' },
-  ]
 }
 
 const COLOR_PALETTES: Record<string, string[]> = {
   hair: ['#27272a', '#ffffff', '#fbbf24', '#ef4444', '#ec4899', '#8b5cf6', '#06b6d4', '#22c55e', '#f97316'],
   clothes: ['#f97316', '#18181b', '#ffffff', '#eab308', '#3b82f6', '#10b981', '#6366f1', '#f43f5e', '#a8a29e'],
-  bottoms: ['#1e3a8a', '#18181b', '#ffffff', '#eab308', '#3b82f6', '#10b981', '#6366f1', '#f43f5e', '#a8a29e'],
   eyes: ['#000000', '#dc2626', '#2563eb', '#16a34a', '#d946ef', '#eab308', '#ffffff', '#0ea5e9'],
   accessory: ['#ec4899', '#eab308', '#22c55e', '#ffffff', '#000000', '#3b82f6', '#f97316', '#a855f7'],
   decals: ['#ef4444', '#06b6d4', '#eab308', '#ffffff', '#000000', '#ec4899', '#8b5cf6']
 }
 
 export default function OnboardingPage() {
-  const [activeTab, setActiveTab] = useState<keyof typeof AVATAR_OPTIONS>('hair')
+  const [activeTab, setActiveTab] = useState<keyof typeof AVATAR_OPTIONS>('skin')
   
   const [avatarData, setAvatarData] = useState({
-    body: AVATAR_OPTIONS.body[0].id,
     skin: AVATAR_OPTIONS.skin[0].id,
-    eyes: AVATAR_OPTIONS.eyes[0].id,
-    eyesColor: COLOR_PALETTES.eyes[0],
-    mouth: AVATAR_OPTIONS.mouth[0].id,
     hair: AVATAR_OPTIONS.hair[0].id,
     hairColor: COLOR_PALETTES.hair[0],
     clothes: AVATAR_OPTIONS.clothes[0].id,
     clothesColor: COLOR_PALETTES.clothes[0],
-    bottoms: AVATAR_OPTIONS.bottoms[0].id,
-    bottomsColor: COLOR_PALETTES.bottoms[0],
+    eyes: AVATAR_OPTIONS.eyes[0].id,
+    eyesColor: COLOR_PALETTES.eyes[0],
+    mouth: AVATAR_OPTIONS.mouth[0].id,
     accessory: AVATAR_OPTIONS.accessory[0].id,
     accessoryColor: COLOR_PALETTES.accessory[0],
     decals: AVATAR_OPTIONS.decals[0].id,
     decalsColor: COLOR_PALETTES.decals[0],
-    stage: AVATAR_OPTIONS.stage[0].id,
   })
   const [isSaving, setIsSaving] = useState(false)
 
@@ -168,22 +112,16 @@ export default function OnboardingPage() {
           
           <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
             <Chibi2D 
-              bodyId={avatarData.body}
               skinColor={currentSkin?.color || '#ffdbac'} 
+              hairColor={avatarData.hairColor} 
+              clothesColor={avatarData.clothesColor} 
               eyesId={avatarData.eyes}
               eyesColor={avatarData.eyesColor}
               mouthId={avatarData.mouth}
-              hairId={avatarData.hair}
-              hairColor={avatarData.hairColor} 
-              clothesId={avatarData.clothes}
-              clothesColor={avatarData.clothesColor} 
-              bottomsId={avatarData.bottoms}
-              bottomsColor={avatarData.bottomsColor}
               accessoryId={avatarData.accessory}
               accessoryColor={avatarData.accessoryColor}
               decalsId={avatarData.decals}
               decalsColor={avatarData.decalsColor}
-              stageId={avatarData.stage}
             />
           </div>
           
