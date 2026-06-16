@@ -116,10 +116,10 @@ export default function Chibi3D({
         <directionalLight position={[-2, 2, -4]} intensity={0.2} color="#c4b5fd" />
 
         <Suspense fallback={null}>
-          <ContactShadows position={[0, -0.95, 0]} opacity={0.6} scale={5} blur={1.6} far={2.2} />
+          <ContactShadows position={[0, -1.18, 0]} opacity={0.65} scale={5} blur={1.6} far={2.2} />
 
           <Float speed={2} rotationIntensity={0.03} floatIntensity={0.08} floatingRange={[0, 0.06]}>
-            <group position={[0, -0.92, 0]} scale={bScale}>
+            <group position={[0, -1.18, 0]} scale={bScale}>
 
               {/* ═══════════════ BODY ═══════════════ */}
               <group>
@@ -251,62 +251,93 @@ export default function Chibi3D({
                 </mesh>
 
                 {/* Waist/Pelvis */}
-                <group position={[0, 0.2, 0]}>
+                <group position={[0, 0.18, 0]}>
                   <mesh scale={1.04}>
                     {bottomsId === 'bottom_skirt'
-                      ? <cylinderGeometry args={[0.3, 0.48, 0.32, 22]} />
-                      : <cylinderGeometry args={[0.3, 0.34, 0.2, 22]} />}
+                      ? <cylinderGeometry args={[0.3, 0.5, 0.38, 22]} />
+                      : <cylinderGeometry args={[0.3, 0.35, 0.22, 22]} />}
                     <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
                   </mesh>
                   <mesh>
                     {bottomsId === 'bottom_skirt'
-                      ? <cylinderGeometry args={[0.3, 0.48, 0.32, 22]} />
-                      : <cylinderGeometry args={[0.3, 0.34, 0.2, 22]} />}
+                      ? <cylinderGeometry args={[0.3, 0.5, 0.38, 22]} />
+                      : <cylinderGeometry args={[0.3, 0.35, 0.22, 22]} />}
                     <Toon color={bottomsColor} />
                   </mesh>
                 </group>
 
-                {/* Legs (only if not skirt) */}
+                {/* Legs (Play Together: stubby but clearly visible, sticking out below pelvis) */}
                 {bottomsId !== 'bottom_skirt' && (
                   <>
                     {/* Left leg */}
-                    <group position={[-0.15, -0.08, 0]}>
-                      <OCapsule pos={[0,0,0]} radius={0.115} height={0.2} col={skinColor} sc={1.055} />
-                      {/* pants cover */}
-                      {bottomsId !== 'bottom_shorts' && (
-                        <mesh position={[0, 0.06, 0]}>
-                          <cylinderGeometry args={[0.12, 0.12, 0.3, 18]} />
-                          <Toon color={bottomsColor} />
-                        </mesh>
-                      )}
-                      {/* Shoe */}
-                      <group position={[0, -0.22, 0.05]}>
-                        <mesh scale={1.06}>
-                          <capsuleGeometry args={[0.1, 0.13, 6, 12]} />
+                    <group position={[-0.16, -0.28, 0]}>
+                      {/* Upper leg (skin/pants) */}
+                      <group position={[0, 0, 0]}>
+                        <mesh scale={1.055}>
+                          <capsuleGeometry args={[0.115, 0.32, 10, 18]} />
                           <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
                         </mesh>
                         <mesh>
-                          <capsuleGeometry args={[0.1, 0.13, 6, 12]} />
+                          <capsuleGeometry args={[0.115, 0.32, 10, 18]} />
+                          <Toon color={bottomsId === 'bottom_shorts' ? skinColor : bottomsColor} />
+                        </mesh>
+                      </group>
+                      {/* Lower leg (skin - for shorts) */}
+                      {bottomsId === 'bottom_shorts' && (
+                        <group position={[0, -0.28, 0]}>
+                          <mesh scale={1.055}>
+                            <capsuleGeometry args={[0.105, 0.2, 10, 18]} />
+                            <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
+                          </mesh>
+                          <mesh>
+                            <capsuleGeometry args={[0.105, 0.2, 10, 18]} />
+                            <Toon color={skinColor} />
+                          </mesh>
+                        </group>
+                      )}
+                      {/* Shoe */}
+                      <group position={[0, bottomsId === 'bottom_shorts' ? -0.46 : -0.3, 0.06]} rotation={[0.12, 0, 0]}>
+                        <mesh scale={1.06}>
+                          <capsuleGeometry args={[0.1, 0.18, 6, 12]} />
+                          <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
+                        </mesh>
+                        <mesh>
+                          <capsuleGeometry args={[0.1, 0.18, 6, 12]} />
                           <Toon color="#1c1917" />
                         </mesh>
                       </group>
                     </group>
                     {/* Right leg */}
-                    <group position={[0.15, -0.08, 0]}>
-                      <OCapsule pos={[0,0,0]} radius={0.115} height={0.2} col={skinColor} sc={1.055} />
-                      {bottomsId !== 'bottom_shorts' && (
-                        <mesh position={[0, 0.06, 0]}>
-                          <cylinderGeometry args={[0.12, 0.12, 0.3, 18]} />
-                          <Toon color={bottomsColor} />
-                        </mesh>
-                      )}
-                      <group position={[0, -0.22, 0.05]}>
-                        <mesh scale={1.06}>
-                          <capsuleGeometry args={[0.1, 0.13, 6, 12]} />
+                    <group position={[0.16, -0.28, 0]}>
+                      <group position={[0, 0, 0]}>
+                        <mesh scale={1.055}>
+                          <capsuleGeometry args={[0.115, 0.32, 10, 18]} />
                           <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
                         </mesh>
                         <mesh>
-                          <capsuleGeometry args={[0.1, 0.13, 6, 12]} />
+                          <capsuleGeometry args={[0.115, 0.32, 10, 18]} />
+                          <Toon color={bottomsId === 'bottom_shorts' ? skinColor : bottomsColor} />
+                        </mesh>
+                      </group>
+                      {bottomsId === 'bottom_shorts' && (
+                        <group position={[0, -0.28, 0]}>
+                          <mesh scale={1.055}>
+                            <capsuleGeometry args={[0.105, 0.2, 10, 18]} />
+                            <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
+                          </mesh>
+                          <mesh>
+                            <capsuleGeometry args={[0.105, 0.2, 10, 18]} />
+                            <Toon color={skinColor} />
+                          </mesh>
+                        </group>
+                      )}
+                      <group position={[0, bottomsId === 'bottom_shorts' ? -0.46 : -0.3, 0.06]} rotation={[0.12, 0, 0]}>
+                        <mesh scale={1.06}>
+                          <capsuleGeometry args={[0.1, 0.18, 6, 12]} />
+                          <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
+                        </mesh>
+                        <mesh>
+                          <capsuleGeometry args={[0.1, 0.18, 6, 12]} />
                           <Toon color="#1c1917" />
                         </mesh>
                       </group>
@@ -807,7 +838,7 @@ export default function Chibi3D({
           autoRotateSpeed={0.9}
           maxPolarAngle={Math.PI / 1.7}
           minPolarAngle={Math.PI / 6}
-          target={[0, 0.5, 0]}
+          target={[0, 0.3, 0]}
         />
       </Canvas>
     </div>
