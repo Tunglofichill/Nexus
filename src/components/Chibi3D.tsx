@@ -125,7 +125,7 @@ export default function Chibi3D({
                   <group>
                     {/* White V-neck (Upside down cone) */}
                     <mesh castShadow receiveShadow position={[0, 0.25, 0.35]} rotation={[0.15, 0, Math.PI]}>
-                      <coneGeometry args={[, , 6]} />
+                      <coneGeometry args={[0.08, 0.2, 6]} />
                       <meshPhysicalMaterial color="#ffffff" roughness={0.9} />
                     </mesh>
                     {/* Tie */}
@@ -348,7 +348,7 @@ export default function Chibi3D({
             </group>
 
             {/* Head Group */}
-            <group position={[0, 1.5, 0]} scale={[1.15, 1.15, 1.15]}>
+            <group position={[0, 1.65, 0]} scale={[1.15, 1.15, 1.15]}>
               
               {/* Main Skull */}
               <mesh castShadow receiveShadow position={[0, 0, 0]}>
@@ -521,7 +521,7 @@ export default function Chibi3D({
                 )}
                 {decalsId === 'decal_tear' && (
                   <mesh castShadow receiveShadow position={[0.3, -0.1, 0]} rotation={[Math.PI/2, -0.2, 0]}>
-                    <coneGeometry args={[, , 6]} />
+                    <coneGeometry args={[0.08, 0.2, 6]} />
                     <meshPhysicalMaterial color="#3b82f6" />
                   </mesh>
                 )}
@@ -654,8 +654,8 @@ export default function Chibi3D({
 
               {accessoryId === 'acc_catears' && (
                 <group position={[0, 0.85, 0]}>
-                  <group position={[-0.45, 0, 0]} rotation={[0, 0, 0.3]}><mesh castShadow receiveShadow><coneGeometry args={[, , 6]} /><meshPhysicalMaterial color="#fbcfe8" roughness={0.6} /></mesh></group>
-                  <group position={[0.45, 0, 0]} rotation={[0, 0, -0.3]}><mesh castShadow receiveShadow><coneGeometry args={[, , 6]} /><meshPhysicalMaterial color="#fbcfe8" roughness={0.6} /></mesh></group>
+                  <group position={[-0.45, 0, 0]} rotation={[0, 0, 0.3]}><mesh castShadow receiveShadow><coneGeometry args={[0.08, 0.2, 6]} /><meshPhysicalMaterial color="#fbcfe8" roughness={0.6} /></mesh></group>
+                  <group position={[0.45, 0, 0]} rotation={[0, 0, -0.3]}><mesh castShadow receiveShadow><coneGeometry args={[0.08, 0.2, 6]} /><meshPhysicalMaterial color="#fbcfe8" roughness={0.6} /></mesh></group>
                 </group>
               )}
 
@@ -692,11 +692,11 @@ export default function Chibi3D({
               {accessoryId === 'acc_horns' && (
                 <group position={[0, 0.7, 0.5]}>
                   <mesh castShadow receiveShadow position={[-0.3, 0, 0]} rotation={[-0.2, 0, 0.3]}>
-                    <coneGeometry args={[, , 6]} />
+                    <coneGeometry args={[0.08, 0.2, 6]} />
                     <meshPhysicalMaterial color={accessoryColor} />
                   </mesh>
                   <mesh castShadow receiveShadow position={[0.3, 0, 0]} rotation={[-0.2, 0, -0.3]}>
-                    <coneGeometry args={[, , 6]} />
+                    <coneGeometry args={[0.08, 0.2, 6]} />
                     <meshPhysicalMaterial color={accessoryColor} />
                   </mesh>
                 </group>
@@ -720,8 +720,8 @@ export default function Chibi3D({
               {accessoryId === 'acc_kitsune' && (
                 <group position={[-0.7, 0.3, 0.5]} rotation={[0, -0.8, -0.3]}>
                   <mesh castShadow receiveShadow rotation={[Math.PI/2, 0, 0]}><capsuleGeometry args={[0.25, 0.4, 32, 64]} /><meshPhysicalMaterial color="#ffffff" /></mesh>
-                  <mesh castShadow receiveShadow position={[-0.15, 0.3, 0]} rotation={[0, 0, 0.2]}><coneGeometry args={[, , 6]} /><meshPhysicalMaterial color="#ffffff" /></mesh>
-                  <mesh castShadow receiveShadow position={[0.15, 0.3, 0]} rotation={[0, 0, -0.2]}><coneGeometry args={[, , 6]} /><meshPhysicalMaterial color="#ffffff" /></mesh>
+                  <mesh castShadow receiveShadow position={[-0.15, 0.3, 0]} rotation={[0, 0, 0.2]}><coneGeometry args={[0.08, 0.2, 6]} /><meshPhysicalMaterial color="#ffffff" /></mesh>
+                  <mesh castShadow receiveShadow position={[0.15, 0.3, 0]} rotation={[0, 0, -0.2]}><coneGeometry args={[0.08, 0.2, 6]} /><meshPhysicalMaterial color="#ffffff" /></mesh>
                   {/* Red Markings */}
                   <mesh castShadow receiveShadow position={[0, 0.1, 0.26]}><boxGeometry args={[0.3, 0.02, 0.02]} /><meshPhysicalMaterial color="#ef4444" /></mesh>
                   <mesh castShadow receiveShadow position={[0, 0, 0.26]}><boxGeometry args={[0.02, 0.1, 0.02]} /><meshPhysicalMaterial color="#ef4444" /></mesh>
