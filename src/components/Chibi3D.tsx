@@ -218,84 +218,173 @@ export default function Chibi3D({
                 </group>
               )}
 
-              {/* Accessories Group */}
+              {/* Accessories Group (BEAUTIFIED) */}
               {accessoryId === 'acc_visor' && (
-                <mesh position={[0, 0.05, 0.88]}>
-                  <boxGeometry args={[1.3, 0.35, 0.2]} />
-                  <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={1} opacity={0.9} transparent />
-                </mesh>
-              )}
-              {accessoryId === 'acc_shades' && (
-                <group position={[0, 0.05, 0.95]}>
-                  <mesh position={[-0.35, 0, 0]}>
-                    <boxGeometry args={[0.5, 0.3, 0.1]} />
-                    <meshStandardMaterial color="#111" />
+                <group position={[0, 0.05, 0.88]}>
+                  {/* Base Glass */}
+                  <mesh rotation={[0, 0, Math.PI/2]}>
+                    <capsuleGeometry args={[0.18, 0.8, 16, 32]} />
+                    <meshStandardMaterial color="#111" transparent opacity={0.8} roughness={0.1} metalness={0.8} />
                   </mesh>
-                  <mesh position={[0.35, 0, 0]}>
-                    <boxGeometry args={[0.5, 0.3, 0.1]} />
-                    <meshStandardMaterial color="#111" />
-                  </mesh>
-                  <mesh position={[0, 0.1, 0]}>
-                    <boxGeometry args={[0.4, 0.05, 0.05]} />
-                    <meshStandardMaterial color="#111" />
+                  {/* Glowing Wireframe/Rim */}
+                  <mesh position={[0, 0, 0.02]} rotation={[0, 0, Math.PI/2]}>
+                    <capsuleGeometry args={[0.16, 0.75, 8, 16]} />
+                    <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={2} wireframe />
                   </mesh>
                 </group>
               )}
-              {accessoryId === 'acc_cybermask' && (
-                <mesh position={[0, -0.3, 0.8]}>
-                  <boxGeometry args={[0.8, 0.4, 0.3]} />
-                  <meshStandardMaterial color="#111" emissive={accessoryColor} emissiveIntensity={0.5} />
-                </mesh>
+              
+              {accessoryId === 'acc_shades' && (
+                <group position={[0, 0.05, 0.9]}>
+                  {/* Left Lens */}
+                  <mesh position={[-0.35, 0, 0]} rotation={[Math.PI/2, 0, 0]}>
+                    <cylinderGeometry args={[0.22, 0.22, 0.05, 32]} />
+                    <meshStandardMaterial color="#111" roughness={0.1} metalness={0.9} />
+                  </mesh>
+                  {/* Right Lens */}
+                  <mesh position={[0.35, 0, 0]} rotation={[Math.PI/2, 0, 0]}>
+                    <cylinderGeometry args={[0.22, 0.22, 0.05, 32]} />
+                    <meshStandardMaterial color="#111" roughness={0.1} metalness={0.9} />
+                  </mesh>
+                  {/* Bridge */}
+                  <mesh position={[0, 0.05, 0]}>
+                    <boxGeometry args={[0.3, 0.02, 0.02]} />
+                    <meshStandardMaterial color="#e5e5e5" metalness={1} roughness={0.2} />
+                  </mesh>
+                </group>
               )}
+
+              {accessoryId === 'acc_cybermask' && (
+                <group position={[0, -0.25, 0.85]}>
+                  {/* Main Mask Body */}
+                  <mesh rotation={[0.2, 0, 0]}>
+                    <boxGeometry args={[0.9, 0.45, 0.3]} />
+                    <meshStandardMaterial color="#1a1a1a" roughness={0.4} metalness={0.8} />
+                  </mesh>
+                  {/* Top glowing LED slit */}
+                  <mesh position={[0, 0.08, 0.16]} rotation={[0.2, 0, 0]}>
+                    <boxGeometry args={[0.6, 0.04, 0.05]} />
+                    <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={2} />
+                  </mesh>
+                  {/* Bottom glowing LED slit */}
+                  <mesh position={[0, -0.08, 0.16]} rotation={[0.2, 0, 0]}>
+                    <boxGeometry args={[0.4, 0.04, 0.05]} />
+                    <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={2} />
+                  </mesh>
+                </group>
+              )}
+
               {accessoryId === 'acc_gasmask' && (
                 <group position={[0, -0.2, 0.95]}>
+                  {/* Main respirator */}
                   <mesh rotation={[Math.PI/2, 0, 0]}>
-                    <cylinderGeometry args={[0.25, 0.35, 0.2, 16]} />
-                    <meshStandardMaterial color="#222" />
+                    <cylinderGeometry args={[0.3, 0.35, 0.25, 32]} />
+                    <meshStandardMaterial color="#27272a" roughness={0.8} />
                   </mesh>
-                  {/* Filters */}
-                  <mesh position={[-0.25, -0.1, 0.1]} rotation={[Math.PI/2, 0, 0.4]}>
-                    <cylinderGeometry args={[0.15, 0.15, 0.15, 16]} />
-                    <meshStandardMaterial color="#444" />
+                  {/* Center Grill */}
+                  <mesh position={[0, 0, 0.15]} rotation={[Math.PI/2, 0, 0]}>
+                    <cylinderGeometry args={[0.15, 0.15, 0.05, 16]} />
+                    <meshStandardMaterial color="#111" metalness={0.8} roughness={0.2} wireframe />
                   </mesh>
-                  <mesh position={[0.25, -0.1, 0.1]} rotation={[Math.PI/2, 0, -0.4]}>
-                    <cylinderGeometry args={[0.15, 0.15, 0.15, 16]} />
-                    <meshStandardMaterial color="#444" />
+                  {/* Left Filter */}
+                  <mesh position={[-0.35, -0.1, 0.05]} rotation={[Math.PI/2, 0, 0.5]}>
+                    <cylinderGeometry args={[0.18, 0.18, 0.2, 32]} />
+                    <meshStandardMaterial color="#3f3f46" metalness={0.5} roughness={0.6} />
+                    <mesh position={[0, 0.11, 0]}>
+                       <cylinderGeometry args={[0.16, 0.16, 0.02, 32]} />
+                       <meshStandardMaterial color="#ef4444" />
+                    </mesh>
+                  </mesh>
+                  {/* Right Filter */}
+                  <mesh position={[0.35, -0.1, 0.05]} rotation={[Math.PI/2, 0, -0.5]}>
+                    <cylinderGeometry args={[0.18, 0.18, 0.2, 32]} />
+                    <meshStandardMaterial color="#3f3f46" metalness={0.5} roughness={0.6} />
+                    <mesh position={[0, 0.11, 0]}>
+                       <cylinderGeometry args={[0.16, 0.16, 0.02, 32]} />
+                       <meshStandardMaterial color="#ef4444" />
+                    </mesh>
                   </mesh>
                 </group>
               )}
+
               {accessoryId === 'acc_catears' && (
                 <group position={[0, 0.85, 0]}>
-                  <mesh position={[-0.45, 0, 0]} rotation={[0, 0, 0.3]}>
-                    <coneGeometry args={[0.25, 0.6, 16]} />
-                    <meshStandardMaterial color={accessoryColor} roughness={0.9} />
+                  {/* Left Ear */}
+                  <group position={[-0.45, 0, 0]} rotation={[0, 0, 0.3]}>
+                    <mesh>
+                      <coneGeometry args={[0.3, 0.7, 32]} />
+                      <meshStandardMaterial color={accessoryColor} roughness={0.9} />
+                    </mesh>
+                    <mesh position={[0, 0.05, 0.15]} rotation={[-0.1, 0, 0]}>
+                      <coneGeometry args={[0.15, 0.5, 16]} />
+                      <meshStandardMaterial color="#fbcfe8" roughness={0.6} />
+                    </mesh>
+                  </group>
+                  {/* Right Ear */}
+                  <group position={[0.45, 0, 0]} rotation={[0, 0, -0.3]}>
+                    <mesh>
+                      <coneGeometry args={[0.3, 0.7, 32]} />
+                      <meshStandardMaterial color={accessoryColor} roughness={0.9} />
+                    </mesh>
+                    <mesh position={[0, 0.05, 0.15]} rotation={[-0.1, 0, 0]}>
+                      <coneGeometry args={[0.15, 0.5, 16]} />
+                      <meshStandardMaterial color="#fbcfe8" roughness={0.6} />
+                    </mesh>
+                  </group>
+                </group>
+              )}
+
+              {accessoryId === 'acc_halo' && (
+                <group position={[0, 1.4, 0]} rotation={[Math.PI / 2 + 0.2, 0, 0]}>
+                  {/* Outer glowing ring */}
+                  <mesh>
+                    <torusGeometry args={[0.5, 0.04, 16, 64]} />
+                    <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={2} />
                   </mesh>
-                  <mesh position={[0.45, 0, 0]} rotation={[0, 0, -0.3]}>
-                    <coneGeometry args={[0.25, 0.6, 16]} />
-                    <meshStandardMaterial color={accessoryColor} roughness={0.9} />
+                  {/* Inner bright ring */}
+                  <mesh>
+                    <torusGeometry args={[0.42, 0.015, 16, 64]} />
+                    <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={1} />
                   </mesh>
                 </group>
               )}
-              {accessoryId === 'acc_halo' && (
-                <mesh position={[0, 1.3, 0]} rotation={[Math.PI / 2 + 0.2, 0, 0]}>
-                  <torusGeometry args={[0.5, 0.06, 16, 32]} />
-                  <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.8} />
-                </mesh>
-              )}
+
               {accessoryId === 'acc_headphones' && (
                 <group position={[0, 0, 0]}>
+                  {/* Headband */}
                   <mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
-                    <torusGeometry args={[0.98, 0.08, 16, 32]} />
+                    <torusGeometry args={[0.98, 0.1, 16, 64]} />
                     <meshStandardMaterial color="#18181b" roughness={0.8} />
                   </mesh>
-                  <mesh position={[-0.98, 0, 0]} rotation={[0, Math.PI/2, 0]}>
-                    <cylinderGeometry args={[0.3, 0.3, 0.2, 32]} />
-                    <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.4} />
-                  </mesh>
-                  <mesh position={[0.98, 0, 0]} rotation={[0, Math.PI/2, 0]}>
-                    <cylinderGeometry args={[0.3, 0.3, 0.2, 32]} />
-                    <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.4} />
-                  </mesh>
+                  {/* Left Earcup */}
+                  <group position={[-0.98, 0, 0]} rotation={[0, Math.PI/2, 0]}>
+                    <mesh>
+                      <cylinderGeometry args={[0.4, 0.4, 0.25, 32]} />
+                      <meshStandardMaterial color="#27272a" roughness={0.6} metalness={0.4} />
+                    </mesh>
+                    {/* Glowing Logo */}
+                    <mesh position={[0, 0, -0.13]}>
+                      <circleGeometry args={[0.15, 32]} />
+                      <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={2} side={2} />
+                    </mesh>
+                  </group>
+                  {/* Right Earcup & Mic */}
+                  <group position={[0.98, 0, 0]} rotation={[0, Math.PI/2, 0]}>
+                    <mesh>
+                      <cylinderGeometry args={[0.4, 0.4, 0.25, 32]} />
+                      <meshStandardMaterial color="#27272a" roughness={0.6} metalness={0.4} />
+                    </mesh>
+                    {/* Glowing Logo */}
+                    <mesh position={[0, 0, 0.13]}>
+                      <circleGeometry args={[0.15, 32]} />
+                      <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={2} side={2} />
+                    </mesh>
+                    {/* Microphone */}
+                    <mesh position={[0, -0.25, -0.2]} rotation={[Math.PI/4, 0, 0]}>
+                      <capsuleGeometry args={[0.02, 0.4, 8, 8]} />
+                      <meshStandardMaterial color="#111" />
+                    </mesh>
+                  </group>
                 </group>
               )}
             </group>
