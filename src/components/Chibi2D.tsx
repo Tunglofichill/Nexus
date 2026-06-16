@@ -22,28 +22,32 @@ interface Chibi2DProps {
 }
 
 // ────────────────────────────────────────────────────────────────
-// UTILITIES
+// COLOR UTILITIES
 // ────────────────────────────────────────────────────────────────
 const darken = (hex: string, amount: number) => {
   let color = hex.replace('#', '')
   if (color.length === 3) color = color.split('').map(c => c + c).join('')
   const num = parseInt(color, 16)
-  let r = (num >> 16) - Math.round(255 * amount)
-  let g = ((num >> 8) & 0x00FF) - Math.round(255 * amount)
-  let b = (num & 0x0000FF) - Math.round(255 * amount)
-  r = Math.max(0, Math.min(255, r))
-  g = Math.max(0, Math.min(255, g))
-  b = Math.max(0, Math.min(255, b))
-  return `#${(g | (b << 8) | (r << 16)).toString(16).padStart(6, '0')}`
+  let r = Math.max(0, Math.min(255, (num >> 16) - Math.round(255 * amount)))
+  let g = Math.max(0, Math.min(255, ((num >> 8) & 0xFF) - Math.round(255 * amount)))
+  let b = Math.max(0, Math.min(255, (num & 0xFF) - Math.round(255 * amount)))
+  return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
 }
 
-const lighten = (hex: string, amount: number) => {
-  return darken(hex, -amount)
-}
+const lighten = (hex: string, amount: number) => darken(hex, -amount)
 
 // ────────────────────────────────────────────────────────────────
-// MAIN SVG COMPONENT
+// COORDINATE SYSTEM (viewBox 500x500)
+//
+// HEAD:   center (250, 130), rx=90, ry=82
+// NECK:   center (250, 215)
+// TORSO:  center (250, 260), rx=55, ry=42
+// PELVIS: center (250, 300), rx=45, ry=18
+// ARM:    shoulder ~(195/305, 240), hand ~(170/330, 310)
+// LEG:    hip ~(220/280, 310), foot ~(220/280, 385)
+// SHOE:   center ~(220/280, 392)
 // ────────────────────────────────────────────────────────────────
+
 export default function Chibi2D({
   skinColor = '#fcd34d',
   hairColor = '#3b82f6',
@@ -64,322 +68,383 @@ export default function Chibi2D({
   className = ''
 }: Chibi2DProps) {
 
-  const skinDark = useMemo(() => darken(skinColor, 0.15), [skinColor])
-  const skinShadow = useMemo(() => darken(skinColor, 0.25), [skinColor])
-  const hairDark = useMemo(() => darken(hairColor, 0.2), [hairColor])
-  const hairLight = useMemo(() => lighten(hairColor, 0.2), [hairColor])
-  const clothesDark = useMemo(() => darken(clothesColor, 0.2), [clothesColor])
-  const bottomsDark = useMemo(() => darken(bottomsColor, 0.2), [bottomsColor])
-  const eyeDark = useMemo(() => darken(eyesColor, 0.4), [eyesColor])
-  const eyeLight = useMemo(() => lighten(eyesColor, 0.3), [eyesColor])
+  const skinDark = useMemo(() => darken(skinColor, 0.12), [skinColor])
+  const skinShadow = useMemo(() => darken(skinColor, 0.22), [skinColor])
+  const hairDark = useMemo(() => darken(hairColor, 0.18), [hairColor])
+  const hairLight = useMemo(() => lighten(hairColor, 0.15), [hairColor])
+  const clothesDark = useMemo(() => darken(clothesColor, 0.18), [clothesColor])
+  const clothesLight = useMemo(() => lighten(clothesColor, 0.12), [clothesColor])
+  const bottomsDark = useMemo(() => darken(bottomsColor, 0.18), [bottomsColor])
+  const eyeDark = useMemo(() => darken(eyesColor, 0.35), [eyesColor])
+  const eyeLight = useMemo(() => lighten(eyesColor, 0.25), [eyesColor])
+  const outlineColor = '#2d2d3d'
 
-  // Scale modifications based on body type
-  let scaleY = 1
-  let scaleX = 1
-  if (bodyId === 'body_chubby') { scaleX = 1.15; scaleY = 0.95 }
-  if (bodyId === 'body_tall') { scaleX = 0.95; scaleY = 1.15 }
-  if (bodyId === 'body_muscular') { scaleX = 1.2; scaleY = 1.05 }
+  // Body type scaling
+  let bodyW = 1, bodyH = 1
+  if (bodyId === 'body_chubby') { bodyW = 1.15; bodyH = 0.96 }
+  if (bodyId === 'body_tall') { bodyW = 0.94; bodyH = 1.12 }
+  if (bodyId === 'body_muscular') { bodyW = 1.18; bodyH = 1.04 }
+
+  // Unique IDs for gradients (prevent clashes when multiple instances)
+  const uid = useMemo(() => Math.random().toString(36).slice(2, 8), [])
 
   return (
     <div className={`relative w-full h-full flex items-center justify-center overflow-hidden ${className}`}>
-      
       {/* ── CSS Animations ── */}
       <style>{`
-        @keyframes float {
+        @keyframes chibi-float-${uid} {
           0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
+          50% { transform: translateY(-8px); }
         }
-        @keyframes breathe {
-          0%, 100% { transform: scaleY(1) translateY(0); }
-          50% { transform: scaleY(1.02) translateY(-2px); }
+        @keyframes chibi-blink-${uid} {
+          0%, 93%, 95%, 100% { transform: scaleY(1); }
+          94% { transform: scaleY(0.08); }
         }
-        @keyframes blink {
-          0%, 96%, 98%, 100% { transform: scaleY(1); opacity: 1; }
-          97%, 99% { transform: scaleY(0.1); opacity: 0.8; }
+        @keyframes chibi-hair-${uid} {
+          0%, 100% { transform: rotate(0deg); }
+          50% { transform: rotate(1.5deg); }
         }
-        @keyframes sway {
-          0%, 100% { transform: rotate(-2deg); }
-          50% { transform: rotate(2deg); }
-        }
-        .anim-float { animation: float 4s ease-in-out infinite; }
-        .anim-breathe { animation: breathe 3s ease-in-out infinite; transform-origin: 250px 300px; }
-        .anim-blink { animation: blink 5s infinite; transform-origin: center; }
-        .anim-sway { animation: sway 6s ease-in-out infinite; transform-origin: 250px 100px; }
+        .chibi-float-${uid} { animation: chibi-float-${uid} 3.5s ease-in-out infinite; }
+        .chibi-blink-${uid} { animation: chibi-blink-${uid} 4s ease-in-out infinite; transform-origin: center 145px; }
+        .chibi-hair-${uid} { animation: chibi-hair-${uid} 4s ease-in-out infinite; transform-origin: 250px 80px; }
       `}</style>
 
-      {/* ── BACKGROUND STAGE ── */}
-      <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-0">
-        <svg viewBox="0 0 500 500" className="w-full h-full opacity-60">
-          <defs>
-            <radialGradient id="stageGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="var(--stage-color, #a855f7)" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="var(--stage-color, #a855f7)" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          {stageId === 'stage_holo' && <ellipse cx="250" cy="400" rx="160" ry="40" fill="url(#stageGlow)" stroke="#6366f1" strokeWidth="2" strokeDasharray="4 4" />}
-          {stageId === 'stage_ring' && <ellipse cx="250" cy="400" rx="140" ry="35" fill="none" stroke="#06b6d4" strokeWidth="6" />}
-          {stageId === 'stage_pedestal' && <path d="M 120 400 C 120 420, 380 420, 380 400 L 360 430 C 360 450, 140 450, 140 430 Z" fill="#18181b" stroke="#ec4899" strokeWidth="4" />}
-          {stageId === 'stage_magic' && <ellipse cx="250" cy="400" rx="180" ry="45" fill="url(#stageGlow)" stroke="#a855f7" strokeWidth="2" strokeDasharray="10 5" />}
-          {/* Default soft shadow */}
-          {stageId === 'stage_none' && <ellipse cx="250" cy="410" rx="90" ry="18" fill="rgba(0,0,0,0.15)" filter="blur(4px)" />}
-        </svg>
-      </div>
-
-      {/* ── MAIN AVATAR SVG ── */}
-      <svg 
-        viewBox="0 0 500 500" 
-        className="anim-float w-full h-full max-w-[600px] max-h-[600px] z-10 filter drop-shadow-2xl"
-        style={{ transform: `scale(${scaleX}, ${scaleY})` }}
+      {/* ── MAIN SVG ── */}
+      <svg
+        viewBox="0 0 500 470"
+        className={`chibi-float-${uid} w-full h-full max-w-[500px] max-h-[500px] z-10`}
+        style={{ filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.18))' }}
       >
         <defs>
-          {/* Anime Hair Gradients */}
-          <linearGradient id="hairGrad" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`hg-${uid}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={hairLight} />
-            <stop offset="50%" stopColor={hairColor} />
             <stop offset="100%" stopColor={hairDark} />
           </linearGradient>
-          
-          <linearGradient id="eyeGrad" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`eg-${uid}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={eyeDark} />
-            <stop offset="60%" stopColor={eyesColor} />
+            <stop offset="55%" stopColor={eyesColor} />
             <stop offset="100%" stopColor={eyeLight} />
           </linearGradient>
-
-          {/* Skin shading overlay */}
-          <linearGradient id="skinShade" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="transparent" />
-            <stop offset="70%" stopColor="transparent" />
-            <stop offset="100%" stopColor="rgba(0,0,0,0.15)" />
+          <linearGradient id={`cg-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={clothesLight} />
+            <stop offset="100%" stopColor={clothesDark} />
           </linearGradient>
-
-          <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#000" floodOpacity="0.25" />
-          </filter>
+          <linearGradient id={`bg-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={bottomsColor} />
+            <stop offset="100%" stopColor={bottomsDark} />
+          </linearGradient>
+          <linearGradient id={`sk-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={skinColor} />
+            <stop offset="100%" stopColor={skinDark} />
+          </linearGradient>
+          <clipPath id={`headClip-${uid}`}>
+            <ellipse cx="250" cy="130" rx="90" ry="82" />
+          </clipPath>
         </defs>
 
-        <g className="anim-breathe">
+        {/* Ground shadow */}
+        <ellipse cx="250" cy="420" rx="70" ry="12" fill="rgba(0,0,0,0.12)" />
+
+        <g transform={`translate(250,250) scale(${bodyW},${bodyH}) translate(-250,-250)`}>
+
           {/* ═══════════════ BACK HAIR ═══════════════ */}
-          <g className="anim-sway">
+          <g className={`chibi-hair-${uid}`}>
+            {/* Hair cap (back part) — large ellipse behind head */}
+            {hairId !== 'hair_bald' && (
+              <ellipse cx="250" cy="110" rx="100" ry="88" fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2.5" />
+            )}
+            {/* Long hair back */}
             {hairId === 'hair_long' && (
-              <path d="M 160 150 C 120 250, 130 350, 150 380 C 250 390, 350 390, 350 380 C 370 350, 380 250, 340 150 Z" fill="url(#hairGrad)" />
+              <path d="M 155 130 C 145 220, 150 320, 170 370 Q 250 385 330 370 C 350 320, 355 220, 345 130"
+                    fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2" />
             )}
-            {hairId === 'hair_twintails' && (
-              <>
-                <path d="M 140 140 C 60 200, 40 320, 80 380 C 100 350, 120 280, 140 140" fill="url(#hairGrad)" />
-                <path d="M 360 140 C 440 200, 460 320, 420 380 C 400 350, 380 280, 360 140" fill="url(#hairGrad)" />
-              </>
-            )}
+            {hairId === 'hair_twintails' && (<>
+              <path d="M 155 120 C 110 180, 80 290, 100 360 C 120 370, 140 340, 155 280 C 155 220, 155 160, 155 120"
+                    fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2" />
+              <path d="M 345 120 C 390 180, 420 290, 400 360 C 380 370, 360 340, 345 280 C 345 220, 345 160, 345 120"
+                    fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2" />
+            </>)}
             {hairId === 'hair_ponytail' && (
-              <path d="M 250 120 C 180 180, 160 300, 220 380 C 260 360, 270 240, 250 120" fill="url(#hairGrad)" />
-            )}
-            {hairId === 'hair_curly' && (
-              <circle cx="250" cy="180" r="110" fill="url(#hairGrad)" />
+              <path d="M 230 85 C 200 100, 200 200, 220 340 C 240 360, 260 360, 280 340 C 290 240, 300 100, 270 85"
+                    fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="2" />
             )}
           </g>
 
-          {/* ═══════════════ LEGS & BOTTOMS ═══════════════ */}
+          {/* ═══════════════ LEGS ═══════════════ */}
           <g>
-            {/* Left Leg */}
-            <line x1="215" y1="280" x2="215" y2="370" stroke={skinColor} strokeWidth="26" strokeLinecap="round" />
-            {bottomsId === 'bottom_shorts' && <line x1="215" y1="280" x2="215" y2="320" stroke={bottomsColor} strokeWidth="28" strokeLinecap="round" />}
-            {bottomsId === 'bottom_jeans' && <line x1="215" y1="280" x2="215" y2="360" stroke={bottomsColor} strokeWidth="28" strokeLinecap="round" />}
-            {/* Shoe */}
-            <path d="M 195 370 C 195 350, 235 350, 235 370 C 240 385, 190 385, 195 370 Z" fill="#1c1917" />
-            <ellipse cx="205" cy="375" rx="5" ry="3" fill="#fff" opacity="0.2" transform="rotate(-15 205 375)" />
+            {/* Left leg skin */}
+            <path d="M 210 305 C 208 330, 207 360, 210 388 C 213 395, 228 395, 230 388 C 232 360, 231 330, 230 305 Z"
+                  fill={`url(#sk-${uid})`} stroke={outlineColor} strokeWidth="2" />
+            {/* Right leg skin */}
+            <path d="M 270 305 C 268 330, 267 360, 270 388 C 273 395, 288 395, 290 388 C 292 360, 291 330, 290 305 Z"
+                  fill={`url(#sk-${uid})`} stroke={outlineColor} strokeWidth="2" />
 
-            {/* Right Leg */}
-            <line x1="285" y1="280" x2="285" y2="370" stroke={skinColor} strokeWidth="26" strokeLinecap="round" />
-            {bottomsId === 'bottom_shorts' && <line x1="285" y1="280" x2="285" y2="320" stroke={bottomsColor} strokeWidth="28" strokeLinecap="round" />}
-            {bottomsId === 'bottom_jeans' && <line x1="285" y1="280" x2="285" y2="360" stroke={bottomsColor} strokeWidth="28" strokeLinecap="round" />}
-            {/* Shoe */}
-            <path d="M 265 370 C 265 350, 305 350, 305 370 C 310 385, 260 385, 265 370 Z" fill="#1c1917" />
-            <ellipse cx="295" cy="375" rx="5" ry="3" fill="#fff" opacity="0.2" transform="rotate(15 295 375)" />
+            {/* Pants overlay */}
+            {bottomsId === 'bottom_jeans' && (<>
+              <path d="M 208 305 C 207 330, 207 355, 209 375 C 212 380, 229 380, 231 375 C 233 355, 233 330, 232 305 Z"
+                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="2" />
+              <path d="M 268 305 C 267 330, 267 355, 269 375 C 272 380, 289 380, 291 375 C 293 355, 293 330, 292 305 Z"
+                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="2" />
+            </>)}
+            {bottomsId === 'bottom_shorts' && (<>
+              <path d="M 208 305 C 207 320, 208 335, 210 340 C 213 344, 228 344, 231 340 C 233 335, 233 320, 232 305 Z"
+                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="2" />
+              <path d="M 268 305 C 267 320, 268 335, 270 340 C 273 344, 288 344, 291 340 C 293 335, 293 320, 292 305 Z"
+                    fill={`url(#bg-${uid})`} stroke={outlineColor} strokeWidth="2" />
+            </>)}
+
+            {/* Shoes */}
+            <ellipse cx="220" cy="395" rx="18" ry="10" fill="#292524" stroke={outlineColor} strokeWidth="2" />
+            <ellipse cx="220" cy="393" rx="14" ry="6" fill="#3f3f46" />
+            <ellipse cx="280" cy="395" rx="18" ry="10" fill="#292524" stroke={outlineColor} strokeWidth="2" />
+            <ellipse cx="280" cy="393" rx="14" ry="6" fill="#3f3f46" />
           </g>
 
-          {/* ═══════════════ TORSO & ARMS ═══════════════ */}
+          {/* ═══════════════ BODY ═══════════════ */}
           <g>
-            {/* Back Skirt (if applicable) */}
-            {bottomsId === 'bottom_skirt' && (
-              <line x1="250" y1="290" x2="250" y2="330" stroke={bottomsDark} strokeWidth="120" strokeLinecap="round" />
-            )}
+            {/* Left arm */}
+            <path d="M 195 242 C 178 260, 168 290, 172 310 C 175 318, 185 318, 188 310 C 192 290, 196 270, 205 252"
+                  fill={['clothes_casual','clothes_robe'].includes(clothesId) ? `url(#sk-${uid})` : `url(#cg-${uid})`}
+                  stroke={outlineColor} strokeWidth="2" />
+            {/* Left hand */}
+            <circle cx="180" cy="314" r="10" fill={skinColor} stroke={outlineColor} strokeWidth="2" />
 
-            {/* Left Arm */}
-            <line x1="200" y1="240" x2="175" y2="310" stroke={clothesId === 'clothes_casual' || clothesId === 'clothes_ninja' ? skinColor : clothesDark} strokeWidth="22" strokeLinecap="round" />
-            {clothesId !== 'clothes_casual' && clothesId !== 'clothes_ninja' && <line x1="200" y1="240" x2="190" y2="270" stroke={clothesColor} strokeWidth="24" strokeLinecap="round" />}
-
-            {/* Right Arm */}
-            <line x1="300" y1="240" x2="325" y2="310" stroke={clothesId === 'clothes_casual' || clothesId === 'clothes_ninja' ? skinColor : clothesDark} strokeWidth="22" strokeLinecap="round" />
-            {clothesId !== 'clothes_casual' && clothesId !== 'clothes_ninja' && <line x1="300" y1="240" x2="310" y2="270" stroke={clothesColor} strokeWidth="24" strokeLinecap="round" />}
+            {/* Right arm */}
+            <path d="M 305 242 C 322 260, 332 290, 328 310 C 325 318, 315 318, 312 310 C 308 290, 304 270, 295 252"
+                  fill={['clothes_casual','clothes_robe'].includes(clothesId) ? `url(#sk-${uid})` : `url(#cg-${uid})`}
+                  stroke={outlineColor} strokeWidth="2" />
+            {/* Right hand */}
+            <circle cx="320" cy="314" r="10" fill={skinColor} stroke={outlineColor} strokeWidth="2" />
 
             {/* Neck */}
-            <rect x="235" y="200" width="30" height="30" rx="15" fill={skinDark} />
+            <rect x="237" y="205" width="26" height="30" rx="13" fill={skinDark} stroke={outlineColor} strokeWidth="1.5" />
 
-            {/* Front Skirt */}
+            {/* Skirt (if applicable) */}
             {bottomsId === 'bottom_skirt' && (
-              <line x1="250" y1="290" x2="250" y2="320" stroke={bottomsColor} strokeWidth="120" strokeLinecap="round" filter="url(#softShadow)" />
+              <path d="M 195 290 C 195 285, 305 285, 305 290 L 320 345 C 320 355, 180 355, 180 345 Z"
+                    fill={bottomsColor} stroke={outlineColor} strokeWidth="2" />
             )}
 
-            {/* Torso Base (The Thick Stick) */}
-            <line x1="250" y1="250" x2="250" y2="290" stroke={clothesColor} strokeWidth="90" strokeLinecap="round" />
-            
-            {/* Clothes Details */}
-            {clothesId === 'clothes_casual' && (
-              <path d="M 230 225 L 270 225 L 250 240 Z" fill="#fff" opacity="0.8" />
-            )}
-            {clothesId === 'clothes_suit' && (
-              <>
-                <path d="M 230 215 L 270 215 L 250 245 Z" fill="#fff" />
-                <path d="M 245 225 L 255 225 L 250 260 Z" fill="#ef4444" />
-                <path d="M 215 230 L 250 260 L 240 300" fill="none" stroke={clothesDark} strokeWidth="4" />
-                <path d="M 285 230 L 250 260 L 260 300" fill="none" stroke={clothesDark} strokeWidth="4" />
-              </>
-            )}
-            {clothesId === 'clothes_hoodie' && (
-              <>
-                <circle cx="250" cy="225" r="45" fill={clothesDark} />
-                <rect x="225" y="270" width="50" height="25" rx="10" fill={clothesDark} opacity="0.5" />
-              </>
-            )}
+            {/* Torso */}
+            <path d="M 195 235 C 195 215, 305 215, 305 235 L 310 300 C 310 315, 190 315, 190 300 Z"
+                  fill={`url(#cg-${uid})`} stroke={outlineColor} strokeWidth="2.5" />
+
+            {/* Clothes details */}
+            {clothesId === 'clothes_casual' && (<>
+              {/* Collar */}
+              <path d="M 230 220 L 250 240 L 270 220" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" opacity="0.7" />
+              {/* Sleeve hems — subtle line marks */}
+              <path d="M 198 252 Q 200 250 205 252" fill="none" stroke={clothesDark} strokeWidth="1.5" />
+              <path d="M 302 252 Q 300 250 295 252" fill="none" stroke={clothesDark} strokeWidth="1.5" />
+            </>)}
+            {clothesId === 'clothes_suit' && (<>
+              <path d="M 235 220 L 250 240 L 265 220" fill="#fff" stroke="none" opacity="0.9" />
+              <path d="M 247 232 L 250 285 L 253 232" fill="#ef4444" />
+              <line x1="250" y1="220" x2="230" y2="305" stroke={clothesDark} strokeWidth="2.5" />
+              <line x1="250" y1="220" x2="270" y2="305" stroke={clothesDark} strokeWidth="2.5" />
+            </>)}
+            {clothesId === 'clothes_hoodie' && (<>
+              <ellipse cx="250" cy="222" rx="30" ry="14" fill={clothesDark} stroke={outlineColor} strokeWidth="1.5" />
+              <path d="M 220 270 Q 250 280 280 270" fill="none" stroke={clothesDark} strokeWidth="2" />
+            </>)}
           </g>
 
           {/* ═══════════════ HEAD & FACE ═══════════════ */}
-          <g className="anim-sway">
-            
-            {/* Base Skull / Face shape */}
-            <ellipse cx="250" cy="140" rx="95" ry="85" fill={skinColor} filter="url(#softShadow)" />
-            <ellipse cx="250" cy="140" rx="95" ry="85" fill="url(#skinShade)" />
+          <g>
+            {/* Head shape */}
+            <ellipse cx="250" cy="130" rx="90" ry="82" fill={skinColor} stroke={outlineColor} strokeWidth="2.5" />
+            {/* Subtle cheek shading */}
+            <ellipse cx="250" cy="155" rx="75" ry="50" fill={skinDark} opacity="0.15" />
 
             {/* Blush */}
-            <ellipse cx="180" cy="165" rx="18" ry="10" fill="#f9a8d4" opacity="0.6" />
-            <ellipse cx="320" cy="165" rx="18" ry="10" fill="#f9a8d4" opacity="0.6" />
+            <ellipse cx="178" cy="162" rx="16" ry="8" fill="#f9a8d4" opacity="0.5" />
+            <ellipse cx="322" cy="162" rx="16" ry="8" fill="#f9a8d4" opacity="0.5" />
 
-            {/* Eyes */}
-            <g className="anim-blink">
-              {eyesId === 'eyes_normal' || eyesId === 'eyes_big' ? (
-                <>
-                  {/* Left Eye */}
-                  <g transform="translate(180, 140)">
-                    <ellipse cx="0" cy="0" rx="18" ry="22" fill="#fff" />
-                    <ellipse cx="0" cy="2" rx="15" ry="18" fill="url(#eyeGrad)" />
-                    <circle cx="0" cy="4" r="8" fill="#111" />
-                    <circle cx="-5" cy="-6" r="6" fill="#fff" />
-                    <circle cx="6" cy="8" r="3" fill="#fff" />
-                    <path d="M -22 -15 Q 0 -30 22 -15" fill="none" stroke="#111" strokeWidth="4" strokeLinecap="round" />
-                  </g>
-                  {/* Right Eye */}
-                  <g transform="translate(320, 140)">
-                    <ellipse cx="0" cy="0" rx="18" ry="22" fill="#fff" />
-                    <ellipse cx="0" cy="2" rx="15" ry="18" fill="url(#eyeGrad)" />
-                    <circle cx="0" cy="4" r="8" fill="#111" />
-                    <circle cx="5" cy="-6" r="6" fill="#fff" />
-                    <circle cx="-6" cy="8" r="3" fill="#fff" />
-                    <path d="M -22 -15 Q 0 -30 22 -15" fill="none" stroke="#111" strokeWidth="4" strokeLinecap="round" />
-                  </g>
-                </>
-              ) : null}
+            {/* ── EYES ── */}
+            <g className={`chibi-blink-${uid}`}>
+              {(eyesId === 'eyes_normal' || eyesId === 'eyes_big') && (<>
+                {/* Left Eye */}
+                <g transform="translate(205, 138)">
+                  {/* White */}
+                  <ellipse cx="0" cy="0" rx={eyesId === 'eyes_big' ? 20 : 16} ry={eyesId === 'eyes_big' ? 24 : 20} fill="#fff" stroke={outlineColor} strokeWidth="2" />
+                  {/* Iris */}
+                  <ellipse cx="0" cy="2" rx={eyesId === 'eyes_big' ? 14 : 12} ry={eyesId === 'eyes_big' ? 18 : 15} fill={`url(#eg-${uid})`} />
+                  {/* Pupil */}
+                  <circle cx="0" cy="4" r={eyesId === 'eyes_big' ? 7 : 6} fill="#111" />
+                  {/* Highlights */}
+                  <circle cx="-5" cy="-6" r="5" fill="#fff" opacity="0.9" />
+                  <circle cx="4" cy="6" r="2.5" fill="#fff" opacity="0.6" />
+                  {/* Upper eyelash */}
+                  <path d={`M ${eyesId === 'eyes_big' ? -22 : -18} -${eyesId === 'eyes_big' ? 18 : 14} Q 0 -${eyesId === 'eyes_big' ? 30 : 24} ${eyesId === 'eyes_big' ? 22 : 18} -${eyesId === 'eyes_big' ? 18 : 14}`}
+                        fill="none" stroke={outlineColor} strokeWidth="3.5" strokeLinecap="round" />
+                </g>
+                {/* Right Eye */}
+                <g transform="translate(295, 138)">
+                  <ellipse cx="0" cy="0" rx={eyesId === 'eyes_big' ? 20 : 16} ry={eyesId === 'eyes_big' ? 24 : 20} fill="#fff" stroke={outlineColor} strokeWidth="2" />
+                  <ellipse cx="0" cy="2" rx={eyesId === 'eyes_big' ? 14 : 12} ry={eyesId === 'eyes_big' ? 18 : 15} fill={`url(#eg-${uid})`} />
+                  <circle cx="0" cy="4" r={eyesId === 'eyes_big' ? 7 : 6} fill="#111" />
+                  <circle cx="5" cy="-6" r="5" fill="#fff" opacity="0.9" />
+                  <circle cx="-4" cy="6" r="2.5" fill="#fff" opacity="0.6" />
+                  <path d={`M -${eyesId === 'eyes_big' ? 22 : 18} -${eyesId === 'eyes_big' ? 18 : 14} Q 0 -${eyesId === 'eyes_big' ? 30 : 24} ${eyesId === 'eyes_big' ? 22 : 18} -${eyesId === 'eyes_big' ? 18 : 14}`}
+                        fill="none" stroke={outlineColor} strokeWidth="3.5" strokeLinecap="round" />
+                </g>
+              </>)}
 
-              {eyesId === 'eyes_closed' && (
-                <>
-                  <path d="M 160 145 Q 180 160 200 145" fill="none" stroke="#111" strokeWidth="4" strokeLinecap="round" />
-                  <path d="M 300 145 Q 320 160 340 145" fill="none" stroke="#111" strokeWidth="4" strokeLinecap="round" />
-                </>
-              )}
+              {eyesId === 'eyes_closed' && (<>
+                <path d="M 186 140 Q 205 155 224 140" fill="none" stroke={outlineColor} strokeWidth="3" strokeLinecap="round" />
+                <path d="M 276 140 Q 295 155 314 140" fill="none" stroke={outlineColor} strokeWidth="3" strokeLinecap="round" />
+              </>)}
 
-              {eyesId === 'eyes_angry' && (
-                <>
-                  <path d="M 160 135 L 200 145" stroke="#111" strokeWidth="4" strokeLinecap="round" />
-                  <circle cx="180" cy="150" r="12" fill={eyesColor} />
-                  <path d="M 300 145 L 340 135" stroke="#111" strokeWidth="4" strokeLinecap="round" />
-                  <circle cx="320" cy="150" r="12" fill={eyesColor} />
-                </>
-              )}
+              {eyesId === 'eyes_angry' && (<>
+                <line x1="186" y1="128" x2="224" y2="138" stroke={outlineColor} strokeWidth="3.5" strokeLinecap="round" />
+                <ellipse cx="205" cy="145" rx="12" ry="14" fill={eyesColor} stroke={outlineColor} strokeWidth="2" />
+                <circle cx="205" cy="147" r="5" fill="#111" />
+                <line x1="314" y1="138" x2="276" y2="128" stroke={outlineColor} strokeWidth="3.5" strokeLinecap="round" />
+                <ellipse cx="295" cy="145" rx="12" ry="14" fill={eyesColor} stroke={outlineColor} strokeWidth="2" />
+                <circle cx="295" cy="147" r="5" fill="#111" />
+              </>)}
 
-              {eyesId === 'eyes_star' && (
-                <>
-                  <polygon points="180,125 185,138 198,138 188,146 191,158 180,150 169,158 172,146 162,138 175,138" fill={eyesColor} stroke="#111" strokeWidth="2" />
-                  <polygon points="320,125 325,138 338,138 328,146 331,158 320,150 309,158 312,146 302,138 315,138" fill={eyesColor} stroke="#111" strokeWidth="2" />
-                </>
+              {eyesId === 'eyes_star' && (<>
+                <polygon points="205,120 209,134 223,134 212,142 215,156 205,148 195,156 198,142 187,134 201,134" fill={eyesColor} stroke={outlineColor} strokeWidth="2" />
+                <circle cx="200" cy="132" r="3" fill="#fff" opacity="0.8" />
+                <polygon points="295,120 299,134 313,134 302,142 305,156 295,148 285,156 288,142 277,134 291,134" fill={eyesColor} stroke={outlineColor} strokeWidth="2" />
+                <circle cx="290" cy="132" r="3" fill="#fff" opacity="0.8" />
+              </>)}
+
+              {eyesId === 'eyes_heart' && (<>
+                <g transform="translate(205, 140)">
+                  <path d="M 0 5 C -3 -3 -12 -8 -12 -2 C -12 3 0 12 0 12 C 0 12 12 3 12 -2 C 12 -8 3 -3 0 5 Z" fill={eyesColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <circle cx="-4" cy="-2" r="2" fill="#fff" opacity="0.7" />
+                </g>
+                <g transform="translate(295, 140)">
+                  <path d="M 0 5 C -3 -3 -12 -8 -12 -2 C -12 3 0 12 0 12 C 0 12 12 3 12 -2 C 12 -8 3 -3 0 5 Z" fill={eyesColor} stroke={outlineColor} strokeWidth="1.5" />
+                  <circle cx="4" cy="-2" r="2" fill="#fff" opacity="0.7" />
+                </g>
+              </>)}
+
+              {eyesId === 'eyes_sad' && (<>
+                <line x1="186" y1="138" x2="224" y2="128" stroke={outlineColor} strokeWidth="3" strokeLinecap="round" />
+                <ellipse cx="205" cy="145" rx="12" ry="14" fill={eyesColor} stroke={outlineColor} strokeWidth="2" />
+                <circle cx="205" cy="147" r="5" fill="#111" />
+                <circle cx="200" cy="138" r="3" fill="#fff" opacity="0.7" />
+                <line x1="276" y1="128" x2="314" y2="138" stroke={outlineColor} strokeWidth="3" strokeLinecap="round" />
+                <ellipse cx="295" cy="145" rx="12" ry="14" fill={eyesColor} stroke={outlineColor} strokeWidth="2" />
+                <circle cx="295" cy="147" r="5" fill="#111" />
+                <circle cx="300" cy="138" r="3" fill="#fff" opacity="0.7" />
+              </>)}
+
+              {eyesId === 'eyes_cyber' && (
+                <rect x="178" y="135" rx="4" width="144" height="12" fill={eyesColor} opacity="0.9" stroke={outlineColor} strokeWidth="1.5" />
               )}
             </g>
 
-            {/* Nose */}
-            <circle cx="250" cy="165" r="3" fill={skinShadow} />
+            {/* ── NOSE ── */}
+            <ellipse cx="250" cy="163" rx="3" ry="2" fill={skinShadow} />
 
-            {/* Mouth */}
-            {mouthId === 'mouth_smile' && <path d="M 240 185 Q 250 195 260 185" fill="none" stroke="#111" strokeWidth="3" strokeLinecap="round" />}
-            {mouthId === 'mouth_open' && <ellipse cx="250" cy="185" rx="8" ry="12" fill="#ef4444" stroke="#111" strokeWidth="2" />}
-            {mouthId === 'mouth_sad' && <path d="M 240 190 Q 250 180 260 190" fill="none" stroke="#111" strokeWidth="3" strokeLinecap="round" />}
-            {mouthId === 'mouth_cat' && <path d="M 240 185 Q 245 190 250 185 Q 255 190 260 185" fill="none" stroke="#111" strokeWidth="3" strokeLinecap="round" />}
-            {mouthId === 'mouth_vampire' && (
-              <g transform="translate(250, 185)">
-                <path d="M -10 0 L 10 0" stroke="#111" strokeWidth="2" />
-                <polygon points="-8,0 -4,8 0,0" fill="#fff" />
-                <polygon points="8,0 4,8 0,0" fill="#fff" />
-              </g>
+            {/* ── MOUTH ── */}
+            {mouthId === 'mouth_smile' && <path d="M 238 178 Q 250 190 262 178" fill="none" stroke={outlineColor} strokeWidth="2.5" strokeLinecap="round" />}
+            {mouthId === 'mouth_open' && (<>
+              <ellipse cx="250" cy="180" rx="8" ry="10" fill="#c0392b" stroke={outlineColor} strokeWidth="2" />
+              <ellipse cx="250" cy="176" rx="6" ry="4" fill="#e74c3c" />
+            </>)}
+            {mouthId === 'mouth_sad' && <path d="M 238 185 Q 250 175 262 185" fill="none" stroke={outlineColor} strokeWidth="2.5" strokeLinecap="round" />}
+            {mouthId === 'mouth_cat' && <path d="M 236 180 Q 243 186 250 180 Q 257 186 264 180" fill="none" stroke={outlineColor} strokeWidth="2.5" strokeLinecap="round" />}
+            {mouthId === 'mouth_vampire' && (<>
+              <path d="M 238 180 L 262 180" stroke={outlineColor} strokeWidth="2" strokeLinecap="round" />
+              <polygon points="240,180 244,192 248,180" fill="#fff" stroke={outlineColor} strokeWidth="1" />
+              <polygon points="252,180 256,192 260,180" fill="#fff" stroke={outlineColor} strokeWidth="1" />
+            </>)}
+
+            {/* ── DECALS ── */}
+            {decalsId === 'decal_scar' && <path d="M 195 120 L 210 155 M 200 132 L 208 128" stroke={decalsColor} strokeWidth="2.5" strokeLinecap="round" />}
+            {decalsId === 'decal_bandage' && <rect x="225" y="155" width="50" height="12" rx="3" fill="#f5f5dc" stroke="#ddd" strokeWidth="1" transform="rotate(-5 250 160)" />}
+            {decalsId === 'decal_freckles' && (<>
+              <circle cx="185" cy="158" r="2" fill="#b45309" opacity="0.5" />
+              <circle cx="195" cy="163" r="2.5" fill="#b45309" opacity="0.5" />
+              <circle cx="190" cy="155" r="1.5" fill="#b45309" opacity="0.5" />
+              <circle cx="305" cy="158" r="2" fill="#b45309" opacity="0.5" />
+              <circle cx="315" cy="163" r="2.5" fill="#b45309" opacity="0.5" />
+              <circle cx="310" cy="155" r="1.5" fill="#b45309" opacity="0.5" />
+            </>)}
+            {decalsId === 'decal_tear' && (
+              <path d="M 310 155 Q 314 165 310 175" fill="#93c5fd" stroke="#60a5fa" strokeWidth="1.5" opacity="0.7" />
             )}
 
-            {/* Decals */}
-            {decalsId === 'decal_scar' && <path d="M 170 120 L 190 160 M 175 135 L 185 130" stroke={decalsColor} strokeWidth="3" strokeLinecap="round" />}
-            {decalsId === 'decal_bandage' && <rect x="220" y="155" width="60" height="15" rx="4" fill="#f5f5f5" transform="rotate(-5 250 160)" opacity="0.9" />}
-            {decalsId === 'decal_freckles' && (
-              <g fill="#b45309" opacity="0.6">
-                <circle cx="170" cy="160" r="2" /><circle cx="180" cy="165" r="2.5" /><circle cx="190" cy="160" r="1.5" />
-                <circle cx="330" cy="160" r="2" /><circle cx="320" cy="165" r="2.5" /><circle cx="310" cy="160" r="1.5" />
-              </g>
-            )}
-
-            {/* ═══════════════ FRONT HAIR / BANGS ═══════════════ */}
-            {hairId !== 'hair_bald' && (
-              <g filter="url(#softShadow)">
-                {/* Cute Anime Bangs (Spiky zig-zag base) */}
-                {!['hair_mohawk'].includes(hairId) && (
-                  <path d="M 155 120 A 95 95 0 0 1 345 120 Q 330 160 310 120 Q 280 170 250 120 Q 220 170 190 120 Q 170 160 155 120 Z" fill="url(#hairGrad)" />
+            {/* ═══════════════ FRONT HAIR ═══════════════ */}
+            <g className={`chibi-hair-${uid}`} clipPath={`url(#headClip-${uid})`}>
+              {hairId !== 'hair_bald' && (<>
+                {/* Hair cap top */}
+                <ellipse cx="250" cy="95" rx="95" ry="55" fill={`url(#hg-${uid})`} />
+                {/* Bangs */}
+                {hairId === 'hair_short' && (
+                  <path d="M 160 120 C 170 85, 200 65, 250 60 C 300 65, 330 85, 340 120 C 330 135, 310 110, 280 125 C 265 108, 235 108, 220 125 C 190 110, 170 135, 160 120 Z"
+                        fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
                 )}
-                {/* Specific bang details */}
-                {hairId === 'hair_short' && <path d="M 170 90 A 80 80 0 0 1 330 90 Q 340 140 320 120 Q 290 150 250 110 Q 210 150 180 120 Q 160 140 170 90 Z" fill="url(#hairGrad)" opacity="0.5" />}
+                {(hairId === 'hair_long' || hairId === 'hair_ponytail' || hairId === 'hair_samurai') && (
+                  <path d="M 158 130 C 165 90, 195 60, 250 55 C 305 60, 335 90, 342 130 C 330 145, 315 115, 290 135 C 275 115, 225 115, 210 135 C 185 115, 170 145, 158 130 Z"
+                        fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                )}
+                {hairId === 'hair_twintails' && (
+                  <path d="M 155 130 C 162 85, 195 55, 250 50 C 305 55, 338 85, 345 130 C 335 148, 318 120, 295 138 C 278 118, 222 118, 205 138 C 182 120, 165 148, 155 130 Z"
+                        fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                )}
+                {hairId === 'hair_curly' && (
+                  <path d="M 155 135 C 140 80, 200 35, 250 40 C 300 35, 360 80, 345 135 C 350 100, 310 70, 280 95 C 270 70, 230 70, 220 95 C 190 70, 150 100, 155 135 Z"
+                        fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
+                )}
+                {hairId === 'hair_mohawk' && (<>
+                  <rect x="220" y="40" width="60" height="70" rx="30" fill={hairColor} stroke={outlineColor} strokeWidth="2" />
+                  <rect x="230" y="20" width="40" height="50" rx="20" fill={hairLight} />
+                </>)}
                 {hairId === 'hair_messy' && (
-                  <>
-                    <path d="M 180 60 L 160 30 M 250 50 L 260 20 M 320 70 L 350 40" stroke="url(#hairGrad)" strokeWidth="8" strokeLinecap="round" />
-                    <path d="M 190 120 Q 210 160 230 120 M 270 120 Q 290 160 310 120" fill="none" stroke="url(#hairGrad)" strokeWidth="12" strokeLinecap="round" />
-                  </>
+                  <path d="M 150 135 C 145 70, 200 30, 250 35 C 300 30, 355 70, 350 135 C 360 105, 340 60, 300 80 C 310 50, 260 25, 250 55 C 240 25, 190 50, 200 80 C 160 60, 140 105, 150 135 Z"
+                        fill={hairColor} stroke={outlineColor} strokeWidth="1.5" />
                 )}
-                {/* Sideburns / Frame */}
-                {['hair_long', 'hair_twintails', 'hair_ponytail', 'hair_samurai'].includes(hairId) && (
-                  <>
-                    <path d="M 155 120 Q 160 180 140 200 Q 170 160 170 120" fill="url(#hairGrad)" />
-                    <path d="M 345 120 Q 340 180 360 200 Q 330 160 330 120" fill="url(#hairGrad)" />
-                  </>
-                )}
-              </g>
-            )}
+              </>)}
+            </g>
+            {/* Sideburns (outside clip) */}
+            {['hair_long','hair_twintails','hair_ponytail','hair_samurai'].includes(hairId) && (<>
+              <path d="M 160 125 C 155 155, 152 185, 155 200 C 160 205, 170 195, 170 180 C 170 155, 168 140, 165 125 Z"
+                    fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="1.5" />
+              <path d="M 340 125 C 345 155, 348 185, 345 200 C 340 205, 330 195, 330 180 C 330 155, 332 140, 335 125 Z"
+                    fill={`url(#hg-${uid})`} stroke={outlineColor} strokeWidth="1.5" />
+            </>)}
 
             {/* ═══════════════ ACCESSORIES ═══════════════ */}
-            {accessoryId === 'acc_catears' && (
-              <g fill="#fbcfe8" stroke="#f472b6" strokeWidth="2">
-                <path d="M 160 70 L 180 20 L 210 60 Z" />
-                <path d="M 340 70 L 320 20 L 290 60 Z" />
-              </g>
-            )}
+            {accessoryId === 'acc_catears' && (<>
+              <path d="M 170 75 L 190 20 L 215 65 Z" fill="#fbcfe8" stroke="#f472b6" strokeWidth="2.5" strokeLinejoin="round" />
+              <path d="M 180 60 L 190 35 L 205 58 Z" fill="#f9a8d4" />
+              <path d="M 330 75 L 310 20 L 285 65 Z" fill="#fbcfe8" stroke="#f472b6" strokeWidth="2.5" strokeLinejoin="round" />
+              <path d="M 320 60 L 310 35 L 295 58 Z" fill="#f9a8d4" />
+            </>)}
             {accessoryId === 'acc_halo' && (
-              <ellipse cx="250" cy="30" rx="60" ry="15" fill="none" stroke={accessoryColor} strokeWidth="6" opacity="0.8" filter="url(#softShadow)" />
-            )}
-            {accessoryId === 'acc_shades' && (
-              <g fill="#111" opacity="0.9">
-                <rect x="160" y="130" width="80" height="30" rx="5" />
-                <rect x="260" y="130" width="80" height="30" rx="5" />
-                <line x1="240" y1="140" x2="260" y2="140" stroke="#111" strokeWidth="4" />
-                {/* Reflection */}
-                <line x1="170" y1="135" x2="200" y2="155" stroke="#fff" strokeWidth="2" opacity="0.5" />
-                <line x1="270" y1="135" x2="300" y2="155" stroke="#fff" strokeWidth="2" opacity="0.5" />
-              </g>
+              <ellipse cx="250" cy="35" rx="50" ry="12" fill="none" stroke={accessoryColor} strokeWidth="5" opacity="0.75" />
             )}
             {accessoryId === 'acc_crown' && (
-              <path d="M 210 60 L 220 20 L 250 40 L 280 20 L 290 60 Z" fill="#fbbf24" stroke="#d97706" strokeWidth="2" />
+              <path d="M 200 68 L 215 25 L 235 55 L 250 20 L 265 55 L 285 25 L 300 68 Z" fill="#fbbf24" stroke="#d97706" strokeWidth="2" strokeLinejoin="round" />
             )}
+            {accessoryId === 'acc_horns' && (<>
+              <path d="M 175 80 C 165 50, 170 20, 180 10 C 185 15, 188 45, 190 70" fill={accessoryColor} stroke={outlineColor} strokeWidth="2" />
+              <path d="M 325 80 C 335 50, 330 20, 320 10 C 315 15, 312 45, 310 70" fill={accessoryColor} stroke={outlineColor} strokeWidth="2" />
+            </>)}
+            {accessoryId === 'acc_headphones' && (<>
+              <path d="M 162 120 C 162 70, 338 70, 338 120" fill="none" stroke="#333" strokeWidth="8" strokeLinecap="round" />
+              <rect x="148" y="110" width="22" height="35" rx="8" fill="#444" stroke="#333" strokeWidth="2" />
+              <rect x="330" y="110" width="22" height="35" rx="8" fill="#444" stroke="#333" strokeWidth="2" />
+              <circle cx="159" cy="128" r="5" fill={accessoryColor} />
+              <circle cx="341" cy="128" r="5" fill={accessoryColor} />
+            </>)}
+            {accessoryId === 'acc_shades' && (<>
+              <rect x="180" y="128" width="45" height="26" rx="6" fill="#111" stroke={outlineColor} strokeWidth="2" opacity="0.9" />
+              <rect x="275" y="128" width="45" height="26" rx="6" fill="#111" stroke={outlineColor} strokeWidth="2" opacity="0.9" />
+              <line x1="225" y1="140" x2="275" y2="140" stroke="#333" strokeWidth="3" />
+              <line x1="188" y1="133" x2="210" y2="148" stroke="#fff" strokeWidth="1.5" opacity="0.3" />
+              <line x1="283" y1="133" x2="305" y2="148" stroke="#fff" strokeWidth="1.5" opacity="0.3" />
+            </>)}
 
-          </g> {/* End Head Group */}
+          </g> {/* End HEAD group */}
 
-        </g> {/* End Breathe Animation Group */}
+        </g> {/* End body-type scale group */}
       </svg>
     </div>
   )

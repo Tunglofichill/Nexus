@@ -594,7 +594,7 @@ export default function Chibi3D(props: any) {
           </group>
         </Suspense>
 
-        <EffectComposer disableNormalPass multisampling={4}>
+        <EffectComposer multisampling={4}>
           <Bloom luminanceThreshold={0.9} mipmapBlur intensity={0.5} radius={0.6} />
           <ToneMapping mode={ToneMappingMode.ACES_FILMIC} resolution={256} />
           <Vignette eskil={false} offset={0.16} darkness={0.36} />
