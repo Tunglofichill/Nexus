@@ -88,49 +88,189 @@ export default function Chibi3D({
                 <meshStandardMaterial color={clothesColor} roughness={0.8} metalness={clothesId === 'clothes_armor' ? 0.8 : 0.1} />
               </mesh>
               
-              {/* Ninja Scarf */}
-              {clothesId === 'clothes_ninja' && (
-                <mesh position={[0, 0.4, 0.1]} rotation={[0.2, 0, 0]}>
-                  <torusGeometry args={[0.35, 0.15, 16, 32]} />
-                  <meshStandardMaterial color="#111" />
-                </mesh>
-              )}
-              {/* Hoodie */}
-              {clothesId === 'clothes_hoodie' && (
-                <mesh position={[0, 0.2, -0.2]} rotation={[-0.2, 0, 0]}>
-                  <torusGeometry args={[0.4, 0.2, 16, 32]} />
-                  <meshStandardMaterial color={clothesColor} roughness={0.9} />
-                </mesh>
-              )}
-              {/* Armor Shoulder Pads */}
-              {clothesId === 'clothes_armor' && (
-                <group>
-                  <mesh position={[-0.55, 0.35, 0]} rotation={[0, 0, 0.4]}>
-                    <cylinderGeometry args={[0.25, 0.25, 0.4, 16]} />
-                    <meshStandardMaterial color="#a1a1aa" metalness={0.9} roughness={0.2} />
+              {/* Detailed Clothes Group */}
+              <group>
+                {/* Streetwear Details */}
+                {clothesId === 'clothes_casual' && (
+                  <group>
+                    {/* Hem */}
+                    <mesh position={[0, -0.3, 0]}>
+                      <cylinderGeometry args={[0.46, 0.46, 0.1, 32]} />
+                      <meshStandardMaterial color="#ffffff" roughness={0.9} />
+                    </mesh>
+                    {/* Collar trim */}
+                    <mesh position={[0, 0.35, 0]}>
+                      <torusGeometry args={[0.18, 0.05, 16, 32]} />
+                      <meshStandardMaterial color="#ffffff" roughness={0.9} />
+                    </mesh>
+                    {/* Simple logo */}
+                    <mesh position={[0, 0.1, 0.45]} rotation={[Math.PI/2, 0, 0]}>
+                      <cylinderGeometry args={[0.1, 0.1, 0.02, 16]} />
+                      <meshStandardMaterial color="#ffffff" roughness={0.9} />
+                    </mesh>
+                  </group>
+                )}
+
+                {/* Suit Details */}
+                {clothesId === 'clothes_suit' && (
+                  <group>
+                    {/* White undershirt */}
+                    <mesh position={[0, 0.25, 0.4]} rotation={[0.2, 0, 0]}>
+                      <boxGeometry args={[0.3, 0.3, 0.2]} />
+                      <meshStandardMaterial color="#ffffff" roughness={0.9} />
+                    </mesh>
+                    {/* Tie */}
+                    <mesh position={[0, 0.05, 0.48]} rotation={[0.1, 0, 0]}>
+                      <boxGeometry args={[0.06, 0.4, 0.02]} />
+                      <meshStandardMaterial color="#ef4444" roughness={0.9} />
+                    </mesh>
+                    {/* Lapels */}
+                    <mesh position={[-0.15, 0.15, 0.46]} rotation={[0, 0, -0.2]}>
+                      <boxGeometry args={[0.12, 0.5, 0.02]} />
+                      <meshStandardMaterial color={clothesColor} roughness={0.9} />
+                    </mesh>
+                    <mesh position={[0.15, 0.15, 0.46]} rotation={[0, 0, 0.2]}>
+                      <boxGeometry args={[0.12, 0.5, 0.02]} />
+                      <meshStandardMaterial color={clothesColor} roughness={0.9} />
+                    </mesh>
+                  </group>
+                )}
+
+                {/* Techwear Details */}
+                {clothesId === 'clothes_tech' && (
+                  <group>
+                    {/* Cross strap 1 */}
+                    <mesh position={[0, 0.1, 0.45]} rotation={[0, 0, 0.5]}>
+                      <boxGeometry args={[0.8, 0.05, 0.02]} />
+                      <meshStandardMaterial color="#111" />
+                    </mesh>
+                    {/* Cross strap 2 */}
+                    <mesh position={[0, 0.1, 0.45]} rotation={[0, 0, -0.5]}>
+                      <boxGeometry args={[0.8, 0.05, 0.02]} />
+                      <meshStandardMaterial color="#111" />
+                    </mesh>
+                    {/* Tactical Belt */}
+                    <mesh position={[0, -0.2, 0]}>
+                      <cylinderGeometry args={[0.46, 0.46, 0.1, 32]} />
+                      <meshStandardMaterial color="#111" />
+                    </mesh>
+                    {/* Belt Pouches */}
+                    <mesh position={[0.2, -0.2, 0.43]}><boxGeometry args={[0.15, 0.15, 0.1]} /><meshStandardMaterial color="#27272a" /></mesh>
+                    <mesh position={[-0.2, -0.2, 0.43]}><boxGeometry args={[0.15, 0.15, 0.1]} /><meshStandardMaterial color="#27272a" /></mesh>
+                  </group>
+                )}
+
+                {/* Robe Details */}
+                {clothesId === 'clothes_robe' && (
+                  <group>
+                    {/* Robe Skirt covering legs */}
+                    <mesh position={[0, -0.4, 0]}>
+                      <cylinderGeometry args={[0.45, 0.55, 0.5, 32]} />
+                      <meshStandardMaterial color={clothesColor} roughness={0.9} />
+                    </mesh>
+                    {/* Gold trim */}
+                    <mesh position={[0, -0.63, 0]}>
+                      <cylinderGeometry args={[0.55, 0.55, 0.05, 32]} />
+                      <meshStandardMaterial color="#eab308" metalness={0.8} />
+                    </mesh>
+                  </group>
+                )}
+                
+                {/* Ninja Scarf */}
+                {clothesId === 'clothes_ninja' && (
+                  <mesh position={[0, 0.4, 0.1]} rotation={[0.2, 0, 0]}>
+                    <torusGeometry args={[0.35, 0.15, 16, 32]} />
+                    <meshStandardMaterial color="#111" />
                   </mesh>
-                  <mesh position={[0.55, 0.35, 0]} rotation={[0, 0, -0.4]}>
-                    <cylinderGeometry args={[0.25, 0.25, 0.4, 16]} />
-                    <meshStandardMaterial color="#a1a1aa" metalness={0.9} roughness={0.2} />
-                  </mesh>
-                  {/* Chest plate */}
-                  <mesh position={[0, 0.1, 0.1]}>
-                    <boxGeometry args={[0.7, 0.5, 0.4]} />
-                    <meshStandardMaterial color="#a1a1aa" metalness={0.9} roughness={0.2} />
-                  </mesh>
-                </group>
-              )}
+                )}
+                
+                {/* Hoodie Details */}
+                {clothesId === 'clothes_hoodie' && (
+                  <group>
+                    <mesh position={[0, 0.2, -0.2]} rotation={[-0.2, 0, 0]}>
+                      <torusGeometry args={[0.4, 0.2, 16, 32]} />
+                      <meshStandardMaterial color={clothesColor} roughness={0.9} />
+                    </mesh>
+                    {/* Drawstrings */}
+                    <mesh position={[-0.1, 0, 0.45]} rotation={[0, 0, 0]}>
+                      <cylinderGeometry args={[0.01, 0.01, 0.3, 8]} />
+                      <meshStandardMaterial color="#ffffff" />
+                    </mesh>
+                    <mesh position={[0.1, 0, 0.45]} rotation={[0, 0, 0]}>
+                      <cylinderGeometry args={[0.01, 0.01, 0.3, 8]} />
+                      <meshStandardMaterial color="#ffffff" />
+                    </mesh>
+                    {/* Kangaroo Pocket */}
+                    <mesh position={[0, -0.2, 0.4]} rotation={[0.2, 0, 0]}>
+                      <boxGeometry args={[0.5, 0.25, 0.1]} />
+                      <meshStandardMaterial color={clothesColor} roughness={0.9} />
+                    </mesh>
+                  </group>
+                )}
+                
+                {/* Armor Shoulder Pads */}
+                {clothesId === 'clothes_armor' && (
+                  <group>
+                    <mesh position={[-0.55, 0.35, 0]} rotation={[0, 0, 0.4]}>
+                      <cylinderGeometry args={[0.25, 0.25, 0.4, 16]} />
+                      <meshStandardMaterial color="#a1a1aa" metalness={0.9} roughness={0.2} />
+                    </mesh>
+                    <mesh position={[0.55, 0.35, 0]} rotation={[0, 0, -0.4]}>
+                      <cylinderGeometry args={[0.25, 0.25, 0.4, 16]} />
+                      <meshStandardMaterial color="#a1a1aa" metalness={0.9} roughness={0.2} />
+                    </mesh>
+                    {/* Chest plate */}
+                    <mesh position={[0, 0.1, 0.1]}>
+                      <boxGeometry args={[0.7, 0.5, 0.4]} />
+                      <meshStandardMaterial color="#a1a1aa" metalness={0.9} roughness={0.2} />
+                    </mesh>
+                  </group>
+                )}
+              </group>
 
               {/* Left Arm */}
-              <mesh position={[-0.55, 0, 0]} rotation={[0, 0, -0.3]}>
-                <capsuleGeometry args={[0.15, 0.6, 16, 16]} />
-                <meshStandardMaterial color={clothesColor} roughness={0.8} />
-              </mesh>
+              <group position={[-0.55, 0, 0]} rotation={[0, 0, -0.3]}>
+                <mesh>
+                  <capsuleGeometry args={[0.15, 0.6, 16, 16]} />
+                  <meshStandardMaterial color={clothesId === 'clothes_casual' ? skinColor : clothesColor} roughness={0.8} />
+                </mesh>
+                {/* Short sleeves for casual */}
+                {clothesId === 'clothes_casual' && (
+                  <mesh position={[0, 0.15, 0]}>
+                    <cylinderGeometry args={[0.16, 0.16, 0.3, 16]} />
+                    <meshStandardMaterial color={clothesColor} roughness={0.9} />
+                  </mesh>
+                )}
+                {/* Robe wide sleeves */}
+                {clothesId === 'clothes_robe' && (
+                  <mesh position={[0, -0.1, 0]}>
+                    <cylinderGeometry args={[0.16, 0.22, 0.4, 16]} />
+                    <meshStandardMaterial color={clothesColor} roughness={0.9} />
+                  </mesh>
+                )}
+              </group>
+              
               {/* Right Arm */}
-              <mesh position={[0.55, 0, 0]} rotation={[0, 0, 0.3]}>
-                <capsuleGeometry args={[0.15, 0.6, 16, 16]} />
-                <meshStandardMaterial color={clothesColor} roughness={0.8} />
-              </mesh>
+              <group position={[0.55, 0, 0]} rotation={[0, 0, 0.3]}>
+                <mesh>
+                  <capsuleGeometry args={[0.15, 0.6, 16, 16]} />
+                  <meshStandardMaterial color={clothesId === 'clothes_casual' ? skinColor : clothesColor} roughness={0.8} />
+                </mesh>
+                {/* Short sleeves for casual */}
+                {clothesId === 'clothes_casual' && (
+                  <mesh position={[0, 0.15, 0]}>
+                    <cylinderGeometry args={[0.16, 0.16, 0.3, 16]} />
+                    <meshStandardMaterial color={clothesColor} roughness={0.9} />
+                  </mesh>
+                )}
+                {/* Robe wide sleeves */}
+                {clothesId === 'clothes_robe' && (
+                  <mesh position={[0, -0.1, 0]}>
+                    <cylinderGeometry args={[0.16, 0.22, 0.4, 16]} />
+                    <meshStandardMaterial color={clothesColor} roughness={0.9} />
+                  </mesh>
+                )}
+              </group>
               {/* Left Leg */}
               <mesh position={[-0.2, -0.6, 0]}>
                 <capsuleGeometry args={[0.15, 0.5, 16, 16]} />
