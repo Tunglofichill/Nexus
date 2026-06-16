@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { saveAvatarData } from './actions'
 import { User, Sparkles, Check, Palette } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-import Chibi3D from '@/components/Chibi3D'
+import Chibi2D from '@/components/Chibi2D'
 
 const AVATAR_OPTIONS = {
   body: [
@@ -159,15 +159,15 @@ export default function OnboardingPage() {
           <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border-indigo-500/20 flex items-center justify-center border border-indigo-500/50 backdrop-blur-md">
             <User size={16} className="text-indigo-300" />
           </div>
-          <h2 className="font-bold tracking-widest uppercase text-sm drop-shadow-md">Chibi Preview 3D</h2>
+          <h2 className="font-bold tracking-widest uppercase text-sm drop-shadow-md">Chibi Preview 2D</h2>
         </div>
 
         <div className="flex-1 w-full h-full relative cursor-move">
           {/* Cyberpunk grid background for preview */}
           <div className="absolute inset-0 opacity-20 pointer-events-none z-0" style={{ backgroundImage: 'radial-gradient(circle at center, rgba(99,102,241,0.5) 0%, transparent 70%)' }}></div>
           
-          <div className="absolute inset-0 z-10">
-            <Chibi3D 
+          <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
+            <Chibi2D 
               bodyId={avatarData.body}
               skinColor={currentSkin?.color || '#ffdbac'} 
               eyesId={avatarData.eyes}
@@ -188,7 +188,7 @@ export default function OnboardingPage() {
           </div>
           
           <div className="absolute bottom-4 left-0 w-full text-center text-[10px] text-slate-500 tracking-widest uppercase pointer-events-none z-20">
-            Drag to Rotate • Scroll to Zoom
+            Live 2D Avatar
           </div>
         </div>
       </div>

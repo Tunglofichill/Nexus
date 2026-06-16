@@ -151,13 +151,13 @@ function ChibiModel({
     const x  = side * 0.175
     return (
       <group key={side} position={[x, 0.07, EZ]}>
-        <mesh position={[0, 0, -0.001]}><planeGeometry args={[W + 0.036, H + 0.016]} /><Toon color={getOutlineColor(skinColor)} /></mesh>
+        <mesh position={[0, 0, -0.001]}><planeGeometry args={[W + 0.036, H + 0.016]} /><Toon color="#1a1a1a" /></mesh>
         <mesh position={[0, -0.012, 0]}><planeGeometry args={[W, H * 0.72]} /><Toon color="#ffffff" /></mesh>
         <mesh position={[0, -0.016, 0.001]}><circleGeometry args={[IR, 20]} /><Toon color={eyesColor} /></mesh>
         <mesh position={[0, -0.02, 0.002]}><circleGeometry args={[PR, 16]} /><Toon color="#09090b" /></mesh>
         <mesh position={[side === -1 ? -0.025 : 0.025, 0.013, 0.003]}><circleGeometry args={[0.022, 12]} /><Toon color="#ffffff" /></mesh>
         <mesh position={[side === -1 ? 0.015 : -0.015, -0.013, 0.003]}><circleGeometry args={[0.012, 10]} /><Toon color="#ffffff" /></mesh>
-        <mesh position={[0, H * 0.35, 0.003]}><planeGeometry args={[W + 0.036, 0.03]} /><Toon color={getOutlineColor(skinColor)} /></mesh>
+        <mesh position={[0, H * 0.35, 0.003]}><planeGeometry args={[W + 0.036, 0.03]} /><Toon color="#1a1a1a" /></mesh>
       </group>
     )
   }
@@ -485,7 +485,7 @@ function ChibiModel({
             {([-1,1] as const).map(s => (
               <group key={s} position={[s*0.5,0,0]} rotation={[0,Math.PI/2,0]}>
                 <mesh><cylinderGeometry args={[0.2,0.2,0.12,22]} /><Toon color="#27272a" /></mesh>
-                <mesh position={[0,0,s*0.07]}><circleGeometry args={[0.078,20]} /><Toon color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} side={2} /></mesh>
+                <mesh position={[0,0,s*0.07]}><circleGeometry args={[0.078,20]} /><Toon color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} /></mesh>
               </group>
             ))}
           </group>
