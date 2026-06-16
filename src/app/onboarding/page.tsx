@@ -199,7 +199,7 @@ export default function OnboardingPage() {
                       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/30"></div>
                     </div>
                     
-                    <h3 className={`font-bold text-xs tracking-wide w-full truncate ${isActive ? 'text-white' : 'text-zinc-300'}`}>
+                    <h3 className={`font-bold text-xs tracking-wide w-full leading-tight ${isActive ? 'text-white' : 'text-zinc-300'}`}>
                       {item.name}
                     </h3>
                     
