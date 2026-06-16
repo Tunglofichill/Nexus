@@ -1,5 +1,5 @@
 'use client'
-import React, { useMemo } from 'react'
+import React, { useId, useMemo } from 'react'
 
 interface Chibi2DProps {
   skinColor: string
@@ -86,7 +86,8 @@ export default function Chibi2D({
   if (bodyId === 'body_muscular') { bodyW = 1.18; bodyH = 1.04 }
 
   // Unique IDs for gradients (prevent clashes when multiple instances)
-  const uid = useMemo(() => Math.random().toString(36).slice(2, 8), [])
+  const rawId = useId()
+  const uid = rawId.replace(/:/g, '')
 
   return (
     <div className={`relative w-full h-full flex items-center justify-center overflow-hidden ${className}`}>
@@ -263,30 +264,25 @@ export default function Chibi2D({
             {/* ── EYES ── */}
             <g className={`chibi-blink-${uid}`}>
               {(eyesId === 'eyes_normal' || eyesId === 'eyes_big') && (<>
-                {/* Left Eye */}
-                <g transform="translate(205, 138)">
-                  {/* White */}
-                  <ellipse cx="0" cy="0" rx={eyesId === 'eyes_big' ? 20 : 16} ry={eyesId === 'eyes_big' ? 24 : 20} fill="#fff" stroke={outlineColor} strokeWidth="2" />
-                  {/* Iris */}
-                  <ellipse cx="0" cy="2" rx={eyesId === 'eyes_big' ? 14 : 12} ry={eyesId === 'eyes_big' ? 18 : 15} fill={`url(#eg-${uid})`} />
-                  {/* Pupil */}
-                  <circle cx="0" cy="4" r={eyesId === 'eyes_big' ? 7 : 6} fill="#111" />
-                  {/* Highlights */}
-                  <circle cx="-5" cy="-6" r="5" fill="#fff" opacity="0.9" />
-                  <circle cx="4" cy="6" r="2.5" fill="#fff" opacity="0.6" />
-                  {/* Upper eyelash */}
-                  <path d={`M ${eyesId === 'eyes_big' ? -22 : -18} -${eyesId === 'eyes_big' ? 18 : 14} Q 0 -${eyesId === 'eyes_big' ? 30 : 24} ${eyesId === 'eyes_big' ? 22 : 18} -${eyesId === 'eyes_big' ? 18 : 14}`}
-                        fill="none" stroke={outlineColor} strokeWidth="3.5" strokeLinecap="round" />
+                {/* Left Eye — big anime eyes are KEY to cuteness */}
+                <g transform="translate(200, 142)">
+                  <ellipse cx="0" cy="0" rx={eyesId === 'eyes_big' ? 24 : 20} ry={eyesId === 'eyes_big' ? 28 : 24} fill="#fff" stroke={outlineColor} strokeWidth="2.5" />
+                  <ellipse cx="0" cy="2" rx={eyesId === 'eyes_big' ? 18 : 15} ry={eyesId === 'eyes_big' ? 22 : 19} fill={`url(#eg-${uid})`} />
+                  <circle cx="0" cy="5" r={eyesId === 'eyes_big' ? 9 : 7} fill="#111" />
+                  <circle cx="-6" cy="-7" r="6" fill="#fff" opacity="0.95" />
+                  <circle cx="5" cy="7" r="3" fill="#fff" opacity="0.6" />
+                  <path d={`M ${eyesId === 'eyes_big' ? -26 : -22} -${eyesId === 'eyes_big' ? 22 : 18} Q 0 -${eyesId === 'eyes_big' ? 35 : 30} ${eyesId === 'eyes_big' ? 26 : 22} -${eyesId === 'eyes_big' ? 22 : 18}`}
+                        fill="none" stroke={outlineColor} strokeWidth="4" strokeLinecap="round" />
                 </g>
                 {/* Right Eye */}
-                <g transform="translate(295, 138)">
-                  <ellipse cx="0" cy="0" rx={eyesId === 'eyes_big' ? 20 : 16} ry={eyesId === 'eyes_big' ? 24 : 20} fill="#fff" stroke={outlineColor} strokeWidth="2" />
-                  <ellipse cx="0" cy="2" rx={eyesId === 'eyes_big' ? 14 : 12} ry={eyesId === 'eyes_big' ? 18 : 15} fill={`url(#eg-${uid})`} />
-                  <circle cx="0" cy="4" r={eyesId === 'eyes_big' ? 7 : 6} fill="#111" />
-                  <circle cx="5" cy="-6" r="5" fill="#fff" opacity="0.9" />
-                  <circle cx="-4" cy="6" r="2.5" fill="#fff" opacity="0.6" />
-                  <path d={`M -${eyesId === 'eyes_big' ? 22 : 18} -${eyesId === 'eyes_big' ? 18 : 14} Q 0 -${eyesId === 'eyes_big' ? 30 : 24} ${eyesId === 'eyes_big' ? 22 : 18} -${eyesId === 'eyes_big' ? 18 : 14}`}
-                        fill="none" stroke={outlineColor} strokeWidth="3.5" strokeLinecap="round" />
+                <g transform="translate(300, 142)">
+                  <ellipse cx="0" cy="0" rx={eyesId === 'eyes_big' ? 24 : 20} ry={eyesId === 'eyes_big' ? 28 : 24} fill="#fff" stroke={outlineColor} strokeWidth="2.5" />
+                  <ellipse cx="0" cy="2" rx={eyesId === 'eyes_big' ? 18 : 15} ry={eyesId === 'eyes_big' ? 22 : 19} fill={`url(#eg-${uid})`} />
+                  <circle cx="0" cy="5" r={eyesId === 'eyes_big' ? 9 : 7} fill="#111" />
+                  <circle cx="6" cy="-7" r="6" fill="#fff" opacity="0.95" />
+                  <circle cx="-5" cy="7" r="3" fill="#fff" opacity="0.6" />
+                  <path d={`M -${eyesId === 'eyes_big' ? 26 : 22} -${eyesId === 'eyes_big' ? 22 : 18} Q 0 -${eyesId === 'eyes_big' ? 35 : 30} ${eyesId === 'eyes_big' ? 26 : 22} -${eyesId === 'eyes_big' ? 22 : 18}`}
+                        fill="none" stroke={outlineColor} strokeWidth="4" strokeLinecap="round" />
                 </g>
               </>)}
 
