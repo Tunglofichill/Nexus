@@ -114,23 +114,29 @@ export default function Chibi3D({
                 {/* Suit Details */}
                 {clothesId === 'clothes_suit' && (
                   <group>
-                    {/* White undershirt */}
-                    <mesh position={[0, 0.25, 0.4]} rotation={[0.2, 0, 0]}>
-                      <boxGeometry args={[0.3, 0.3, 0.2]} />
+                    {/* White V-neck (Upside down cone) */}
+                    <mesh position={[0, 0.25, 0.35]} rotation={[0.15, 0, Math.PI]}>
+                      <coneGeometry args={[0.22, 0.5, 16]} />
                       <meshStandardMaterial color="#ffffff" roughness={0.9} />
                     </mesh>
                     {/* Tie */}
-                    <mesh position={[0, 0.05, 0.48]} rotation={[0.1, 0, 0]}>
-                      <boxGeometry args={[0.06, 0.4, 0.02]} />
+                    <mesh position={[0, 0.15, 0.45]} rotation={[0.15, 0, 0]}>
+                      <boxGeometry args={[0.05, 0.35, 0.02]} />
                       <meshStandardMaterial color="#ef4444" roughness={0.9} />
                     </mesh>
-                    {/* Lapels */}
-                    <mesh position={[-0.15, 0.15, 0.46]} rotation={[0, 0, -0.2]}>
-                      <boxGeometry args={[0.12, 0.5, 0.02]} />
+                    {/* Tie knot */}
+                    <mesh position={[0, 0.32, 0.42]} rotation={[0.15, 0, 0]}>
+                      <boxGeometry args={[0.07, 0.07, 0.03]} />
+                      <meshStandardMaterial color="#ef4444" roughness={0.9} />
+                    </mesh>
+                    {/* Left Lapel */}
+                    <mesh position={[-0.15, 0.15, 0.46]} rotation={[0.15, 0, -0.4]}>
+                      <boxGeometry args={[0.08, 0.5, 0.02]} />
                       <meshStandardMaterial color={clothesColor} roughness={0.9} />
                     </mesh>
-                    <mesh position={[0.15, 0.15, 0.46]} rotation={[0, 0, 0.2]}>
-                      <boxGeometry args={[0.12, 0.5, 0.02]} />
+                    {/* Right Lapel */}
+                    <mesh position={[0.15, 0.15, 0.46]} rotation={[0.15, 0, 0.4]}>
+                      <boxGeometry args={[0.08, 0.5, 0.02]} />
                       <meshStandardMaterial color={clothesColor} roughness={0.9} />
                     </mesh>
                   </group>
