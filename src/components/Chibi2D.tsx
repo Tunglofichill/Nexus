@@ -70,6 +70,12 @@ export default function Chibi2D({
           </clipPath>
         </defs>
 
+        {/* ── BACKGROUND ACCESSORIES ── */}
+        {accessoryId === 'acc_wings' && (<>
+          <path d={`M ${CX-50} ${TOP+100} Q ${CX-130} ${TOP+20} ${CX-140} ${TOP+120} Q ${CX-80} ${TOP+150} ${CX-50} ${TOP+140} Z`} fill={accessoryColor} opacity="0.9" stroke="#cbd5e1" strokeWidth="2" />
+          <path d={`M ${CX+50} ${TOP+100} Q ${CX+130} ${TOP+20} ${CX+140} ${TOP+120} Q ${CX+80} ${TOP+150} ${CX+50} ${TOP+140} Z`} fill={accessoryColor} opacity="0.9" stroke="#cbd5e1" strokeWidth="2" />
+        </>)}
+
         {/* ── CAPSULE ── */}
         <g clipPath={`url(#cap-${uid})`}>
           {/* Skin (top) */}
@@ -149,6 +155,24 @@ export default function Chibi2D({
           <circle cx={CX+28} cy={160} r={1.5} fill="#b45309" opacity="0.5" />
           <circle cx={CX+34} cy={157} r={1.5} fill="#b45309" opacity="0.5" />
         </>)}
+        {decalsId === 'decal_bandaid' && (<>
+          <rect x={CX-38} y={150} width={16} height={8} rx={2} fill={decalsColor} transform={`rotate(-15 ${CX-30} 154)`} />
+          <rect x={CX-34} y={152} width={4} height={4} rx={1} fill="#fff" opacity="0.5" transform={`rotate(-15 ${CX-30} 154)`} />
+        </>)}
+        {decalsId === 'decal_blush' && (<>
+          <ellipse cx={CX - 32} cy={163} rx={14} ry={8} fill={decalsColor} opacity="0.6" />
+          <ellipse cx={CX + 32} cy={163} rx={14} ry={8} fill={decalsColor} opacity="0.6" />
+        </>)}
+        {decalsId === 'decal_star' && (<>
+          <path d={`M ${CX-30} 155 L ${CX-28} 160 L ${CX-23} 160 L ${CX-27} 163 L ${CX-25} 168 L ${CX-30} 165 L ${CX-35} 168 L ${CX-33} 163 L ${CX-37} 160 L ${CX-32} 160 Z`} fill={decalsColor} />
+        </>)}
+        {decalsId === 'decal_heart' && (<>
+          <path d={`M ${CX-30} 158 A 3 3 0 0 1 ${CX-24} 158 A 3 3 0 0 1 ${CX-18} 158 Q ${CX-18} 163 ${CX-24} 168 Q ${CX-30} 163 ${CX-30} 158 Z`} fill={decalsColor} />
+        </>)}
+        {decalsId === 'decal_tears' && (<>
+          <path d={`M ${CX-25} 155 Q ${CX-20} 170 ${CX-25} 175 Q ${CX-30} 170 ${CX-25} 155 Z`} fill="#60a5fa" opacity="0.8" />
+          <path d={`M ${CX+25} 155 Q ${CX+30} 170 ${CX+25} 175 Q ${CX+20} 170 ${CX+25} 155 Z`} fill="#60a5fa" opacity="0.8" />
+        </>)}
 
         {/* Accessories (outside capsule) */}
         {accessoryId === 'acc_catears' && (<>
@@ -165,6 +189,41 @@ export default function Chibi2D({
           <rect x={CX-38} y={142} width={28} height={16} rx={4} fill="#111" opacity="0.9" />
           <rect x={CX+10} y={142} width={28} height={16} rx={4} fill="#111" opacity="0.9" />
           <line x1={CX-10} y1={150} x2={CX+10} y2={150} stroke="#333" strokeWidth="2" />
+        </>)}
+        {accessoryId === 'acc_sprout' && (<>
+          <path d={`M ${CX} ${TOP+5} Q ${CX-15} ${TOP-20} ${CX-5} ${TOP-25} Q ${CX} ${TOP-15} ${CX} ${TOP+5}`} fill={accessoryColor} />
+          <path d={`M ${CX} ${TOP+5} Q ${CX+20} ${TOP-15} ${CX+15} ${TOP-25} Q ${CX+5} ${TOP-20} ${CX} ${TOP+5}`} fill={accessoryColor} />
+        </>)}
+        {accessoryId === 'acc_horns' && (<>
+          <path d={`M ${CX-25} ${TOP+10} Q ${CX-35} ${TOP-15} ${CX-20} ${TOP-20} Q ${CX-15} ${TOP-5} ${CX-15} ${TOP+5}`} fill={accessoryColor} />
+          <path d={`M ${CX+25} ${TOP+10} Q ${CX+35} ${TOP-15} ${CX+20} ${TOP-20} Q ${CX+15} ${TOP-5} ${CX+15} ${TOP+5}`} fill={accessoryColor} />
+        </>)}
+        {accessoryId === 'acc_flower' && (<>
+          <circle cx={CX-40} cy={TOP+30} r={6} fill="#fbbf24" />
+          <circle cx={CX-48} cy={TOP+30} r={6} fill={accessoryColor} />
+          <circle cx={CX-32} cy={TOP+30} r={6} fill={accessoryColor} />
+          <circle cx={CX-40} cy={TOP+22} r={6} fill={accessoryColor} />
+          <circle cx={CX-40} cy={TOP+38} r={6} fill={accessoryColor} />
+        </>)}
+        {accessoryId === 'acc_cap' && (<>
+          <path d={`M ${CX-45} ${TOP+25} L ${CX-75} ${TOP+25} Q ${CX-65} ${TOP+18} ${CX-50} ${TOP+15} Z`} fill={accessoryColor} opacity="0.9" />
+          <path d={`M ${CX-45} ${TOP+25} Q ${CX} ${TOP-15} ${CX+45} ${TOP+25} Z`} fill={accessoryColor} />
+          <ellipse cx={CX} cy={TOP-2} rx={4} ry={2} fill="#111" opacity="0.3" />
+        </>)}
+        {accessoryId === 'acc_beanie' && (<>
+          <path d={`M ${CX-45} ${TOP+30} Q ${CX} ${TOP-20} ${CX+45} ${TOP+30} Z`} fill={accessoryColor} />
+          <rect x={CX-46} y={TOP+25} width={92} height={12} rx={4} fill={accessoryColor} opacity="0.8" />
+          <circle cx={CX} cy={TOP-10} r={8} fill={accessoryColor} />
+        </>)}
+        {accessoryId === 'acc_headphones' && (<>
+          <path d={`M ${CX-45} ${TOP+30} Q ${CX} ${TOP-20} ${CX+45} ${TOP+30}`} fill="none" stroke="#333" strokeWidth="6" />
+          <rect x={CX-55} y={TOP+20} width={15} height={30} rx={6} fill={accessoryColor} />
+          <rect x={CX+40} y={TOP+20} width={15} height={30} rx={6} fill={accessoryColor} />
+        </>)}
+        {accessoryId === 'acc_glasses' && (<>
+          <rect x={CX-35} y={135} width={24} height={20} rx={4} fill="none" stroke={accessoryColor} strokeWidth="3" />
+          <rect x={CX+11} y={135} width={24} height={20} rx={4} fill="none" stroke={accessoryColor} strokeWidth="3" />
+          <line x1={CX-11} y1={145} x2={CX+11} y2={145} stroke={accessoryColor} strokeWidth="3" />
         </>)}
 
         {/* Ground shadow */}

@@ -40,20 +40,44 @@ const AVATAR_OPTIONS = {
     { id: 'acc_halo', name: 'Halo', icon: '😇' },
     { id: 'acc_shades', name: 'Shades', icon: '🕶️' },
     { id: 'acc_crown', name: 'Crown', icon: '👑' },
+    { id: 'acc_sprout', name: 'Sprout', icon: '🌱' },
+    { id: 'acc_horns', name: 'Demon Horns', icon: '😈' },
+    { id: 'acc_flower', name: 'Flower', icon: '🌸' },
+    { id: 'acc_cap', name: 'Baseball Cap', icon: '🧢' },
+    { id: 'acc_beanie', name: 'Beanie', icon: '🪖' },
+    { id: 'acc_headphones', name: 'Headphones', icon: '🎧' },
+    { id: 'acc_wings', name: 'Angel Wings', icon: '🪽' },
+    { id: 'acc_glasses', name: 'Glasses', icon: '👓' },
   ],
   decals: [
     { id: 'decal_none', name: 'None', icon: '🚫' },
     { id: 'decal_scar', name: 'Scar', icon: '⚡' },
     { id: 'decal_freckles', name: 'Freckles', icon: '😚' },
+    { id: 'decal_bandaid', name: 'Bandaid', icon: '🩹' },
+    { id: 'decal_blush', name: 'Heavy Blush', icon: '😳' },
+    { id: 'decal_star', name: 'Star Sticker', icon: '⭐' },
+    { id: 'decal_heart', name: 'Heart Sticker', icon: '💖' },
+    { id: 'decal_tears', name: 'Crying Tears', icon: '😭' },
   ],
 }
 
+const HUGE_PALETTE = [
+  '#000000', '#27272a', '#52525b', '#71717a', '#a1a1aa', '#d4d4d8', '#f4f4f5', '#ffffff',
+  '#451a03', '#78350f', '#b45309', '#d97706', '#f59e0b', '#fbbf24', '#fcd34d', '#fde68a', '#ffdbac',
+  '#7f1d1d', '#b91c1c', '#ef4444', '#f87171', '#fca5a5', '#fecdd3', '#fda4af', '#fb7185', '#f43f5e', '#e11d48', '#be123c', '#ec4899', '#f472b6', '#fbcfe8',
+  '#4c1d95', '#6d28d9', '#8b5cf6', '#a78bfa', '#c4b5fd', '#d8b4fe', '#c084fc', '#a855f7', '#7e22ce',
+  '#1e3a8a', '#1d4ed8', '#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bae6fd', '#7dd3fc', '#38bdf8', '#0ea5e9', '#0284c7', '#0369a1', '#0c4a6e',
+  '#164e63', '#0e7490', '#06b6d4', '#22d3ee', '#67e8f9', '#5eead4', '#2dd4bf', '#14b8a6', '#0f766e', '#134e4a',
+  '#064e3b', '#047857', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#bbf7d0', '#86efac', '#4ade80', '#22c55e', '#16a34a', '#15803d', '#14532d',
+  '#7c2d12', '#9a3412', '#c2410c', '#ea580c', '#f97316', '#fb923c', '#fdba74', '#fed7aa', '#fef08a', '#fde047', '#eab308', '#ca8a04', '#854d0e', '#422006'
+];
+
 const COLOR_PALETTES: Record<string, string[]> = {
-  hair: ['#27272a', '#ffffff', '#fbbf24', '#ef4444', '#ec4899', '#8b5cf6', '#06b6d4', '#22c55e', '#f97316'],
-  clothes: ['#f97316', '#18181b', '#ffffff', '#eab308', '#3b82f6', '#10b981', '#6366f1', '#f43f5e', '#a8a29e'],
-  eyes: ['#000000', '#dc2626', '#2563eb', '#16a34a', '#d946ef', '#eab308', '#ffffff', '#0ea5e9'],
-  accessory: ['#ec4899', '#eab308', '#22c55e', '#ffffff', '#000000', '#3b82f6', '#f97316', '#a855f7'],
-  decals: ['#ef4444', '#06b6d4', '#eab308', '#ffffff', '#000000', '#ec4899', '#8b5cf6']
+  hair: HUGE_PALETTE,
+  clothes: HUGE_PALETTE,
+  eyes: HUGE_PALETTE,
+  accessory: HUGE_PALETTE,
+  decals: HUGE_PALETTE
 }
 
 export default function OnboardingPage() {
