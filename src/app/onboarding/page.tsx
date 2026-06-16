@@ -24,15 +24,23 @@ const AVATAR_OPTIONS = {
     { id: 'clothes_suit', name: 'Corpo Suit', color: '#18181b', displayBg: 'bg-zinc-900 border border-white/10' },
     { id: 'clothes_tech', name: 'Techwear', color: '#4f46e5', displayBg: 'bg-indigo-600' },
     { id: 'clothes_robe', name: 'Hacker Robe', color: '#22c55e', displayBg: 'bg-green-500' },
+  ],
+  accessory: [
+    { id: 'acc_none', name: 'None', color: 'transparent', displayBg: 'bg-transparent border border-white/20' },
+    { id: 'acc_visor', name: 'Cyber Visor', color: '#ec4899', displayBg: 'bg-pink-500' },
+    { id: 'acc_catears', name: 'Cat Ears', color: '#ffffff', displayBg: 'bg-white' },
+    { id: 'acc_halo', name: 'Neon Halo', color: '#eab308', displayBg: 'bg-yellow-500' },
+    { id: 'acc_headphones', name: 'Headphones', color: '#22c55e', displayBg: 'bg-green-500' },
   ]
 }
 
 export default function OnboardingPage() {
-  const [activeTab, setActiveTab] = useState<'skin' | 'hair' | 'clothes'>('skin')
+  const [activeTab, setActiveTab] = useState<'skin' | 'hair' | 'clothes' | 'accessory'>('skin')
   const [avatarData, setAvatarData] = useState({
     skin: AVATAR_OPTIONS.skin[0].id,
     hair: AVATAR_OPTIONS.hair[0].id,
-    clothes: AVATAR_OPTIONS.clothes[0].id
+    clothes: AVATAR_OPTIONS.clothes[0].id,
+    accessory: AVATAR_OPTIONS.accessory[0].id
   })
   const [isSaving, setIsSaving] = useState(false)
 
@@ -51,6 +59,7 @@ export default function OnboardingPage() {
   const currentSkin = AVATAR_OPTIONS.skin.find(s => s.id === avatarData.skin)
   const currentHair = AVATAR_OPTIONS.hair.find(h => h.id === avatarData.hair)
   const currentClothes = AVATAR_OPTIONS.clothes.find(c => c.id === avatarData.clothes)
+  const currentAccessory = AVATAR_OPTIONS.accessory.find(a => a.id === avatarData.accessory)
 
   return (
     <div className="w-full h-full flex p-6 gap-6 overflow-hidden bg-black/20 text-white">
@@ -77,6 +86,8 @@ export default function OnboardingPage() {
               hairColor={currentHair?.color || '#27272a'} 
               clothesColor={currentClothes?.color || '#f97316'} 
               hairId={avatarData.hair}
+              accessoryId={avatarData.accessory}
+              accessoryColor={currentAccessory?.color || '#ffffff'}
             />
           </div>
           
@@ -92,7 +103,7 @@ export default function OnboardingPage() {
           
           {/* Tab Navigation */}
           <div className="flex gap-2 p-1.5 bg-black/50 rounded-2xl mb-6 border border-white/5">
-            {(['skin', 'hair', 'clothes'] as const).map((tab) => (
+            {(['skin', 'hair', 'clothes', 'accessory'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}

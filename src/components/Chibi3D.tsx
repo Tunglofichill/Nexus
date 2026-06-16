@@ -8,12 +8,16 @@ export default function Chibi3D({
   skinColor, 
   hairColor, 
   clothesColor,
-  hairId
+  hairId,
+  accessoryId,
+  accessoryColor
 }: { 
   skinColor: string, 
   hairColor: string, 
   clothesColor: string,
-  hairId: string
+  hairId: string,
+  accessoryId: string,
+  accessoryColor: string
 }) {
 
   return (
@@ -145,6 +149,51 @@ export default function Chibi3D({
                       <meshStandardMaterial color={hairColor} roughness={0.9} />
                     </mesh>
                   )}
+                </group>
+              )}
+
+              {/* Accessories Group */}
+              {accessoryId === 'acc_visor' && (
+                <mesh position={[0, 0.05, 0.88]}>
+                  <boxGeometry args={[1.3, 0.35, 0.2]} />
+                  <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={1} opacity={0.9} transparent />
+                </mesh>
+              )}
+              {accessoryId === 'acc_catears' && (
+                <group position={[0, 0.85, 0]}>
+                  <mesh position={[-0.45, 0, 0]} rotation={[0, 0, 0.3]}>
+                    <coneGeometry args={[0.25, 0.6, 16]} />
+                    <meshStandardMaterial color={accessoryColor} roughness={0.9} />
+                  </mesh>
+                  <mesh position={[0.45, 0, 0]} rotation={[0, 0, -0.3]}>
+                    <coneGeometry args={[0.25, 0.6, 16]} />
+                    <meshStandardMaterial color={accessoryColor} roughness={0.9} />
+                  </mesh>
+                </group>
+              )}
+              {accessoryId === 'acc_halo' && (
+                <mesh position={[0, 1.3, 0]} rotation={[Math.PI / 2 + 0.2, 0, 0]}>
+                  <torusGeometry args={[0.5, 0.06, 16, 32]} />
+                  <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.8} />
+                </mesh>
+              )}
+              {accessoryId === 'acc_headphones' && (
+                <group position={[0, 0, 0]}>
+                  {/* Headband */}
+                  <mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
+                    <torusGeometry args={[0.98, 0.08, 16, 32]} />
+                    <meshStandardMaterial color="#18181b" roughness={0.8} />
+                  </mesh>
+                  {/* Earcup Left */}
+                  <mesh position={[-0.98, 0, 0]} rotation={[0, Math.PI/2, 0]}>
+                    <cylinderGeometry args={[0.3, 0.3, 0.2, 32]} />
+                    <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.4} />
+                  </mesh>
+                  {/* Earcup Right */}
+                  <mesh position={[0.98, 0, 0]} rotation={[0, Math.PI/2, 0]}>
+                    <cylinderGeometry args={[0.3, 0.3, 0.2, 32]} />
+                    <meshStandardMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.4} />
+                  </mesh>
                 </group>
               )}
             </group>
