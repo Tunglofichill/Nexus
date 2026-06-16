@@ -1,14 +1,34 @@
 'use client'
-import { useRef, Suspense } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Suspense } from 'react'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls, ContactShadows, Float } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import * as THREE from 'three'
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-// Cell-shaded toon material (Azur Lane style)
-const T = ({ color, emissive }: { color: string; emissive?: string }) => (
-  <meshToonMaterial color={color} emissive={emissive ?? '#000000'} emissiveIntensity={emissive ? 0.15 : 0} />
+// ─── Toon material shorthand ────────────────────────────────────────────────
+const Toon = ({ color, opacity = 1, transparent = false, emissive = '#000000', emissiveIntensity = 0 }: {
+  color: string; opacity?: number; transparent?: boolean; emissive?: string; emissiveIntensity?: number
+}) => (
+  <meshToonMaterial
+    color={color}
+    opacity={opacity}
+    transparent={transparent}
+    emissive={emissive}
+    emissiveIntensity={emissiveIntensity}
+  />
+)
+
+// ─── Inverted-hull outline ───────────────────────────────────────────────────
+const Outline = ({ radius, scale = 1.055, color = '#1a1a1a', children }: {
+  radius?: number; scale?: number; color?: string; children: React.ReactNode
+}) => (
+  <group>
+    <group scale={scale}>
+      {children}
+      {/* replaced in each usage below by backside variant */}
+    </group>
+    {children}
+  </group>
 )
 
 export default function Chibi3D({
@@ -29,629 +49,631 @@ export default function Chibi3D({
   decalsColor = '#ef4444',
   stageId = 'stage_none',
 }: {
-  skinColor: string
-  hairColor: string
-  clothesColor: string
-  bodyId?: string
-  eyesId?: string
-  eyesColor?: string
-  mouthId?: string
-  hairId?: string
-  clothesId?: string
-  accessoryId?: string
-  accessoryColor?: string
-  bottomsId?: string
-  bottomsColor?: string
-  decalsId?: string
-  decalsColor?: string
+  skinColor: string; hairColor: string; clothesColor: string
+  bodyId?: string; eyesId?: string; eyesColor?: string; mouthId?: string
+  hairId?: string; clothesId?: string; accessoryId?: string; accessoryColor?: string
+  bottomsId?: string; bottomsColor?: string; decalsId?: string; decalsColor?: string
   stageId?: string
 }) {
-  // ── Body scale ──────────────────────────────────────────────────────────────
   let bScale: [number, number, number] = [1, 1, 1]
-  if (bodyId === 'body_chubby')   bScale = [1.18, 0.92, 1.18]
-  if (bodyId === 'body_tall')     bScale = [0.92, 1.22, 0.92]
-  if (bodyId === 'body_muscular') bScale = [1.28, 1.04, 1.1]
+  if (bodyId === 'body_chubby')   bScale = [1.15, 0.94, 1.15]
+  if (bodyId === 'body_tall')     bScale = [0.92, 1.2, 0.92]
+  if (bodyId === 'body_muscular') bScale = [1.25, 1.05, 1.1]
 
-  // ── Animated stage rocks ────────────────────────────────────────────────────
-  const AnimatedStage = ({ stageId }: { stageId: string }) => {
-    const ref = useRef<THREE.Group>(null)
-    useFrame(({ clock }) => {
-      if (ref.current) {
-        ref.current.rotation.y = clock.getElapsedTime() * 0.3
-        ref.current.position.y = Math.sin(clock.getElapsedTime() * 0.8) * 0.08
-      }
-    })
-    if (stageId !== 'stage_rocks') return null
-    return (
-      <group ref={ref}>
-        {[...Array(5)].map((_, i) => (
-          <mesh key={i} position={[Math.cos(i * 1.26) * 2, Math.sin(i * 1.9) * 0.4, Math.sin(i * 1.26) * 2]}>
-            <dodecahedronGeometry args={[0.22, 0]} />
-            <T color="#52525b" />
-          </mesh>
-        ))}
-      </group>
-    )
-  }
+  const OUTLINE = '#111111'
 
-  // ────────────────────────────────────────────────────────────────────────────
-  // AZUR LANE CHIBI PROPORTIONS
-  //  Root at y = -0.9  (so character centre is near camera target)
-  //  Body: y = 0 … 0.9
-  //  Head: sphere r=0.72 at y = 1.65, scale 1.2 → head is ~55 % of total h
-  // ────────────────────────────────────────────────────────────────────────────
+  // ── Reusable outlined sphere ──────────────────────────────────────────────
+  const OBody = ({ pos, r, col, args }: { pos: [number,number,number], r?: number, col: string, args?: any }) => (
+    <group position={pos}>
+      <mesh scale={1.06}>
+        <sphereGeometry args={args ?? [r ?? 0.5, 28, 28]} />
+        <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={args ?? [r ?? 0.5, 28, 28]} />
+        <Toon color={col} />
+      </mesh>
+    </group>
+  )
+
+  const OCapsule = ({ pos, rot = [0,0,0] as [number,number,number], radius, height, col, sc = 1.06 }:
+    { pos: [number,number,number], rot?: [number,number,number], radius: number, height: number, col: string, sc?: number }) => (
+    <group position={pos} rotation={rot}>
+      <mesh scale={sc}>
+        <capsuleGeometry args={[radius, height, 10, 20]} />
+        <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
+      </mesh>
+      <mesh>
+        <capsuleGeometry args={[radius, height, 10, 20]} />
+        <Toon color={col} />
+      </mesh>
+    </group>
+  )
+
+  // ── Flat disc for face elements ───────────────────────────────────────────
+  const FaceCircle = ({ pos, r, col, opacity = 1 }: { pos: [number,number,number], r: number, col: string, opacity?: number }) => (
+    <mesh position={pos} rotation={[0, 0, 0]}>
+      <circleGeometry args={[r, 24]} />
+      <Toon color={col} opacity={opacity} transparent={opacity < 1} />
+    </mesh>
+  )
+  const FaceRect = ({ pos, w, h, col, rot = [0,0,0] as [number,number,number] }: { pos: [number,number,number], w: number, h: number, col: string, rot?: [number,number,number] }) => (
+    <mesh position={pos} rotation={rot}>
+      <planeGeometry args={[w, h]} />
+      <Toon color={col} />
+    </mesh>
+  )
+
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
       <Canvas
         shadows
-        camera={{ position: [0, 0.4, 3.8], fov: 48 }}
-        gl={{ toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.1 }}
+        camera={{ position: [0, 0.3, 3.6], fov: 50 }}
+        gl={{ toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.05 }}
       >
-        {/* ── Lighting: soft, anime-friendly ── */}
-        <ambientLight intensity={1.4} />
-        <directionalLight
-          position={[3, 5, 3]}
-          intensity={0.9}
-          castShadow
-          shadow-mapSize={[1024, 1024]}
-          shadow-bias={-0.001}
-        />
-        {/* Back-rim for silhouette */}
-        <directionalLight position={[-2, 3, -4]} intensity={0.25} color="#c4b5fd" />
+        <ambientLight intensity={1.6} />
+        <directionalLight position={[2, 4, 3]} intensity={0.7} castShadow shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
+        <directionalLight position={[-2, 2, -4]} intensity={0.2} color="#c4b5fd" />
 
         <Suspense fallback={null}>
-          <ContactShadows position={[0, -0.9, 0]} opacity={0.55} scale={5} blur={1.8} far={2.5} />
+          <ContactShadows position={[0, -0.95, 0]} opacity={0.6} scale={5} blur={1.6} far={2.2} />
 
-          <Float speed={2.5} rotationIntensity={0.03} floatIntensity={0.1} floatingRange={[0, 0.07]}>
-            <group position={[0, -0.9, 0]} scale={bScale}>
+          <Float speed={2} rotationIntensity={0.03} floatIntensity={0.08} floatingRange={[0, 0.06]}>
+            <group position={[0, -0.92, 0]} scale={bScale}>
 
-              {/* ══════════════════════ B O D Y ══════════════════════ */}
+              {/* ═══════════════ BODY ═══════════════ */}
               <group>
 
-                {/* Torso — very short & round */}
-                <mesh castShadow receiveShadow position={[0, 0.55, 0]}>
-                  <capsuleGeometry args={[0.34, 0.28, 12, 24]} />
-                  <T color={clothesColor} />
-                </mesh>
+                {/* Torso outline + fill */}
+                <group position={[0, 0.54, 0]}>
+                  <mesh scale={1.055}>
+                    <capsuleGeometry args={[0.33, 0.25, 10, 20]} />
+                    <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
+                  </mesh>
+                  <mesh>
+                    <capsuleGeometry args={[0.33, 0.25, 10, 20]} />
+                    <Toon color={clothesColor} />
+                  </mesh>
 
-                {/* ── Clothes overlays ── */}
+                  {/* Clothes details on torso */}
+                  {clothesId === 'clothes_casual' && (
+                    <>
+                      <mesh position={[0, 0.34, 0]}>
+                        <torusGeometry args={[0.13, 0.034, 10, 24]} />
+                        <Toon color="#f8fafc" />
+                      </mesh>
+                      <mesh position={[0.04, 0.05, 0.32]} rotation={[Math.PI/2, 0, 0]}>
+                        <cylinderGeometry args={[0.055, 0.055, 0.007, 18]} />
+                        <Toon color="#f8fafc" />
+                      </mesh>
+                    </>
+                  )}
+                  {clothesId === 'clothes_suit' && (
+                    <>
+                      <mesh position={[0, 0.1, 0.32]} rotation={[0.08, 0, 0]}>
+                        <planeGeometry args={[0.24, 0.34]} />
+                        <Toon color="#f8fafc" />
+                      </mesh>
+                      <mesh position={[0, 0.07, 0.325]}>
+                        <planeGeometry args={[0.05, 0.28]} />
+                        <Toon color="#ef4444" />
+                      </mesh>
+                      <mesh position={[0, 0.23, 0.325]}>
+                        <planeGeometry args={[0.072, 0.05]} />
+                        <Toon color="#ef4444" />
+                      </mesh>
+                    </>
+                  )}
+                  {clothesId === 'clothes_hoodie' && (
+                    <>
+                      <mesh position={[0, 0.3, -0.18]} rotation={[-0.12, 0, 0]}>
+                        <torusGeometry args={[0.26, 0.15, 10, 20]} />
+                        <Toon color={clothesColor} />
+                      </mesh>
+                      <mesh position={[0, -0.12, 0.32]}>
+                        <planeGeometry args={[0.36, 0.15]} />
+                        <Toon color={clothesColor} />
+                      </mesh>
+                    </>
+                  )}
+                  {clothesId === 'clothes_tech' && (
+                    <>
+                      <mesh position={[0, 0.06, 0.33]} rotation={[0, 0, 0.42]}>
+                        <planeGeometry args={[0.6, 0.033]} />
+                        <Toon color="#111" />
+                      </mesh>
+                      <mesh position={[0, 0.06, 0.33]} rotation={[0, 0, -0.42]}>
+                        <planeGeometry args={[0.6, 0.033]} />
+                        <Toon color="#111" />
+                      </mesh>
+                    </>
+                  )}
+                  {clothesId === 'clothes_robe' && (
+                    <>
+                      <mesh position={[0, -0.28, 0]}>
+                        <cylinderGeometry args={[0.34, 0.46, 0.32, 22]} />
+                        <Toon color={clothesColor} />
+                      </mesh>
+                      <mesh position={[0, -0.42, 0]}>
+                        <cylinderGeometry args={[0.46, 0.46, 0.033, 22]} />
+                        <Toon color="#eab308" />
+                      </mesh>
+                    </>
+                  )}
+                  {clothesId === 'clothes_ninja' && (
+                    <mesh position={[0, 0.3, 0.1]} rotation={[0.12, 0, 0]}>
+                      <torusGeometry args={[0.26, 0.1, 10, 20]} />
+                      <Toon color="#111" />
+                    </mesh>
+                  )}
+                  {clothesId === 'clothes_armor' && (
+                    <>
+                      <mesh position={[-0.42, 0.18, 0]} rotation={[0, 0, 0.26]}>
+                        <cylinderGeometry args={[0.17, 0.17, 0.28, 20]} />
+                        <meshToonMaterial color="#a1a1aa" />
+                      </mesh>
+                      <mesh position={[0.42, 0.18, 0]} rotation={[0, 0, -0.26]}>
+                        <cylinderGeometry args={[0.17, 0.17, 0.28, 20]} />
+                        <meshToonMaterial color="#a1a1aa" />
+                      </mesh>
+                      <mesh position={[0, 0.06, 0.1]}>
+                        <boxGeometry args={[0.52, 0.38, 0.22]} />
+                        <meshToonMaterial color="#a1a1aa" />
+                      </mesh>
+                    </>
+                  )}
+                </group>
+
+                {/* Arms */}
+                <OCapsule pos={[-0.42, 0.62, 0]} rot={[0,0,-0.55]} radius={0.115} height={0.2}
+                  col={['clothes_casual','clothes_robe'].includes(clothesId) ? skinColor : clothesColor} />
+                <OCapsule pos={[0.42, 0.62, 0]} rot={[0,0,0.55]} radius={0.115} height={0.2}
+                  col={['clothes_casual','clothes_robe'].includes(clothesId) ? skinColor : clothesColor} />
+
+                {/* Sleeve cuffs for casual */}
                 {clothesId === 'clothes_casual' && (
                   <>
-                    <mesh position={[0, 0.88, 0]}>
-                      <torusGeometry args={[0.14, 0.038, 12, 24]} />
-                      <T color="#ffffff" />
+                    <mesh position={[-0.32, 0.68, 0]} rotation={[0, 0, -0.55]}>
+                      <cylinderGeometry args={[0.12, 0.12, 0.12, 18]} />
+                      <Toon color={clothesColor} />
                     </mesh>
-                    <mesh position={[0.04, 0.6, 0.33]} rotation={[Math.PI/2, 0, 0]}>
-                      <cylinderGeometry args={[0.062, 0.062, 0.008, 20]} />
-                      <T color="#ffffff" />
-                    </mesh>
-                  </>
-                )}
-                {clothesId === 'clothes_suit' && (
-                  <>
-                    <mesh position={[0, 0.65, 0.32]} rotation={[0.08, 0, 0]}>
-                      <boxGeometry args={[0.26, 0.36, 0.008]} />
-                      <T color="#f1f5f9" />
-                    </mesh>
-                    <mesh position={[0, 0.61, 0.33]}>
-                      <boxGeometry args={[0.055, 0.28, 0.008]} />
-                      <T color="#ef4444" />
-                    </mesh>
-                    <mesh position={[0, 0.78, 0.33]}>
-                      <boxGeometry args={[0.075, 0.055, 0.014]} />
-                      <T color="#ef4444" />
-                    </mesh>
-                    <mesh position={[-0.13, 0.7, 0.33]} rotation={[0, 0, -0.32]}>
-                      <boxGeometry args={[0.065, 0.34, 0.008]} />
-                      <T color={clothesColor} />
-                    </mesh>
-                    <mesh position={[0.13, 0.7, 0.33]} rotation={[0, 0, 0.32]}>
-                      <boxGeometry args={[0.065, 0.34, 0.008]} />
-                      <T color={clothesColor} />
-                    </mesh>
-                  </>
-                )}
-                {clothesId === 'clothes_hoodie' && (
-                  <>
-                    <mesh position={[0, 0.84, -0.18]} rotation={[-0.12, 0, 0]}>
-                      <torusGeometry args={[0.28, 0.16, 12, 24]} />
-                      <T color={clothesColor} />
-                    </mesh>
-                    <mesh position={[-0.07, 0.5, 0.33]}>
-                      <cylinderGeometry args={[0.007, 0.007, 0.2, 6]} />
-                      <T color="#d4d4d4" />
-                    </mesh>
-                    <mesh position={[0.07, 0.5, 0.33]}>
-                      <cylinderGeometry args={[0.007, 0.007, 0.2, 6]} />
-                      <T color="#d4d4d4" />
-                    </mesh>
-                    <mesh position={[0, 0.38, 0.33]}>
-                      <boxGeometry args={[0.38, 0.16, 0.016]} />
-                      <T color={clothesColor} />
-                    </mesh>
-                  </>
-                )}
-                {clothesId === 'clothes_tech' && (
-                  <>
-                    <mesh position={[0, 0.6, 0.34]} rotation={[0, 0, 0.42]}>
-                      <boxGeometry args={[0.62, 0.036, 0.008]} />
-                      <T color="#111111" />
-                    </mesh>
-                    <mesh position={[0, 0.6, 0.34]} rotation={[0, 0, -0.42]}>
-                      <boxGeometry args={[0.62, 0.036, 0.008]} />
-                      <T color="#111111" />
-                    </mesh>
-                    <mesh position={[0, 0.34, 0]}>
-                      <cylinderGeometry args={[0.35, 0.35, 0.055, 24]} />
-                      <T color="#111111" />
-                    </mesh>
-                  </>
-                )}
-                {clothesId === 'clothes_robe' && (
-                  <>
-                    <mesh position={[0, 0.25, 0]}>
-                      <cylinderGeometry args={[0.36, 0.48, 0.36, 24]} />
-                      <T color={clothesColor} />
-                    </mesh>
-                    <mesh position={[0, 0.08, 0]}>
-                      <cylinderGeometry args={[0.48, 0.48, 0.036, 24]} />
-                      <T color="#eab308" />
-                    </mesh>
-                  </>
-                )}
-                {clothesId === 'clothes_ninja' && (
-                  <mesh position={[0, 0.82, 0.1]} rotation={[0.12, 0, 0]}>
-                    <torusGeometry args={[0.28, 0.11, 12, 24]} />
-                    <T color="#111111" />
-                  </mesh>
-                )}
-                {clothesId === 'clothes_armor' && (
-                  <>
-                    <mesh position={[-0.46, 0.72, 0]} rotation={[0, 0, 0.28]}>
-                      <cylinderGeometry args={[0.19, 0.19, 0.3, 24]} />
-                      <meshToonMaterial color="#a1a1aa" />
-                    </mesh>
-                    <mesh position={[0.46, 0.72, 0]} rotation={[0, 0, -0.28]}>
-                      <cylinderGeometry args={[0.19, 0.19, 0.3, 24]} />
-                      <meshToonMaterial color="#a1a1aa" />
-                    </mesh>
-                    <mesh position={[0, 0.6, 0.1]}>
-                      <boxGeometry args={[0.55, 0.42, 0.24]} />
-                      <meshToonMaterial color="#a1a1aa" />
+                    <mesh position={[0.32, 0.68, 0]} rotation={[0, 0, 0.55]}>
+                      <cylinderGeometry args={[0.12, 0.12, 0.12, 18]} />
+                      <Toon color={clothesColor} />
                     </mesh>
                   </>
                 )}
 
-                {/* ── Arms (short & stubby) ── */}
-                <group position={[-0.44, 0.62, 0]} rotation={[0, 0, -0.55]}>
-                  <mesh castShadow>
-                    <capsuleGeometry args={[0.12, 0.22, 10, 20]} />
-                    <T color={['clothes_casual', 'clothes_robe'].includes(clothesId) ? skinColor : clothesColor} />
-                  </mesh>
-                  {clothesId === 'clothes_casual' && (
-                    <mesh position={[0, 0.08, 0]}>
-                      <cylinderGeometry args={[0.125, 0.125, 0.14, 20]} />
-                      <T color={clothesColor} />
-                    </mesh>
-                  )}
-                </group>
-                <group position={[0.44, 0.62, 0]} rotation={[0, 0, 0.55]}>
-                  <mesh castShadow>
-                    <capsuleGeometry args={[0.12, 0.22, 10, 20]} />
-                    <T color={['clothes_casual', 'clothes_robe'].includes(clothesId) ? skinColor : clothesColor} />
-                  </mesh>
-                  {clothesId === 'clothes_casual' && (
-                    <mesh position={[0, 0.08, 0]}>
-                      <cylinderGeometry args={[0.125, 0.125, 0.14, 20]} />
-                      <T color={clothesColor} />
-                    </mesh>
-                  )}
-                </group>
-
-                {/* ── Neck ── */}
-                <mesh position={[0, 0.96, 0]}>
-                  <cylinderGeometry args={[0.11, 0.14, 0.16, 20]} />
-                  <T color={skinColor} />
+                {/* Neck */}
+                <mesh position={[0, 0.93, 0]}>
+                  <cylinderGeometry args={[0.1, 0.13, 0.14, 18]} />
+                  <Toon color={skinColor} />
                 </mesh>
 
-                {/* ── Pelvis / Waist ── */}
-                <mesh castShadow position={[0, 0.2, 0]}>
-                  {bottomsId === 'bottom_skirt'
-                    ? <cylinderGeometry args={[0.32, 0.5, 0.34, 24]} />
-                    : <cylinderGeometry args={[0.32, 0.36, 0.22, 24]} />}
-                  <T color={bottomsColor} />
-                </mesh>
+                {/* Waist/Pelvis */}
+                <group position={[0, 0.2, 0]}>
+                  <mesh scale={1.04}>
+                    {bottomsId === 'bottom_skirt'
+                      ? <cylinderGeometry args={[0.3, 0.48, 0.32, 22]} />
+                      : <cylinderGeometry args={[0.3, 0.34, 0.2, 22]} />}
+                    <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
+                  </mesh>
+                  <mesh>
+                    {bottomsId === 'bottom_skirt'
+                      ? <cylinderGeometry args={[0.3, 0.48, 0.32, 22]} />
+                      : <cylinderGeometry args={[0.3, 0.34, 0.2, 22]} />}
+                    <Toon color={bottomsColor} />
+                  </mesh>
+                </group>
 
-                {/* ── Legs (super stubby) ── */}
-                {['bottom_skirt'].includes(bottomsId) ? null : (
+                {/* Legs (only if not skirt) */}
+                {bottomsId !== 'bottom_skirt' && (
                   <>
-                    {/* Left */}
-                    <group position={[-0.16, -0.06, 0]}>
-                      <mesh castShadow>
-                        <capsuleGeometry args={[0.12, 0.2, 10, 20]} />
-                        <T color={skinColor} />
-                      </mesh>
+                    {/* Left leg */}
+                    <group position={[-0.15, -0.08, 0]}>
+                      <OCapsule pos={[0,0,0]} radius={0.115} height={0.2} col={skinColor} sc={1.055} />
+                      {/* pants cover */}
                       {bottomsId !== 'bottom_shorts' && (
                         <mesh position={[0, 0.06, 0]}>
-                          <cylinderGeometry args={[0.125, 0.125, 0.28, 20]} />
-                          <T color={bottomsColor} />
-                        </mesh>
-                      )}
-                      {bottomsId === 'bottom_shorts' && (
-                        <mesh position={[0, 0.1, 0]}>
-                          <cylinderGeometry args={[0.125, 0.125, 0.14, 20]} />
-                          <T color={bottomsColor} />
+                          <cylinderGeometry args={[0.12, 0.12, 0.3, 18]} />
+                          <Toon color={bottomsColor} />
                         </mesh>
                       )}
                       {/* Shoe */}
-                      <mesh position={[0, -0.22, 0.055]} rotation={[0.1, 0, 0]}>
-                        <capsuleGeometry args={[0.1, 0.14, 6, 12]} />
-                        <T color="#1c1917" />
-                      </mesh>
+                      <group position={[0, -0.22, 0.05]}>
+                        <mesh scale={1.06}>
+                          <capsuleGeometry args={[0.1, 0.13, 6, 12]} />
+                          <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
+                        </mesh>
+                        <mesh>
+                          <capsuleGeometry args={[0.1, 0.13, 6, 12]} />
+                          <Toon color="#1c1917" />
+                        </mesh>
+                      </group>
                     </group>
-                    {/* Right */}
-                    <group position={[0.16, -0.06, 0]}>
-                      <mesh castShadow>
-                        <capsuleGeometry args={[0.12, 0.2, 10, 20]} />
-                        <T color={skinColor} />
-                      </mesh>
+                    {/* Right leg */}
+                    <group position={[0.15, -0.08, 0]}>
+                      <OCapsule pos={[0,0,0]} radius={0.115} height={0.2} col={skinColor} sc={1.055} />
                       {bottomsId !== 'bottom_shorts' && (
                         <mesh position={[0, 0.06, 0]}>
-                          <cylinderGeometry args={[0.125, 0.125, 0.28, 20]} />
-                          <T color={bottomsColor} />
+                          <cylinderGeometry args={[0.12, 0.12, 0.3, 18]} />
+                          <Toon color={bottomsColor} />
                         </mesh>
                       )}
-                      {bottomsId === 'bottom_shorts' && (
-                        <mesh position={[0, 0.1, 0]}>
-                          <cylinderGeometry args={[0.125, 0.125, 0.14, 20]} />
-                          <T color={bottomsColor} />
+                      <group position={[0, -0.22, 0.05]}>
+                        <mesh scale={1.06}>
+                          <capsuleGeometry args={[0.1, 0.13, 6, 12]} />
+                          <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
                         </mesh>
-                      )}
-                      {/* Shoe */}
-                      <mesh position={[0, -0.22, 0.055]} rotation={[0.1, 0, 0]}>
-                        <capsuleGeometry args={[0.1, 0.14, 6, 12]} />
-                        <T color="#1c1917" />
-                      </mesh>
+                        <mesh>
+                          <capsuleGeometry args={[0.1, 0.13, 6, 12]} />
+                          <Toon color="#1c1917" />
+                        </mesh>
+                      </group>
                     </group>
                   </>
                 )}
               </group>
-              {/* ─────────────────────────────────────────────────────────── */}
 
-              {/* ══════════════════════ H E A D ══════════════════════ */}
-              {/* Azur Lane ratio: head ≈ 50 % of total figure height */}
-              <group position={[0, 1.62, 0]} scale={[1.18, 1.18, 1.18]}>
+              {/* ═══════════════ HEAD ═══════════════ */}
+              <group position={[0, 1.62, 0]} scale={[1.15, 1.15, 1.15]}>
 
-                {/* Skull */}
-                <mesh castShadow receiveShadow>
-                  <sphereGeometry args={[0.68, 36, 36]} />
-                  <T color={skinColor} />
+                {/* Skull with outline */}
+                <mesh scale={1.05}>
+                  <sphereGeometry args={[0.66, 32, 32]} />
+                  <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
                 </mesh>
-                {/* Slightly flattened chin */}
-                <mesh position={[0, -0.38, 0.18]} scale={[0.9, 0.7, 0.7]}>
-                  <sphereGeometry args={[0.42, 24, 24]} />
-                  <T color={skinColor} />
+                <mesh>
+                  <sphereGeometry args={[0.66, 32, 32]} />
+                  <Toon color={skinColor} />
                 </mesh>
 
-                {/* ── EYES: proper Azur Lane layered anime eyes ── */}
-                {/* Each eye: white → color → pupil → shine */}
-                {(eyesId === 'eyes_normal' || eyesId === 'eyes_big') && (
-                  <>
-                    {/* LEFT EYE */}
-                    <group position={[-0.21, 0.07, 0.62]}>
+                {/* ── FACE PANEL (flat disc, slightly in front) ── */}
+                {/* All face elements sit on z ≈ 0.62 plane */}
+
+                {/* ══ EYES ══ */}
+                {/* eyes_normal / eyes_big: proper layered anime eye */}
+                {(eyesId === 'eyes_normal' || eyesId === 'eyes_big') && (() => {
+                  const EYE_W = eyesId === 'eyes_big' ? 0.22 : 0.18
+                  const EYE_H = eyesId === 'eyes_big' ? 0.26 : 0.22
+                  const Z = 0.635
+                  const renderEye = (side: -1 | 1) => (
+                    <group key={side} position={[side * 0.2, 0.09, Z]}>
+                      {/* Black lash frame / background */}
+                      <mesh position={[0, 0, -0.002]}>
+                        <planeGeometry args={[EYE_W + 0.04, EYE_H + 0.02]} />
+                        <Toon color="#111111" />
+                      </mesh>
                       {/* White sclera */}
-                      <mesh scale={[1.4, 1.6, 0.05]}>
-                        <sphereGeometry args={[eyesId === 'eyes_big' ? 0.115 : 0.092, 20, 20]} />
-                        <meshToonMaterial color="#ffffff" />
+                      <mesh position={[0, -0.014, 0]}>
+                        <planeGeometry args={[EYE_W, EYE_H * 0.72]} />
+                        <Toon color="#ffffff" />
                       </mesh>
-                      {/* Iris (colored) */}
-                      <mesh position={[0, 0, 0.04]} scale={[1.1, 1.3, 0.04]}>
-                        <sphereGeometry args={[eyesId === 'eyes_big' ? 0.092 : 0.072, 20, 20]} />
-                        <meshToonMaterial color={eyesColor} />
+                      {/* Colored iris */}
+                      <mesh position={[0, -0.02, 0.001]}>
+                        <circleGeometry args={[EYE_W * 0.38, 20]} />
+                        <Toon color={eyesColor || '#3b82f6'} />
                       </mesh>
-                      {/* Pupil (black) */}
-                      <mesh position={[0, -0.01, 0.07]} scale={[1, 1.15, 0.03]}>
-                        <sphereGeometry args={[eyesId === 'eyes_big' ? 0.055 : 0.042, 16, 16]} />
-                        <meshToonMaterial color="#111111" />
+                      {/* Pupil */}
+                      <mesh position={[0, -0.025, 0.002]}>
+                        <circleGeometry args={[EYE_W * 0.22, 16]} />
+                        <Toon color="#111111" />
                       </mesh>
-                      {/* Top lash shadow */}
-                      <mesh position={[0, eyesId === 'eyes_big' ? 0.095 : 0.078, 0.06]} rotation={[0, 0, 0]}>
-                        <boxGeometry args={[eyesId === 'eyes_big' ? 0.24 : 0.2, 0.04, 0.008]} />
-                        <meshToonMaterial color="#111111" />
+                      {/* Highlight big */}
+                      <mesh position={[side === -1 ? -0.032 : 0.032, 0.018, 0.003]}>
+                        <circleGeometry args={[EYE_W * 0.14, 12]} />
+                        <Toon color="#ffffff" />
                       </mesh>
-                      {/* Highlight dot */}
-                      <mesh position={[-0.03, 0.04, 0.1]}>
-                        <sphereGeometry args={[0.022, 10, 10]} />
-                        <meshToonMaterial color="#ffffff" />
+                      {/* Highlight small */}
+                      <mesh position={[side === -1 ? 0.022 : -0.022, -0.018, 0.003]}>
+                        <circleGeometry args={[EYE_W * 0.075, 10]} />
+                        <Toon color="#ffffff" />
                       </mesh>
-                      {/* Small secondary highlight */}
-                      <mesh position={[0.04, -0.03, 0.1]}>
-                        <sphereGeometry args={[0.012, 8, 8]} />
-                        <meshToonMaterial color="#ffffff" />
-                      </mesh>
-                    </group>
-                    {/* RIGHT EYE */}
-                    <group position={[0.21, 0.07, 0.62]}>
-                      <mesh scale={[1.4, 1.6, 0.05]}>
-                        <sphereGeometry args={[eyesId === 'eyes_big' ? 0.115 : 0.092, 20, 20]} />
-                        <meshToonMaterial color="#ffffff" />
-                      </mesh>
-                      <mesh position={[0, 0, 0.04]} scale={[1.1, 1.3, 0.04]}>
-                        <sphereGeometry args={[eyesId === 'eyes_big' ? 0.092 : 0.072, 20, 20]} />
-                        <meshToonMaterial color={eyesColor} />
-                      </mesh>
-                      <mesh position={[0, -0.01, 0.07]} scale={[1, 1.15, 0.03]}>
-                        <sphereGeometry args={[eyesId === 'eyes_big' ? 0.055 : 0.042, 16, 16]} />
-                        <meshToonMaterial color="#111111" />
-                      </mesh>
-                      <mesh position={[0, eyesId === 'eyes_big' ? 0.095 : 0.078, 0.06]} rotation={[0, 0, 0]}>
-                        <boxGeometry args={[eyesId === 'eyes_big' ? 0.24 : 0.2, 0.04, 0.008]} />
-                        <meshToonMaterial color="#111111" />
-                      </mesh>
-                      <mesh position={[0.03, 0.04, 0.1]}>
-                        <sphereGeometry args={[0.022, 10, 10]} />
-                        <meshToonMaterial color="#ffffff" />
-                      </mesh>
-                      <mesh position={[-0.04, -0.03, 0.1]}>
-                        <sphereGeometry args={[0.012, 8, 8]} />
-                        <meshToonMaterial color="#ffffff" />
+                      {/* Top lash thicker bar */}
+                      <mesh position={[0, EYE_H * 0.36, 0.003]}>
+                        <planeGeometry args={[EYE_W + 0.04, 0.038]} />
+                        <Toon color="#111111" />
                       </mesh>
                     </group>
-                  </>
-                )}
+                  )
+                  return <>{renderEye(-1)}{renderEye(1)}</>
+                })()}
+
                 {eyesId === 'eyes_closed' && (
                   <>
-                    <mesh position={[-0.21, 0.07, 0.65]} rotation={[0, 0, 0.12]}>
-                      <boxGeometry args={[0.18, 0.03, 0.006]} />
-                      <meshToonMaterial color="#1a1a1a" />
+                    {/* Left — upward arc for closed happy eye */}
+                    <mesh position={[-0.2, 0.09, 0.635]} rotation={[0, 0, 0.08]}>
+                      <torusGeometry args={[0.08, 0.015, 6, 20, Math.PI]} />
+                      <Toon color="#111111" />
                     </mesh>
-                    {/* eyelashes */}
-                    <mesh position={[-0.21, 0.03, 0.65]} rotation={[0, 0, 0.2]}>
-                      <boxGeometry args={[0.16, 0.018, 0.006]} />
-                      <meshToonMaterial color="#1a1a1a" />
-                    </mesh>
-                    <mesh position={[0.21, 0.07, 0.65]} rotation={[0, 0, -0.12]}>
-                      <boxGeometry args={[0.18, 0.03, 0.006]} />
-                      <meshToonMaterial color="#1a1a1a" />
-                    </mesh>
-                    <mesh position={[0.21, 0.03, 0.65]} rotation={[0, 0, -0.2]}>
-                      <boxGeometry args={[0.16, 0.018, 0.006]} />
-                      <meshToonMaterial color="#1a1a1a" />
+                    <mesh position={[0.2, 0.09, 0.635]} rotation={[0, 0, -0.08]}>
+                      <torusGeometry args={[0.08, 0.015, 6, 20, Math.PI]} />
+                      <Toon color="#111111" />
                     </mesh>
                   </>
                 )}
+
                 {eyesId === 'eyes_angry' && (
                   <>
-                    <mesh position={[-0.21, 0.07, 0.65]} rotation={[0, 0, -0.32]}>
-                      <boxGeometry args={[0.19, 0.036, 0.006]} />
-                      <meshToonMaterial color="#1a1a1a" />
-                    </mesh>
-                    <mesh position={[-0.21, 0.04, 0.64]}>
-                      <boxGeometry args={[0.14, 0.06, 0.006]} />
-                      <meshToonMaterial color={eyesColor} />
-                    </mesh>
-                    <mesh position={[0.21, 0.07, 0.65]} rotation={[0, 0, 0.32]}>
-                      <boxGeometry args={[0.19, 0.036, 0.006]} />
-                      <meshToonMaterial color="#1a1a1a" />
-                    </mesh>
-                    <mesh position={[0.21, 0.04, 0.64]}>
-                      <boxGeometry args={[0.14, 0.06, 0.006]} />
-                      <meshToonMaterial color={eyesColor} />
-                    </mesh>
+                    {/* angled black bar + colored fill */}
+                    <group position={[-0.2, 0.09, 0.635]}>
+                      <mesh position={[0, 0.08, 0]} rotation={[0, 0, -0.36]}>
+                        <planeGeometry args={[0.2, 0.038]} />
+                        <Toon color="#111111" />
+                      </mesh>
+                      <mesh position={[0, -0.01, 0]}>
+                        <planeGeometry args={[0.17, 0.12]} />
+                        <Toon color={eyesColor || '#3b82f6'} />
+                      </mesh>
+                    </group>
+                    <group position={[0.2, 0.09, 0.635]}>
+                      <mesh position={[0, 0.08, 0]} rotation={[0, 0, 0.36]}>
+                        <planeGeometry args={[0.2, 0.038]} />
+                        <Toon color="#111111" />
+                      </mesh>
+                      <mesh position={[0, -0.01, 0]}>
+                        <planeGeometry args={[0.17, 0.12]} />
+                        <Toon color={eyesColor || '#3b82f6'} />
+                      </mesh>
+                    </group>
                   </>
                 )}
+
                 {eyesId === 'eyes_sad' && (
                   <>
-                    <mesh position={[-0.21, 0.07, 0.65]} rotation={[0, 0, 0.32]}>
-                      <boxGeometry args={[0.19, 0.036, 0.006]} />
-                      <meshToonMaterial color="#1a1a1a" />
-                    </mesh>
-                    <mesh position={[-0.21, 0.04, 0.64]}>
-                      <boxGeometry args={[0.14, 0.07, 0.006]} />
-                      <meshToonMaterial color={eyesColor} />
-                    </mesh>
-                    <mesh position={[0.21, 0.07, 0.65]} rotation={[0, 0, -0.32]}>
-                      <boxGeometry args={[0.19, 0.036, 0.006]} />
-                      <meshToonMaterial color="#1a1a1a" />
-                    </mesh>
-                    <mesh position={[0.21, 0.04, 0.64]}>
-                      <boxGeometry args={[0.14, 0.07, 0.006]} />
-                      <meshToonMaterial color={eyesColor} />
-                    </mesh>
+                    <group position={[-0.2, 0.09, 0.635]}>
+                      <mesh position={[0, 0.08, 0]} rotation={[0, 0, 0.36]}>
+                        <planeGeometry args={[0.2, 0.038]} />
+                        <Toon color="#111111" />
+                      </mesh>
+                      <mesh position={[0, -0.01, 0]}>
+                        <planeGeometry args={[0.17, 0.12]} />
+                        <Toon color={eyesColor || '#60a5fa'} />
+                      </mesh>
+                    </group>
+                    <group position={[0.2, 0.09, 0.635]}>
+                      <mesh position={[0, 0.08, 0]} rotation={[0, 0, -0.36]}>
+                        <planeGeometry args={[0.2, 0.038]} />
+                        <Toon color="#111111" />
+                      </mesh>
+                      <mesh position={[0, -0.01, 0]}>
+                        <planeGeometry args={[0.17, 0.12]} />
+                        <Toon color={eyesColor || '#60a5fa'} />
+                      </mesh>
+                    </group>
                   </>
                 )}
+
                 {eyesId === 'eyes_star' && (
                   <>
-                    <mesh position={[-0.21, 0.07, 0.63]} rotation={[Math.PI/2, 0, Math.PI/10]} scale={[1, 1, 0.04]}>
-                      <cylinderGeometry args={[0.09, 0.09, 0.01, 5]} />
-                      <meshToonMaterial color={eyesColor} />
-                    </mesh>
-                    <mesh position={[0.21, 0.07, 0.63]} rotation={[Math.PI/2, 0, Math.PI/10]} scale={[1, 1, 0.04]}>
-                      <cylinderGeometry args={[0.09, 0.09, 0.01, 5]} />
-                      <meshToonMaterial color={eyesColor} />
-                    </mesh>
+                    <group position={[-0.2, 0.09, 0.63]}>
+                      <mesh position={[0, 0, -0.002]}>
+                        <planeGeometry args={[0.22, 0.22]} />
+                        <Toon color="#111111" />
+                      </mesh>
+                      <mesh rotation={[0, 0, Math.PI / 10]}>
+                        <circleGeometry args={[0.09, 5]} />
+                        <Toon color={eyesColor} />
+                      </mesh>
+                      <mesh position={[-0.03, 0.04, 0.002]}>
+                        <circleGeometry args={[0.025, 10]} />
+                        <Toon color="#ffffff" />
+                      </mesh>
+                    </group>
+                    <group position={[0.2, 0.09, 0.63]}>
+                      <mesh position={[0, 0, -0.002]}>
+                        <planeGeometry args={[0.22, 0.22]} />
+                        <Toon color="#111111" />
+                      </mesh>
+                      <mesh rotation={[0, 0, Math.PI / 10]}>
+                        <circleGeometry args={[0.09, 5]} />
+                        <Toon color={eyesColor} />
+                      </mesh>
+                      <mesh position={[0.03, 0.04, 0.002]}>
+                        <circleGeometry args={[0.025, 10]} />
+                        <Toon color="#ffffff" />
+                      </mesh>
+                    </group>
                   </>
                 )}
+
                 {eyesId === 'eyes_heart' && (
                   <>
-                    <group position={[-0.21, 0.07, 0.64]} scale={[1, 1, 0.04]}>
-                      <mesh position={[-0.035, 0.035, 0]}><sphereGeometry args={[0.055, 12, 12]} /><meshToonMaterial color={eyesColor} /></mesh>
-                      <mesh position={[0.035, 0.035, 0]}><sphereGeometry args={[0.055, 12, 12]} /><meshToonMaterial color={eyesColor} /></mesh>
-                      <mesh position={[0, -0.03, 0]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.062, 0.1, 12]} /><meshToonMaterial color={eyesColor} /></mesh>
-                    </group>
-                    <group position={[0.21, 0.07, 0.64]} scale={[1, 1, 0.04]}>
-                      <mesh position={[-0.035, 0.035, 0]}><sphereGeometry args={[0.055, 12, 12]} /><meshToonMaterial color={eyesColor} /></mesh>
-                      <mesh position={[0.035, 0.035, 0]}><sphereGeometry args={[0.055, 12, 12]} /><meshToonMaterial color={eyesColor} /></mesh>
-                      <mesh position={[0, -0.03, 0]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.062, 0.1, 12]} /><meshToonMaterial color={eyesColor} /></mesh>
-                    </group>
+                    {([-1, 1] as const).map(side => (
+                      <group key={side} position={[side * 0.2, 0.09, 0.632]}>
+                        <mesh position={[-0.032, 0.03, 0]}><circleGeometry args={[0.057, 14]} /><Toon color={eyesColor} /></mesh>
+                        <mesh position={[0.032, 0.03, 0]}><circleGeometry args={[0.057, 14]} /><Toon color={eyesColor} /></mesh>
+                        <mesh position={[0, -0.02, 0]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.062, 0.1, 12]} /><Toon color={eyesColor} /></mesh>
+                        <mesh position={[side === -1 ? -0.025 : 0.025, 0.04, 0.002]}><circleGeometry args={[0.018, 10]} /><Toon color="#ffffff" /></mesh>
+                      </group>
+                    ))}
                   </>
                 )}
+
                 {eyesId === 'eyes_cyber' && (
-                  <mesh position={[0, 0.07, 0.65]}>
-                    <boxGeometry args={[0.55, 0.07, 0.008]} />
-                    <meshToonMaterial color={eyesColor} emissive={eyesColor} emissiveIntensity={0.8} />
+                  <mesh position={[0, 0.09, 0.636]}>
+                    <planeGeometry args={[0.5, 0.07]} />
+                    <Toon color={eyesColor} emissive={eyesColor} emissiveIntensity={0.6} />
                   </mesh>
                 )}
 
-                {/* ── MOUTH ── */}
+                {/* ══ NOSE ══ tiny bump */}
+                <mesh position={[0, -0.05, 0.655]} scale={[1.1, 0.8, 0.5]}>
+                  <sphereGeometry args={[0.028, 10, 10]} />
+                  <Toon color={skinColor} />
+                </mesh>
+
+                {/* ══ MOUTH ══ */}
                 {mouthId === 'mouth_smile' && (
-                  <mesh position={[0, -0.16, 0.64]} scale={[1.6, 1.6, 0.008]}>
-                    <torusGeometry args={[0.062, 0.013, 8, 24, Math.PI]} />
-                    <meshToonMaterial color="#1a1a1a" />
+                  <mesh position={[0, -0.19, 0.63]} rotation={[0, 0, 0]} scale={[1.6, 1.6, 0.01]}>
+                    <torusGeometry args={[0.065, 0.014, 6, 22, Math.PI]} />
+                    <Toon color="#111111" />
                   </mesh>
                 )}
                 {mouthId === 'mouth_open' && (
-                  <mesh position={[0, -0.16, 0.65]} rotation={[Math.PI/2, 0, 0]} scale={[1, 1, 0.009]}>
-                    <cylinderGeometry args={[0.065, 0.065, 0.01, 24]} />
-                    <meshToonMaterial color="#1a1a1a" />
-                  </mesh>
+                  <>
+                    <mesh position={[0, -0.19, 0.635]}>
+                      <circleGeometry args={[0.068, 20]} />
+                      <Toon color="#111111" />
+                    </mesh>
+                    <mesh position={[0, -0.2, 0.636]}>
+                      <circleGeometry args={[0.056, 20]} />
+                      <Toon color="#ef4444" />
+                    </mesh>
+                  </>
                 )}
                 {mouthId === 'mouth_sad' && (
-                  <mesh position={[0, -0.18, 0.64]} rotation={[0, 0, Math.PI]} scale={[1.6, 1.6, 0.008]}>
-                    <torusGeometry args={[0.062, 0.013, 8, 24, Math.PI]} />
-                    <meshToonMaterial color="#1a1a1a" />
+                  <mesh position={[0, -0.21, 0.63]} rotation={[0, 0, Math.PI]} scale={[1.6, 1.6, 0.01]}>
+                    <torusGeometry args={[0.065, 0.014, 6, 22, Math.PI]} />
+                    <Toon color="#111111" />
                   </mesh>
                 )}
                 {mouthId === 'mouth_cat' && (
-                  <group position={[0, -0.16, 0.65]} scale={[1, 1, 0.008]}>
-                    <mesh position={[-0.046, 0, 0]}><torusGeometry args={[0.04, 0.011, 8, 24, Math.PI]} /><meshToonMaterial color="#1a1a1a" /></mesh>
-                    <mesh position={[0.046, 0, 0]}><torusGeometry args={[0.04, 0.011, 8, 24, Math.PI]} /><meshToonMaterial color="#1a1a1a" /></mesh>
+                  <group position={[0, -0.19, 0.634]} scale={[1, 1, 0.01]}>
+                    <mesh position={[-0.044, 0, 0]}><torusGeometry args={[0.038, 0.012, 6, 20, Math.PI]} /><Toon color="#111111" /></mesh>
+                    <mesh position={[0.044, 0, 0]}><torusGeometry args={[0.038, 0.012, 6, 20, Math.PI]} /><Toon color="#111111" /></mesh>
                   </group>
                 )}
                 {mouthId === 'mouth_vampire' && (
-                  <group position={[0, -0.16, 0.65]} scale={[1, 1, 0.008]}>
-                    <mesh><boxGeometry args={[0.13, 0.013, 0.008]} /><meshToonMaterial color="#1a1a1a" /></mesh>
-                    <mesh position={[-0.046, -0.04, 0]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.016, 0.065, 8]} /><meshToonMaterial color="#f8fafc" /></mesh>
-                    <mesh position={[0.046, -0.04, 0]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.016, 0.065, 8]} /><meshToonMaterial color="#f8fafc" /></mesh>
+                  <group position={[0, -0.19, 0.634]}>
+                    <mesh><planeGeometry args={[0.13, 0.013]} /><Toon color="#111111" /></mesh>
+                    <mesh position={[-0.042, -0.038, 0.001]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.014, 0.058, 8]} /><Toon color="#f8fafc" /></mesh>
+                    <mesh position={[0.042, -0.038, 0.001]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.014, 0.058, 8]} /><Toon color="#f8fafc" /></mesh>
                   </group>
                 )}
 
-                {/* ── BLUSH (cute chibi blush circles) ── */}
-                <mesh position={[-0.35, -0.08, 0.55]} scale={[1.1, 0.65, 0.07]}>
-                  <sphereGeometry args={[0.13, 14, 14]} />
-                  <meshToonMaterial color="#f9a8d4" transparent opacity={0.65} />
+                {/* ══ BLUSH ══ */}
+                <mesh position={[-0.34, -0.1, 0.595]} scale={[1.2, 0.62, 0.07]}>
+                  <circleGeometry args={[0.12, 16]} />
+                  <Toon color="#f9a8d4" opacity={0.7} transparent />
                 </mesh>
-                <mesh position={[0.35, -0.08, 0.55]} scale={[1.1, 0.65, 0.07]}>
-                  <sphereGeometry args={[0.13, 14, 14]} />
-                  <meshToonMaterial color="#f9a8d4" transparent opacity={0.65} />
+                <mesh position={[0.34, -0.1, 0.595]} scale={[1.2, 0.62, 0.07]}>
+                  <circleGeometry args={[0.12, 16]} />
+                  <Toon color="#f9a8d4" opacity={0.7} transparent />
                 </mesh>
 
-                {/* ── DECALS ── */}
+                {/* ══ DECALS ══ */}
                 {decalsId === 'decal_scar' && (
-                  <mesh position={[-0.2, 0.1, 0.67]} rotation={[0, 0, 0.38]}>
-                    <boxGeometry args={[0.036, 0.26, 0.004]} />
-                    <meshToonMaterial color={decalsColor} />
+                  <mesh position={[-0.2, 0.1, 0.645]} rotation={[0, 0, 0.38]}>
+                    <planeGeometry args={[0.032, 0.24]} />
+                    <Toon color={decalsColor} />
                   </mesh>
                 )}
                 {decalsId === 'decal_bandage' && (
-                  <mesh position={[0.04, -0.02, 0.67]} rotation={[0, 0, -0.08]}>
-                    <boxGeometry args={[0.28, 0.09, 0.004]} />
-                    <meshToonMaterial color="#f5f5f5" />
+                  <mesh position={[0.04, -0.02, 0.645]} rotation={[0, 0, -0.08]}>
+                    <planeGeometry args={[0.26, 0.084]} />
+                    <Toon color="#f5f5f5" />
                   </mesh>
                 )}
                 {decalsId === 'decal_freckles' && (
-                  <group position={[0, 0, 0.67]}>
-                    {([-0.25, -0.31, -0.19, 0.25, 0.31, 0.19] as number[]).map((x, i) => (
-                      <mesh key={i} position={[x, i < 3 ? 0 : -0.01, 0]}>
-                        <sphereGeometry args={[i % 3 === 0 ? 0.018 : i % 3 === 1 ? 0.014 : 0.011, 6, 6]} />
-                        <meshToonMaterial color="#b45309" />
+                  <group position={[0, 0, 0.645]}>
+                    {[-0.23, -0.29, -0.17, 0.23, 0.29, 0.17].map((x, i) => (
+                      <mesh key={i} position={[x, -0.01, 0]}>
+                        <circleGeometry args={[i % 3 === 0 ? 0.016 : i % 3 === 1 ? 0.013 : 0.01, 8]} />
+                        <Toon color="#b45309" />
                       </mesh>
                     ))}
                   </group>
                 )}
                 {decalsId === 'decal_tear' && (
-                  <mesh position={[0.26, -0.07, 0.67]} rotation={[0, 0, Math.PI]}>
-                    <coneGeometry args={[0.024, 0.058, 14]} />
-                    <meshToonMaterial color="#60a5fa" transparent opacity={0.88} />
+                  <mesh position={[0.24, -0.07, 0.645]} rotation={[0, 0, Math.PI]}>
+                    <coneGeometry args={[0.022, 0.055, 12]} />
+                    <Toon color="#60a5fa" opacity={0.9} transparent />
                   </mesh>
                 )}
                 {decalsId === 'decal_cyber' && (
-                  <group position={[0.36, 0.14, 0.67]}>
-                    <mesh><boxGeometry args={[0.013, 0.16, 0.004]} /><meshToonMaterial color={decalsColor} emissive={decalsColor} emissiveIntensity={0.5} /></mesh>
-                    <mesh position={[0.036, 0.04, 0]}><boxGeometry args={[0.09, 0.013, 0.004]} /><meshToonMaterial color={decalsColor} emissive={decalsColor} emissiveIntensity={0.5} /></mesh>
+                  <group position={[0.34, 0.14, 0.644]}>
+                    <mesh><planeGeometry args={[0.012, 0.15]} /><Toon color={decalsColor} emissive={decalsColor} emissiveIntensity={0.5} /></mesh>
+                    <mesh position={[0.034, 0.038, 0]}><planeGeometry args={[0.085, 0.012]} /><Toon color={decalsColor} emissive={decalsColor} emissiveIntensity={0.5} /></mesh>
                   </group>
                 )}
                 {decalsId === 'decal_star' && (
-                  <mesh position={[-0.27, -0.1, 0.67]} rotation={[Math.PI/2, 0.18, 0]}>
-                    <cylinderGeometry args={[0.036, 0.036, 0.006, 5]} />
-                    <meshToonMaterial color={decalsColor} />
+                  <mesh position={[-0.25, -0.1, 0.644]} rotation={[Math.PI/2, 0.18, 0]}>
+                    <cylinderGeometry args={[0.033, 0.033, 0.006, 5]} />
+                    <Toon color={decalsColor} />
                   </mesh>
                 )}
 
-                {/* ── HAIR ── */}
+                {/* ══ HAIR ══ */}
                 {hairId !== 'hair_bald' && (
                   <group>
                     {/* Hair cap */}
                     {!['hair_mohawk', 'hair_curly'].includes(hairId) && (
-                      <mesh position={[0, 0.1, -0.04]}>
-                        <sphereGeometry args={[0.72, 28, 28]} />
-                        <T color={hairColor} />
-                      </mesh>
+                      <group position={[0, 0.1, -0.04]}>
+                        <mesh scale={1.04}>
+                          <sphereGeometry args={[0.68, 26, 26]} />
+                          <meshBasicMaterial color={OUTLINE} side={THREE.BackSide} />
+                        </mesh>
+                        <mesh>
+                          <sphereGeometry args={[0.68, 26, 26]} />
+                          <Toon color={hairColor} />
+                        </mesh>
+                      </group>
                     )}
                     {/* Bangs */}
-                    {['hair_short', 'hair_long', 'hair_twintails', 'hair_ponytail'].includes(hairId) && (
-                      <group position={[0, 0.38, 0.54]} rotation={[0.22, 0, 0]}>
-                        <mesh rotation={[0, 0, Math.PI / 2]}>
-                          <capsuleGeometry args={[0.12, 0.92, 12, 20]} />
-                          <T color={hairColor} />
+                    {['hair_short','hair_long','hair_twintails','hair_ponytail'].includes(hairId) && (
+                      <group position={[0, 0.36, 0.5]} rotation={[0.2, 0, 0]}>
+                        <mesh rotation={[0, 0, Math.PI/2]}>
+                          <capsuleGeometry args={[0.12, 0.86, 10, 18]} />
+                          <Toon color={hairColor} />
                         </mesh>
                       </group>
                     )}
                     {hairId === 'hair_long' && (
-                      <mesh position={[0, -0.46, -0.38]} rotation={[0.12, 0, 0]}>
-                        <capsuleGeometry args={[0.32, 1.1, 12, 20]} />
-                        <T color={hairColor} />
+                      <mesh position={[0, -0.44, -0.36]} rotation={[0.12, 0, 0]}>
+                        <capsuleGeometry args={[0.3, 1.05, 10, 18]} />
+                        <Toon color={hairColor} />
                       </mesh>
                     )}
                     {hairId === 'hair_twintails' && (
                       <>
-                        <mesh position={[-0.7, -0.22, 0]} rotation={[0, 0, 0.32]}>
-                          <capsuleGeometry args={[0.22, 0.92, 12, 20]} />
-                          <T color={hairColor} />
+                        <mesh position={[-0.66, -0.2, 0]} rotation={[0, 0, 0.3]}>
+                          <capsuleGeometry args={[0.2, 0.86, 10, 18]} />
+                          <Toon color={hairColor} />
                         </mesh>
-                        <mesh position={[0.7, -0.22, 0]} rotation={[0, 0, -0.32]}>
-                          <capsuleGeometry args={[0.22, 0.92, 12, 20]} />
-                          <T color={hairColor} />
+                        <mesh position={[0.66, -0.2, 0]} rotation={[0, 0, -0.3]}>
+                          <capsuleGeometry args={[0.2, 0.86, 10, 18]} />
+                          <Toon color={hairColor} />
                         </mesh>
                       </>
                     )}
                     {hairId === 'hair_curly' && (
-                      <mesh position={[0, 0.22, -0.04]}>
-                        <sphereGeometry args={[0.88, 28, 28]} />
-                        <T color={hairColor} />
+                      <mesh position={[0, 0.2, -0.04]}>
+                        <sphereGeometry args={[0.84, 26, 26]} />
+                        <Toon color={hairColor} />
                       </mesh>
                     )}
                     {hairId === 'hair_mohawk' && (
-                      <group position={[0, 0.62, -0.04]}>
+                      <group position={[0, 0.6, -0.04]}>
                         {[...Array(5)].map((_, i) => (
-                          <mesh key={i} position={[0, Math.sin(i * 0.65) * 0.12, (i - 2) * 0.22]} rotation={[0.12 - i * 0.055, 0, 0]}>
-                            <capsuleGeometry args={[0.07, 0.46, 8, 14]} />
-                            <T color={hairColor} />
+                          <mesh key={i} position={[0, Math.sin(i*0.65)*0.1, (i-2)*0.2]} rotation={[0.1-i*0.05, 0, 0]}>
+                            <capsuleGeometry args={[0.065, 0.42, 8, 14]} />
+                            <Toon color={hairColor} />
                           </mesh>
                         ))}
                       </group>
                     )}
                     {hairId === 'hair_ponytail' && (
-                      <group position={[0, 0.14, -0.7]} rotation={[-0.38, 0, 0]}>
-                        <mesh><sphereGeometry args={[0.14, 14, 14]} /><T color={hairColor} /></mesh>
-                        <mesh position={[0, -0.45, -0.14]} rotation={[0.12, 0, 0]}>
-                          <capsuleGeometry args={[0.18, 0.9, 12, 20]} />
-                          <T color={hairColor} />
+                      <group position={[0, 0.12, -0.66]} rotation={[-0.36, 0, 0]}>
+                        <mesh><sphereGeometry args={[0.13, 14, 14]} /><Toon color={hairColor} /></mesh>
+                        <mesh position={[0, -0.42, -0.12]} rotation={[0.12, 0, 0]}>
+                          <capsuleGeometry args={[0.17, 0.86, 10, 18]} />
+                          <Toon color={hairColor} />
                         </mesh>
                       </group>
                     )}
                     {hairId === 'hair_samurai' && (
-                      <mesh position={[0, 0.76, -0.2]}>
-                        <sphereGeometry args={[0.18, 14, 14]} />
-                        <T color={hairColor} />
+                      <mesh position={[0, 0.72, -0.18]}>
+                        <sphereGeometry args={[0.17, 14, 14]} />
+                        <Toon color={hairColor} />
                       </mesh>
                     )}
                     {hairId === 'hair_messy' && (
-                      <group position={[0, 0.38, 0]}>
+                      <group position={[0, 0.36, 0]}>
                         {[...Array(10)].map((_, i) => (
-                          <mesh key={i} position={[Math.cos(i * 0.628) * 0.42, (i % 3) * 0.11, Math.sin(i * 0.628) * 0.42]} rotation={[Math.cos(i) * 0.45, 0, Math.sin(i) * 0.45]}>
-                            <capsuleGeometry args={[0.14, 0.55, 8, 14]} />
-                            <T color={hairColor} />
+                          <mesh key={i} position={[Math.cos(i*0.628)*0.4, (i%3)*0.1, Math.sin(i*0.628)*0.4]} rotation={[Math.cos(i)*0.4, 0, Math.sin(i)*0.4]}>
+                            <capsuleGeometry args={[0.13, 0.52, 8, 14]} />
+                            <Toon color={hairColor} />
                           </mesh>
                         ))}
                       </group>
@@ -659,179 +681,133 @@ export default function Chibi3D({
                   </group>
                 )}
 
-                {/* ── ACCESSORIES ── */}
+                {/* ══ ACCESSORIES ══ */}
                 {accessoryId === 'acc_catears' && (
-                  <group position={[0, 0.64, 0]}>
-                    <mesh position={[-0.33, 0, 0]} rotation={[0, 0, 0.22]}>
-                      <coneGeometry args={[0.09, 0.24, 14]} />
-                      <meshToonMaterial color="#fbcfe8" />
-                    </mesh>
-                    <mesh position={[0.33, 0, 0]} rotation={[0, 0, -0.22]}>
-                      <coneGeometry args={[0.09, 0.24, 14]} />
-                      <meshToonMaterial color="#fbcfe8" />
-                    </mesh>
+                  <group position={[0, 0.62, 0]}>
+                    <mesh position={[-0.3, 0, 0]} rotation={[0, 0, 0.2]}><coneGeometry args={[0.088, 0.22, 14]} /><Toon color="#fbcfe8" /></mesh>
+                    <mesh position={[0.3, 0, 0]} rotation={[0, 0, -0.2]}><coneGeometry args={[0.088, 0.22, 14]} /><Toon color="#fbcfe8" /></mesh>
                   </group>
                 )}
                 {accessoryId === 'acc_halo' && (
-                  <group position={[0, 1.04, 0]} rotation={[Math.PI / 2 + 0.16, 0, 0]}>
-                    <mesh>
-                      <torusGeometry args={[0.38, 0.032, 14, 48]} />
-                      <meshToonMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.6} />
-                    </mesh>
+                  <group position={[0, 1.0, 0]} rotation={[Math.PI/2+0.16, 0, 0]}>
+                    <mesh><torusGeometry args={[0.36, 0.03, 12, 48]} /><Toon color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.6} /></mesh>
+                  </group>
+                )}
+                {accessoryId === 'acc_headphones' && (
+                  <group>
+                    <mesh><torusGeometry args={[0.7, 0.07, 12, 48]} /><Toon color="#111" /></mesh>
+                    <group position={[-0.7, 0, 0]} rotation={[0, Math.PI/2, 0]}>
+                      <mesh><cylinderGeometry args={[0.27, 0.27, 0.17, 22]} /><Toon color="#27272a" /></mesh>
+                      <mesh position={[0, 0, -0.094]}><circleGeometry args={[0.1, 20]} /><Toon color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} side={2} /></mesh>
+                    </group>
+                    <group position={[0.7, 0, 0]} rotation={[0, Math.PI/2, 0]}>
+                      <mesh><cylinderGeometry args={[0.27, 0.27, 0.17, 22]} /><Toon color="#27272a" /></mesh>
+                      <mesh position={[0, 0, 0.094]}><circleGeometry args={[0.1, 20]} /><Toon color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} side={2} /></mesh>
+                    </group>
                   </group>
                 )}
                 {accessoryId === 'acc_crown' && (
-                  <group position={[0, 0.9, 0]}>
-                    <mesh rotation={[Math.PI / 2, 0, 0]}>
-                      <cylinderGeometry args={[0.3, 0.3, 0.07, 24]} />
-                      <meshToonMaterial color="#fbbf24" />
+                  <group position={[0, 0.88, 0]}>
+                    <mesh rotation={[Math.PI/2, 0, 0]}>
+                      <cylinderGeometry args={[0.28, 0.28, 0.065, 22]} />
+                      <Toon color="#fbbf24" />
                     </mesh>
                     {[...Array(6)].map((_, i) => (
-                      <mesh key={i} position={[Math.cos(i * Math.PI / 3) * 0.3, 0.07, Math.sin(i * Math.PI / 3) * 0.3]}>
-                        <coneGeometry args={[0.044, 0.16, 8]} />
-                        <meshToonMaterial color="#fbbf24" />
+                      <mesh key={i} position={[Math.cos(i*Math.PI/3)*0.28, 0.065, Math.sin(i*Math.PI/3)*0.28]}>
+                        <coneGeometry args={[0.042, 0.15, 8]} />
+                        <Toon color="#fbbf24" />
                       </mesh>
                     ))}
                   </group>
                 )}
                 {accessoryId === 'acc_horns' && (
-                  <group position={[0, 0.55, 0.36]}>
-                    <mesh position={[-0.22, 0, 0]} rotation={[-0.12, 0, 0.22]}>
-                      <coneGeometry args={[0.065, 0.2, 8]} />
-                      <meshToonMaterial color={accessoryColor} />
-                    </mesh>
-                    <mesh position={[0.22, 0, 0]} rotation={[-0.12, 0, -0.22]}>
-                      <coneGeometry args={[0.065, 0.2, 8]} />
-                      <meshToonMaterial color={accessoryColor} />
-                    </mesh>
-                  </group>
-                )}
-                {accessoryId === 'acc_headphones' && (
-                  <group>
-                    <mesh><torusGeometry args={[0.74, 0.074, 14, 48]} /><meshToonMaterial color="#18181b" /></mesh>
-                    <group position={[-0.74, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-                      <mesh><cylinderGeometry args={[0.29, 0.29, 0.18, 24]} /><meshToonMaterial color="#27272a" /></mesh>
-                      <mesh position={[0, 0, -0.1]}><circleGeometry args={[0.11, 24]} /><meshToonMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} side={2} /></mesh>
-                    </group>
-                    <group position={[0.74, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-                      <mesh><cylinderGeometry args={[0.29, 0.29, 0.18, 24]} /><meshToonMaterial color="#27272a" /></mesh>
-                      <mesh position={[0, 0, 0.1]}><circleGeometry args={[0.11, 24]} /><meshToonMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} side={2} /></mesh>
-                    </group>
-                  </group>
-                )}
-                {accessoryId === 'acc_visor' && (
-                  <group position={[0, 0.07, 0.64]} scale={[1, 1, 0.009]}>
-                    <mesh rotation={[0, 0, Math.PI / 2]}>
-                      <capsuleGeometry args={[0.14, 0.58, 14, 24]} />
-                      <meshToonMaterial color="#111111" transparent opacity={0.78} />
-                    </mesh>
-                    <mesh position={[0, 0, 1.5]} rotation={[0, 0, Math.PI / 2]}>
-                      <capsuleGeometry args={[0.12, 0.54, 8, 14]} />
-                      <meshToonMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} wireframe />
-                    </mesh>
+                  <group position={[0, 0.53, 0.36]}>
+                    <mesh position={[-0.2, 0, 0]} rotation={[-0.1, 0, 0.2]}><coneGeometry args={[0.062, 0.19, 8]} /><Toon color={accessoryColor} /></mesh>
+                    <mesh position={[0.2, 0, 0]} rotation={[-0.1, 0, -0.2]}><coneGeometry args={[0.062, 0.19, 8]} /><Toon color={accessoryColor} /></mesh>
                   </group>
                 )}
                 {accessoryId === 'acc_shades' && (
-                  <group position={[0, 0.07, 0.68]}>
-                    <mesh position={[-0.24, 0, 0]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.15, 0.15, 0.036, 24]} /><meshToonMaterial color="#111111" /></mesh>
-                    <mesh position={[0.24, 0, 0]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.15, 0.15, 0.036, 24]} /><meshToonMaterial color="#111111" /></mesh>
-                    <mesh><boxGeometry args={[0.22, 0.013, 0.008]} /><meshToonMaterial color="#c4c4c4" /></mesh>
+                  <group position={[0, 0.09, 0.65]}>
+                    <mesh position={[-0.22, 0, 0]} rotation={[Math.PI/2, 0, 0]}><cylinderGeometry args={[0.14, 0.14, 0.033, 22]} /><Toon color="#111" /></mesh>
+                    <mesh position={[0.22, 0, 0]} rotation={[Math.PI/2, 0, 0]}><cylinderGeometry args={[0.14, 0.14, 0.033, 22]} /><Toon color="#111" /></mesh>
+                    <mesh position={[0, 0.008, 0]}><planeGeometry args={[0.2, 0.012]} /><Toon color="#aaa" /></mesh>
+                  </group>
+                )}
+                {accessoryId === 'acc_visor' && (
+                  <group position={[0, 0.09, 0.636]} scale={[1, 1, 0.01]}>
+                    <mesh rotation={[0, 0, Math.PI/2]}><capsuleGeometry args={[0.14, 0.54, 12, 22]} /><Toon color="#111" opacity={0.8} transparent /></mesh>
                   </group>
                 )}
                 {accessoryId === 'acc_cybermask' && (
-                  <group position={[0, -0.17, 0.61]}>
-                    <mesh rotation={[0.08, 0, Math.PI / 2]}>
-                      <capsuleGeometry args={[0.16, 0.37, 14, 24]} />
-                      <meshToonMaterial color="#1a1a1a" />
-                    </mesh>
-                    <mesh position={[0, 0.055, 0.15]}><boxGeometry args={[0.46, 0.032, 0.036]} /><meshToonMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} /></mesh>
-                    <mesh position={[0, -0.036, 0.15]}><boxGeometry args={[0.3, 0.028, 0.036]} /><meshToonMaterial color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} /></mesh>
+                  <group position={[0, -0.16, 0.58]}>
+                    <mesh rotation={[0.08, 0, Math.PI/2]}><capsuleGeometry args={[0.15, 0.35, 12, 22]} /><Toon color="#1a1a1a" /></mesh>
+                    <mesh position={[0, 0.05, 0.15]}><planeGeometry args={[0.42, 0.03]} /><Toon color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} /></mesh>
+                    <mesh position={[0, -0.03, 0.15]}><planeGeometry args={[0.28, 0.026]} /><Toon color={accessoryColor} emissive={accessoryColor} emissiveIntensity={0.5} /></mesh>
                   </group>
                 )}
                 {accessoryId === 'acc_gasmask' && (
-                  <group position={[0, -0.16, 0.72]}>
-                    <mesh rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.22, 0.26, 0.2, 24]} /><meshToonMaterial color="#27272a" /></mesh>
-                    <mesh position={[0, 0, 0.11]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.11, 0.11, 0.036, 24]} /><meshToonMaterial color="#111111" /></mesh>
-                    <mesh position={[-0.26, -0.07, 0.04]} rotation={[Math.PI / 2, 0, 0.38]}><cylinderGeometry args={[0.13, 0.13, 0.14, 20]} /><meshToonMaterial color="#3f3f46" /></mesh>
-                    <mesh position={[0.26, -0.07, 0.04]} rotation={[Math.PI / 2, 0, -0.38]}><cylinderGeometry args={[0.13, 0.13, 0.14, 20]} /><meshToonMaterial color="#3f3f46" /></mesh>
+                  <group position={[0, -0.15, 0.68]}>
+                    <mesh rotation={[Math.PI/2, 0, 0]}><cylinderGeometry args={[0.21, 0.24, 0.19, 22]} /><Toon color="#27272a" /></mesh>
+                    <mesh position={[0, 0, 0.1]} rotation={[Math.PI/2, 0, 0]}><cylinderGeometry args={[0.1, 0.1, 0.033, 22]} /><Toon color="#111" /></mesh>
+                    <mesh position={[-0.24, -0.065, 0.036]} rotation={[Math.PI/2, 0, 0.36]}><cylinderGeometry args={[0.12, 0.12, 0.13, 18]} /><Toon color="#3f3f46" /></mesh>
+                    <mesh position={[0.24, -0.065, 0.036]} rotation={[Math.PI/2, 0, -0.36]}><cylinderGeometry args={[0.12, 0.12, 0.13, 18]} /><Toon color="#3f3f46" /></mesh>
                   </group>
                 )}
                 {accessoryId === 'acc_goggles' && (
-                  <group position={[0, 0.46, 0.58]} rotation={[-0.12, 0, 0]}>
-                    <mesh position={[-0.18, 0, 0]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.14, 0.14, 0.07, 24]} /><meshToonMaterial color="#3f3f46" /></mesh>
-                    <mesh position={[0.18, 0, 0]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.14, 0.14, 0.07, 24]} /><meshToonMaterial color="#3f3f46" /></mesh>
-                    <mesh rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.036, 0.036, 0.036, 14]} /><meshToonMaterial color="#111111" /></mesh>
-                    <mesh position={[-0.18, 0, 0.046]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.1, 0.1, 0.009, 24]} /><meshToonMaterial color={accessoryColor} /></mesh>
-                    <mesh position={[0.18, 0, 0.046]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.1, 0.1, 0.009, 24]} /><meshToonMaterial color={accessoryColor} /></mesh>
+                  <group position={[0, 0.44, 0.55]} rotation={[-0.12, 0, 0]}>
+                    <mesh position={[-0.17, 0, 0]} rotation={[Math.PI/2, 0, 0]}><cylinderGeometry args={[0.13, 0.13, 0.065, 22]} /><Toon color="#3f3f46" /></mesh>
+                    <mesh position={[0.17, 0, 0]} rotation={[Math.PI/2, 0, 0]}><cylinderGeometry args={[0.13, 0.13, 0.065, 22]} /><Toon color="#3f3f46" /></mesh>
+                    <mesh rotation={[Math.PI/2, 0, 0]}><cylinderGeometry args={[0.033, 0.033, 0.033, 14]} /><Toon color="#111" /></mesh>
+                    <mesh position={[-0.17, 0, 0.042]} rotation={[Math.PI/2, 0, 0]}><circleGeometry args={[0.09, 20]} /><Toon color={accessoryColor} /></mesh>
+                    <mesh position={[0.17, 0, 0.042]} rotation={[Math.PI/2, 0, 0]}><circleGeometry args={[0.09, 20]} /><Toon color={accessoryColor} /></mesh>
                   </group>
                 )}
                 {accessoryId === 'acc_eyepatch' && (
-                  <group position={[0, 0.07, 0.66]}>
-                    <mesh position={[-0.2, 0, 0]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.13, 0.13, 0.036, 24]} /><meshToonMaterial color="#111111" /></mesh>
-                    <mesh position={[0, 0, -0.02]} rotation={[0.12, 0, 0.12]}><boxGeometry args={[1.3, 0.013, 0.008]} /><meshToonMaterial color="#111111" /></mesh>
+                  <group position={[0, 0.09, 0.64]}>
+                    <mesh position={[-0.19, 0, 0]} rotation={[Math.PI/2, 0, 0]}><cylinderGeometry args={[0.12, 0.12, 0.033, 22]} /><Toon color="#111" /></mesh>
+                    <mesh rotation={[0.1, 0, 0.1]}><planeGeometry args={[1.2, 0.012]} /><Toon color="#111" /></mesh>
                   </group>
                 )}
                 {accessoryId === 'acc_kitsune' && (
-                  <group position={[-0.52, 0.2, 0.38]} rotation={[0, -0.65, -0.22]}>
-                    <mesh rotation={[Math.PI / 2, 0, 0]}><capsuleGeometry args={[0.18, 0.3, 14, 24]} /><meshToonMaterial color="#ffffff" /></mesh>
-                    <mesh position={[-0.11, 0.22, 0]} rotation={[0, 0, 0.16]}><coneGeometry args={[0.065, 0.17, 8]} /><meshToonMaterial color="#ffffff" /></mesh>
-                    <mesh position={[0.11, 0.22, 0]} rotation={[0, 0, -0.16]}><coneGeometry args={[0.065, 0.17, 8]} /><meshToonMaterial color="#ffffff" /></mesh>
-                    <mesh position={[0, 0.07, 0.19]}><boxGeometry args={[0.22, 0.013, 0.008]} /><meshToonMaterial color="#ef4444" /></mesh>
-                    <mesh position={[0, 0, 0.19]}><boxGeometry args={[0.013, 0.07, 0.008]} /><meshToonMaterial color="#ef4444" /></mesh>
+                  <group position={[-0.5, 0.19, 0.36]} rotation={[0, -0.62, -0.2]}>
+                    <mesh rotation={[Math.PI/2, 0, 0]}><capsuleGeometry args={[0.17, 0.28, 12, 22]} /><Toon color="#ffffff" /></mesh>
+                    <mesh position={[-0.1, 0.21, 0]} rotation={[0, 0, 0.15]}><coneGeometry args={[0.062, 0.16, 8]} /><Toon color="#ffffff" /></mesh>
+                    <mesh position={[0.1, 0.21, 0]} rotation={[0, 0, -0.15]}><coneGeometry args={[0.062, 0.16, 8]} /><Toon color="#ffffff" /></mesh>
+                    <mesh position={[0, 0.07, 0.18]}><planeGeometry args={[0.2, 0.012]} /><Toon color="#ef4444" /></mesh>
+                    <mesh position={[0, 0, 0.18]}><planeGeometry args={[0.012, 0.065]} /><Toon color="#ef4444" /></mesh>
                   </group>
                 )}
 
-              </group>{/* end Head */}
+              </group>{/* end Head group */}
 
             </group>
           </Float>
 
           {/* ── Stage ── */}
-          <group position={[0, -0.9, 0]}>
-            {stageId === 'stage_holo' && (
-              <mesh rotation={[Math.PI / 2, 0, 0]}>
-                <circleGeometry args={[1.7, 32]} />
-                <meshToonMaterial color="#6366f1" emissive="#6366f1" emissiveIntensity={0.4} wireframe />
-              </mesh>
-            )}
-            {stageId === 'stage_ring' && (
-              <mesh rotation={[Math.PI / 2, 0, 0]}>
-                <torusGeometry args={[1.3, 0.042, 14, 48]} />
-                <meshToonMaterial color="#06b6d4" emissive="#06b6d4" emissiveIntensity={0.8} />
-              </mesh>
-            )}
-            {stageId === 'stage_pedestal' && (
-              <group position={[0, -0.07, 0]}>
-                <mesh><cylinderGeometry args={[1.3, 1.55, 0.16, 24]} /><meshToonMaterial color="#18181b" /></mesh>
-                <mesh position={[0, 0.09, 0]}><torusGeometry args={[1.3, 0.016, 14, 48]} /><meshToonMaterial color="#ec4899" emissive="#ec4899" emissiveIntensity={0.8} /></mesh>
-              </group>
-            )}
-            {stageId === 'stage_magic' && (
-              <group>
-                <mesh rotation={[Math.PI / 2, 0, 0]}><circleGeometry args={[2.1, 48]} /><meshToonMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={0.6} wireframe /></mesh>
-                <mesh rotation={[Math.PI / 2, 0, Math.PI / 6]}><circleGeometry args={[2.1, 48]} /><meshToonMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={0.6} wireframe /></mesh>
-              </group>
-            )}
-            <AnimatedStage stageId={stageId!} />
+          <group position={[0, -0.92, 0]}>
+            {stageId === 'stage_holo' && (<mesh rotation={[Math.PI/2,0,0]}><circleGeometry args={[1.6,32]} /><meshToonMaterial color="#6366f1" emissive="#6366f1" emissiveIntensity={0.4} wireframe /></mesh>)}
+            {stageId === 'stage_ring' && (<mesh rotation={[Math.PI/2,0,0]}><torusGeometry args={[1.25,0.04,12,48]} /><meshToonMaterial color="#06b6d4" emissive="#06b6d4" emissiveIntensity={0.8} /></mesh>)}
+            {stageId === 'stage_pedestal' && (<group position={[0,-0.06,0]}><mesh><cylinderGeometry args={[1.22,1.45,0.15,22]} /><Toon color="#18181b" /></mesh><mesh position={[0,0.09,0]}><torusGeometry args={[1.22,0.014,12,48]} /><meshToonMaterial color="#ec4899" emissive="#ec4899" emissiveIntensity={0.8} /></mesh></group>)}
+            {stageId === 'stage_magic' && (<group><mesh rotation={[Math.PI/2,0,0]}><circleGeometry args={[2.0,48]} /><meshToonMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={0.6} wireframe /></mesh><mesh rotation={[Math.PI/2,0,Math.PI/6]}><circleGeometry args={[2.0,48]} /><meshToonMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={0.6} wireframe /></mesh></group>)}
           </group>
 
         </Suspense>
 
         <EffectComposer disableNormalPass>
           <Bloom luminanceThreshold={1.0} mipmapBlur intensity={0.5} />
-          <Vignette eskil={false} offset={0.14} darkness={0.4} />
+          <Vignette eskil={false} offset={0.15} darkness={0.38} />
         </EffectComposer>
 
         <OrbitControls
           enablePan={false}
-          enableZoom={true}
+          enableZoom
           minDistance={2.2}
-          maxDistance={6.5}
+          maxDistance={6}
           autoRotate
-          autoRotateSpeed={1.0}
-          maxPolarAngle={Math.PI / 1.65}
-          minPolarAngle={Math.PI / 5}
-          target={[0, 0.55, 0]}
+          autoRotateSpeed={0.9}
+          maxPolarAngle={Math.PI / 1.7}
+          minPolarAngle={Math.PI / 6}
+          target={[0, 0.5, 0]}
         />
       </Canvas>
     </div>
