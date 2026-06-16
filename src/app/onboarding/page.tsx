@@ -88,55 +88,95 @@ export default function OnboardingPage() {
 
       {/* Right: Controls Panel */}
       <div className="w-1/2 flex flex-col gap-6">
-        <div className="bg-black/40 rounded-3xl p-6 border border-white/5 backdrop-blur-xl flex-1 flex flex-col">
-          <div className="flex gap-2 p-1 bg-black/40 rounded-xl mb-6">
+        <div className="bg-black/60 rounded-3xl p-6 border border-indigo-500/20 backdrop-blur-2xl flex-1 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+          
+          {/* Tab Navigation */}
+          <div className="flex gap-2 p-1.5 bg-black/50 rounded-2xl mb-6 border border-white/5">
             {(['skin', 'hair', 'clothes'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
+                className={`flex-1 py-3.5 text-xs font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-300 relative overflow-hidden ${
                   activeTab === tab 
-                    ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
-                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                    ? 'text-white shadow-[0_0_20px_rgba(99,102,241,0.3)]' 
+                    : 'text-zinc-500 hover:text-indigo-300 hover:bg-white/5'
                 }`}
               >
-                {tab}
+                {/* Active Tab Background */}
+                {activeTab === tab && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-80"></div>
+                )}
+                <span className="relative z-10">{tab}</span>
+                
+                {/* Active Tab Bottom Glow */}
+                {activeTab === tab && (
+                  <div className="absolute bottom-0 left-1/4 right-1/4 h-1 bg-white rounded-t-full shadow-[0_0_10px_white]"></div>
+                )}
               </button>
             ))}
           </div>
 
+          {/* Options Grid */}
           <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
             <div className="grid grid-cols-2 gap-4">
               {AVATAR_OPTIONS[activeTab].map((item) => {
                 const isActive = avatarData[activeTab] === item.id;
+                
                 return (
                   <button
                     key={item.id}
                     onClick={() => setAvatarData({ ...avatarData, [activeTab]: item.id })}
-                    className={`relative p-4 rounded-2xl border text-left transition-all overflow-hidden group ${
+                    className={`relative p-5 rounded-2xl text-left transition-all duration-300 overflow-hidden group ${
                       isActive 
-                        ? 'border-indigo-500 bg-indigo-500/10' 
-                        : 'border-white/10 bg-black/40 hover:border-white/30'
+                        ? 'bg-indigo-950/40 border border-indigo-500/50' 
+                        : 'bg-white/5 border border-white/5 hover:border-indigo-500/30 hover:bg-white/10'
                     }`}
                   >
+                    {/* Background Glow based on item color */}
+                    <div 
+                      className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none`}
+                      style={{ background: `radial-gradient(circle at top right, ${item.color}, transparent)` }}
+                    ></div>
+
                     {isActive && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center">
-                        <Check size={12} className="text-white" />
+                      <div className="absolute top-3 right-3 w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.8)] z-10">
+                        <Check size={14} className="text-white" strokeWidth={3} />
                       </div>
                     )}
                     
                     {/* Visual representation of the item */}
-                    <div className="w-12 h-12 rounded-xl mb-3 overflow-hidden border border-white/10 flex items-center justify-center bg-black/50">
-                      <div className={`w-full h-full ${item.displayBg}`}></div>
+                    <div className="w-14 h-14 rounded-full mb-4 overflow-hidden border-2 flex items-center justify-center relative shadow-lg"
+                         style={{ 
+                           borderColor: isActive ? item.color : 'rgba(255,255,255,0.1)',
+                           boxShadow: isActive ? `0 0 20px ${item.color}40` : 'none'
+                         }}>
+                      
+                      {/* Color Swatch */}
+                      <div className={`w-full h-full ${item.displayBg} absolute inset-0`}></div>
+                      
+                      {/* Inner ring for depth */}
+                      <div className="absolute inset-0 rounded-full border border-white/20 m-1"></div>
+                      
+                      {/* Glossy overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/30"></div>
                     </div>
                     
-                    <h3 className={`font-bold text-sm ${isActive ? 'text-indigo-300' : 'text-zinc-300'}`}>
+                    <h3 className={`font-bold text-sm tracking-wide ${isActive ? 'text-white' : 'text-zinc-300'}`}>
                       {item.name}
                     </h3>
-                    <p className="text-[10px] text-zinc-500 uppercase mt-1">ID: {item.id.split('_')[1]}</p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                      <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono">
+                        {item.id.split('_')[1]}
+                      </p>
+                    </div>
                     
+                    {/* Cyberpunk corner accent */}
                     {isActive && (
-                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]"></div>
+                      <>
+                        <div className="absolute bottom-0 left-0 w-8 h-1" style={{ backgroundColor: item.color, boxShadow: `0 0 10px ${item.color}` }}></div>
+                        <div className="absolute bottom-0 left-0 w-1 h-8" style={{ backgroundColor: item.color, boxShadow: `0 0 10px ${item.color}` }}></div>
+                      </>
                     )}
                   </button>
                 )
@@ -148,11 +188,11 @@ export default function OnboardingPage() {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="w-full py-5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-black tracking-widest uppercase text-sm shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)] transition-all flex justify-center items-center gap-3 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 font-black tracking-[0.2em] uppercase text-sm shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] transition-all flex justify-center items-center gap-3 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed border border-white/10"
         >
-          <span className="relative z-10 flex items-center gap-2">
-            <Sparkles size={18} />
-            {isSaving ? 'Saving...' : 'Deploy Avatar to Nexus'}
+          <span className="relative z-10 flex items-center gap-2 text-white">
+            <Sparkles size={18} className="animate-pulse" />
+            {isSaving ? 'Deploying...' : 'Deploy Avatar to Nexus'}
           </span>
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
         </button>
