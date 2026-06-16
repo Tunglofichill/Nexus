@@ -105,12 +105,17 @@ export default function Chibi3D({
               {/* Armor Shoulder Pads */}
               {clothesId === 'clothes_armor' && (
                 <group>
-                  <mesh position={[-0.6, 0.3, 0]} rotation={[0, 0, 0.3]}>
-                    <boxGeometry args={[0.4, 0.2, 0.5]} />
+                  <mesh position={[-0.55, 0.35, 0]} rotation={[0, 0, 0.4]}>
+                    <cylinderGeometry args={[0.25, 0.25, 0.4, 16]} />
                     <meshStandardMaterial color="#a1a1aa" metalness={0.9} roughness={0.2} />
                   </mesh>
-                  <mesh position={[0.6, 0.3, 0]} rotation={[0, 0, -0.3]}>
-                    <boxGeometry args={[0.4, 0.2, 0.5]} />
+                  <mesh position={[0.55, 0.35, 0]} rotation={[0, 0, -0.4]}>
+                    <cylinderGeometry args={[0.25, 0.25, 0.4, 16]} />
+                    <meshStandardMaterial color="#a1a1aa" metalness={0.9} roughness={0.2} />
+                  </mesh>
+                  {/* Chest plate */}
+                  <mesh position={[0, 0.1, 0.1]}>
+                    <boxGeometry args={[0.7, 0.5, 0.4]} />
                     <meshStandardMaterial color="#a1a1aa" metalness={0.9} roughness={0.2} />
                   </mesh>
                 </group>
@@ -301,12 +306,13 @@ export default function Chibi3D({
                 )}
                 {decalsId === 'decal_freckles' && (
                   <group>
-                    <mesh position={[-0.4, -0.05, -0.05]}><sphereGeometry args={[0.02, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
-                    <mesh position={[-0.35, -0.08, -0.03]}><sphereGeometry args={[0.02, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
-                    <mesh position={[-0.45, -0.08, -0.08]}><sphereGeometry args={[0.02, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
-                    <mesh position={[0.4, -0.05, -0.05]}><sphereGeometry args={[0.02, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
-                    <mesh position={[0.35, -0.08, -0.03]}><sphereGeometry args={[0.02, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
-                    <mesh position={[0.45, -0.08, -0.08]}><sphereGeometry args={[0.02, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
+                    <mesh position={[-0.35, 0.02, 0.02]}><sphereGeometry args={[0.025, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
+                    <mesh position={[-0.42, 0.0, 0.01]}><sphereGeometry args={[0.02, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
+                    <mesh position={[-0.28, -0.02, 0.02]}><sphereGeometry args={[0.015, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
+                    
+                    <mesh position={[0.35, 0.02, 0.02]}><sphereGeometry args={[0.025, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
+                    <mesh position={[0.42, 0.0, 0.01]}><sphereGeometry args={[0.02, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
+                    <mesh position={[0.28, -0.02, 0.02]}><sphereGeometry args={[0.015, 8, 8]} /><meshStandardMaterial color="#b45309" /></mesh>
                   </group>
                 )}
                 {decalsId === 'decal_star' && (
@@ -372,10 +378,14 @@ export default function Chibi3D({
                   )}
 
                   {hairId === 'hair_mohawk' && (
-                    <mesh position={[0, 0.8, -0.1]} rotation={[0.2, 0, 0]}>
-                      <boxGeometry args={[0.2, 1.2, 1.5]} />
-                      <meshStandardMaterial color={hairColor} roughness={0.9} />
-                    </mesh>
+                    <group position={[0, 0.85, -0.1]}>
+                      {[...Array(5)].map((_, i) => (
+                        <mesh key={i} position={[0, Math.sin(i*0.8)*0.2, (i-2)*0.3]} rotation={[0.2 - i*0.1, 0, 0]}>
+                          <capsuleGeometry args={[0.1, 0.6, 16, 16]} />
+                          <meshStandardMaterial color={hairColor} roughness={0.9} />
+                        </mesh>
+                      ))}
+                    </group>
                   )}
 
                   {hairId === 'hair_ponytail' && (
