@@ -200,46 +200,44 @@ export default function Chibi2D({
           <g>
             {/* Back Skirt (if applicable) */}
             {bottomsId === 'bottom_skirt' && (
-              <path d="M 190 280 L 310 280 L 335 330 C 335 340, 165 340, 165 330 Z" fill={bottomsDark} />
+              <line x1="250" y1="290" x2="250" y2="330" stroke={bottomsDark} strokeWidth="120" strokeLinecap="round" />
             )}
 
             {/* Left Arm */}
-            <line x1="190" y1="230" x2="170" y2="300" stroke={clothesId === 'clothes_casual' || clothesId === 'clothes_ninja' ? skinColor : clothesDark} strokeWidth="20" strokeLinecap="round" />
-            {clothesId !== 'clothes_casual' && clothesId !== 'clothes_ninja' && <line x1="190" y1="230" x2="180" y2="260" stroke={clothesColor} strokeWidth="22" strokeLinecap="round" />}
-            <circle cx="170" cy="300" r="10" fill={skinColor} />
+            <line x1="200" y1="240" x2="175" y2="310" stroke={clothesId === 'clothes_casual' || clothesId === 'clothes_ninja' ? skinColor : clothesDark} strokeWidth="22" strokeLinecap="round" />
+            {clothesId !== 'clothes_casual' && clothesId !== 'clothes_ninja' && <line x1="200" y1="240" x2="190" y2="270" stroke={clothesColor} strokeWidth="24" strokeLinecap="round" />}
 
             {/* Right Arm */}
-            <line x1="310" y1="230" x2="330" y2="300" stroke={clothesId === 'clothes_casual' || clothesId === 'clothes_ninja' ? skinColor : clothesDark} strokeWidth="20" strokeLinecap="round" />
-            {clothesId !== 'clothes_casual' && clothesId !== 'clothes_ninja' && <line x1="310" y1="230" x2="320" y2="260" stroke={clothesColor} strokeWidth="22" strokeLinecap="round" />}
-            <circle cx="330" cy="300" r="10" fill={skinColor} />
+            <line x1="300" y1="240" x2="325" y2="310" stroke={clothesId === 'clothes_casual' || clothesId === 'clothes_ninja' ? skinColor : clothesDark} strokeWidth="22" strokeLinecap="round" />
+            {clothesId !== 'clothes_casual' && clothesId !== 'clothes_ninja' && <line x1="300" y1="240" x2="310" y2="270" stroke={clothesColor} strokeWidth="24" strokeLinecap="round" />}
 
             {/* Neck */}
-            <rect x="235" y="190" width="30" height="40" rx="15" fill={skinDark} />
+            <rect x="235" y="200" width="30" height="30" rx="15" fill={skinDark} />
 
             {/* Front Skirt */}
             {bottomsId === 'bottom_skirt' && (
-              <path d="M 190 280 L 310 280 L 335 320 C 335 325, 165 325, 165 320 Z" fill={bottomsColor} filter="url(#softShadow)" />
+              <line x1="250" y1="290" x2="250" y2="320" stroke={bottomsColor} strokeWidth="120" strokeLinecap="round" filter="url(#softShadow)" />
             )}
 
-            {/* Torso Base */}
-            <path d="M 200 220 C 200 200, 300 200, 300 220 L 305 285 C 305 295, 195 295, 195 285 Z" fill={clothesColor} />
+            {/* Torso Base (The Thick Stick) */}
+            <line x1="250" y1="250" x2="250" y2="290" stroke={clothesColor} strokeWidth="90" strokeLinecap="round" />
             
             {/* Clothes Details */}
             {clothesId === 'clothes_casual' && (
-              <path d="M 220 210 C 250 230, 280 210, 280 210 L 260 225 L 240 225 Z" fill="#fff" opacity="0.8" />
+              <path d="M 230 225 L 270 225 L 250 240 Z" fill="#fff" opacity="0.8" />
             )}
             {clothesId === 'clothes_suit' && (
               <>
-                <path d="M 230 210 L 270 210 L 250 250 Z" fill="#fff" />
-                <path d="M 245 220 L 255 220 L 250 270 Z" fill="#ef4444" />
-                <path d="M 200 220 L 240 250 L 230 290" fill="none" stroke={clothesDark} strokeWidth="4" />
-                <path d="M 300 220 L 260 250 L 270 290" fill="none" stroke={clothesDark} strokeWidth="4" />
+                <path d="M 230 215 L 270 215 L 250 245 Z" fill="#fff" />
+                <path d="M 245 225 L 255 225 L 250 260 Z" fill="#ef4444" />
+                <path d="M 215 230 L 250 260 L 240 300" fill="none" stroke={clothesDark} strokeWidth="4" />
+                <path d="M 285 230 L 250 260 L 260 300" fill="none" stroke={clothesDark} strokeWidth="4" />
               </>
             )}
             {clothesId === 'clothes_hoodie' && (
               <>
-                <path d="M 190 210 C 190 190, 310 190, 310 210 C 310 230, 190 230, 190 210 Z" fill={clothesDark} />
-                <rect x="210" y="260" width="80" height="25" rx="10" fill={clothesDark} opacity="0.5" />
+                <circle cx="250" cy="225" r="45" fill={clothesDark} />
+                <rect x="225" y="270" width="50" height="25" rx="10" fill={clothesDark} opacity="0.5" />
               </>
             )}
           </g>
