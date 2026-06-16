@@ -57,6 +57,14 @@ const AVATAR_OPTIONS = {
     { id: 'clothes_hoodie', name: 'Oversized Hoodie', icon: '🧥' },
     { id: 'clothes_armor', name: 'Knight Armor', icon: '🛡️' },
   ],
+  bottoms: [
+    { id: 'bottom_jeans', name: 'Casual Jeans', icon: '👖' },
+    { id: 'bottom_shorts', name: 'Shorts', icon: '🩳' },
+    { id: 'bottom_skirt', name: 'Pleated Skirt', icon: '👗' },
+    { id: 'bottom_tech', name: 'Tech Cargo', icon: '🪖' },
+    { id: 'bottom_suit', name: 'Suit Pants', icon: '👖' },
+    { id: 'bottom_ninja', name: 'Ninja Pants', icon: '🥷' },
+  ],
   accessory: [
     { id: 'acc_none', name: 'None', icon: '🚫' },
     { id: 'acc_visor', name: 'Cyber Visor', icon: '🥽' },
@@ -94,6 +102,7 @@ const AVATAR_OPTIONS = {
 const COLOR_PALETTES: Record<string, string[]> = {
   hair: ['#27272a', '#ffffff', '#fbbf24', '#ef4444', '#ec4899', '#8b5cf6', '#06b6d4', '#22c55e', '#f97316'],
   clothes: ['#f97316', '#18181b', '#ffffff', '#eab308', '#3b82f6', '#10b981', '#6366f1', '#f43f5e', '#a8a29e'],
+  bottoms: ['#1e3a8a', '#18181b', '#ffffff', '#eab308', '#3b82f6', '#10b981', '#6366f1', '#f43f5e', '#a8a29e'],
   eyes: ['#000000', '#dc2626', '#2563eb', '#16a34a', '#d946ef', '#eab308', '#ffffff', '#0ea5e9'],
   accessory: ['#ec4899', '#eab308', '#22c55e', '#ffffff', '#000000', '#3b82f6', '#f97316', '#a855f7'],
   decals: ['#ef4444', '#06b6d4', '#eab308', '#ffffff', '#000000', '#ec4899', '#8b5cf6']
@@ -112,6 +121,8 @@ export default function OnboardingPage() {
     hairColor: COLOR_PALETTES.hair[0],
     clothes: AVATAR_OPTIONS.clothes[0].id,
     clothesColor: COLOR_PALETTES.clothes[0],
+    bottoms: AVATAR_OPTIONS.bottoms[0].id,
+    bottomsColor: COLOR_PALETTES.bottoms[0],
     accessory: AVATAR_OPTIONS.accessory[0].id,
     accessoryColor: COLOR_PALETTES.accessory[0],
     decals: AVATAR_OPTIONS.decals[0].id,
@@ -166,6 +177,8 @@ export default function OnboardingPage() {
               hairColor={avatarData.hairColor} 
               clothesId={avatarData.clothes}
               clothesColor={avatarData.clothesColor} 
+              bottomsId={avatarData.bottoms}
+              bottomsColor={avatarData.bottomsColor}
               accessoryId={avatarData.accessory}
               accessoryColor={avatarData.accessoryColor}
               decalsId={avatarData.decals}

@@ -15,6 +15,8 @@ export default function Chibi3D({
   clothesId = 'clothes_casual',
   accessoryId = 'acc_none',
   accessoryColor = '#ffffff',
+  bottomsId = 'bottom_jeans',
+  bottomsColor = '#1e3a8a',
   decalsId = 'decal_none',
   decalsColor = '#ef4444',
   stageId = 'stage_none'
@@ -30,6 +32,8 @@ export default function Chibi3D({
   clothesId?: string,
   accessoryId?: string,
   accessoryColor?: string,
+  bottomsId?: string,
+  bottomsColor?: string,
   decalsId?: string,
   decalsColor?: string,
   stageId?: string
@@ -277,16 +281,59 @@ export default function Chibi3D({
                   </mesh>
                 )}
               </group>
+              {/* Pants Base / Pelvis */}
+              <mesh position={[0, -0.3, 0]}>
+                {bottomsId === 'bottom_skirt' ? (
+                  <cylinderGeometry args={[0.46, 0.6, 0.4, 32]} />
+                ) : (
+                  <cylinderGeometry args={[0.46, 0.44, 0.3, 32]} />
+                )}
+                <meshStandardMaterial color={bottomsColor} roughness={0.9} />
+              </mesh>
+              
               {/* Left Leg */}
-              <mesh position={[-0.2, -0.6, 0]}>
-                <capsuleGeometry args={[0.15, 0.5, 16, 16]} />
-                <meshStandardMaterial color={skinColor} roughness={0.4} />
-              </mesh>
+              <group position={[-0.2, -0.6, 0]}>
+                <mesh>
+                  <capsuleGeometry args={[0.15, 0.5, 16, 16]} />
+                  <meshStandardMaterial color={skinColor} roughness={0.4} />
+                </mesh>
+                {/* Long Pants */}
+                {bottomsId !== 'bottom_shorts' && bottomsId !== 'bottom_skirt' && (
+                  <mesh position={[0, 0.05, 0]}>
+                    <cylinderGeometry args={[0.16, 0.16, 0.5, 16]} />
+                    <meshStandardMaterial color={bottomsColor} roughness={0.9} />
+                  </mesh>
+                )}
+                {/* Shorts */}
+                {bottomsId === 'bottom_shorts' && (
+                  <mesh position={[0, 0.15, 0]}>
+                    <cylinderGeometry args={[0.16, 0.16, 0.3, 16]} />
+                    <meshStandardMaterial color={bottomsColor} roughness={0.9} />
+                  </mesh>
+                )}
+              </group>
+              
               {/* Right Leg */}
-              <mesh position={[0.2, -0.6, 0]}>
-                <capsuleGeometry args={[0.15, 0.5, 16, 16]} />
-                <meshStandardMaterial color={skinColor} roughness={0.4} />
-              </mesh>
+              <group position={[0.2, -0.6, 0]}>
+                <mesh>
+                  <capsuleGeometry args={[0.15, 0.5, 16, 16]} />
+                  <meshStandardMaterial color={skinColor} roughness={0.4} />
+                </mesh>
+                {/* Long Pants */}
+                {bottomsId !== 'bottom_shorts' && bottomsId !== 'bottom_skirt' && (
+                  <mesh position={[0, 0.05, 0]}>
+                    <cylinderGeometry args={[0.16, 0.16, 0.5, 16]} />
+                    <meshStandardMaterial color={bottomsColor} roughness={0.9} />
+                  </mesh>
+                )}
+                {/* Shorts */}
+                {bottomsId === 'bottom_shorts' && (
+                  <mesh position={[0, 0.15, 0]}>
+                    <cylinderGeometry args={[0.16, 0.16, 0.3, 16]} />
+                    <meshStandardMaterial color={bottomsColor} roughness={0.9} />
+                  </mesh>
+                )}
+              </group>
               
               {/* Neck */}
               <mesh position={[0, 0.5, 0]}>
