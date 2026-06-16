@@ -254,7 +254,8 @@ function ChibiModel({
         {/* Legs */}
         {bottomsId !== 'bottom_skirt' && (
           ([-1, 1] as const).map(side => (
-            <group key={side} position={[side * 0.13, -0.28, 0]}>
+            // A-pose rotation (slight outward spread)
+            <group key={side} position={[side * 0.14, -0.28, 0]} rotation={[0, side * 0.1, side * -0.05]}>
               <group>
                 <mesh scale={1.054}><capsuleGeometry args={[0.1, 0.42, 10, 18]} /><meshBasicMaterial color={getOutlineColor(bottomsId === 'bottom_shorts' ? skinColor : bottomsColor)} side={THREE.BackSide} /></mesh>
                 <mesh><capsuleGeometry args={[0.1, 0.42, 10, 18]} /><Toon color={bottomsId === 'bottom_shorts' ? skinColor : bottomsColor} /></mesh>
@@ -265,9 +266,10 @@ function ChibiModel({
                   <mesh><capsuleGeometry args={[0.088, 0.19, 10, 18]} /><Toon color={skinColor} /></mesh>
                 </group>
               )}
-              <group position={[0, bottomsId === 'bottom_shorts' ? -0.60 : -0.44, 0.05]} rotation={[0.13, 0, 0]}>
-                <mesh scale={1.06}><capsuleGeometry args={[0.088, 0.16, 6, 12]} /><meshBasicMaterial color={getOutlineColor('#1c1917')} side={THREE.BackSide} /></mesh>
-                <mesh><capsuleGeometry args={[0.088, 0.16, 6, 12]} /><Toon color="#1c1917" /></mesh>
+              {/* Shoe: rotate to lay flat on the ground, pointing forward */}
+              <group position={[0, bottomsId === 'bottom_shorts' ? -0.52 : -0.42, 0.08]} rotation={[Math.PI / 2, 0, 0]}>
+                <mesh scale={1.06}><capsuleGeometry args={[0.09, 0.16, 6, 12]} /><meshBasicMaterial color={getOutlineColor('#1c1917')} side={THREE.BackSide} /></mesh>
+                <mesh><capsuleGeometry args={[0.09, 0.16, 6, 12]} /><Toon color="#1c1917" /></mesh>
               </group>
             </group>
           ))
