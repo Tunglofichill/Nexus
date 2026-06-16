@@ -2,69 +2,97 @@
 
 import { useState } from 'react'
 import { saveAvatarData } from './actions'
-import { User, Sparkles, Check } from 'lucide-react'
+import { User, Sparkles, Check, Palette } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import Chibi3D from '@/components/Chibi3D'
 
 const AVATAR_OPTIONS = {
   body: [
-    { id: 'body_standard', name: 'Standard', color: '#a8a29e', displayBg: 'bg-stone-400' },
-    { id: 'body_chubby', name: 'Chubby', color: '#fb923c', displayBg: 'bg-orange-400' },
-    { id: 'body_tall', name: 'Tall', color: '#60a5fa', displayBg: 'bg-blue-400' },
-    { id: 'body_muscular', name: 'Muscular', color: '#f43f5e', displayBg: 'bg-rose-400' },
+    { id: 'body_standard', name: 'Standard' },
+    { id: 'body_chubby', name: 'Chubby' },
+    { id: 'body_tall', name: 'Tall' },
+    { id: 'body_muscular', name: 'Muscular' },
   ],
   skin: [
-    { id: 'skin_light', name: 'Light', color: '#ffdbac', displayBg: 'bg-[#ffdbac]' },
-    { id: 'skin_medium', name: 'Medium', color: '#e0ac69', displayBg: 'bg-[#e0ac69]' },
-    { id: 'skin_dark', name: 'Dark', color: '#8d5524', displayBg: 'bg-[#8d5524]' },
-    { id: 'skin_cyber', name: 'Cyber Blue', color: '#6366f1', displayBg: 'bg-[#6366f1]' },
+    { id: 'skin_light', name: 'Light', color: '#ffdbac' },
+    { id: 'skin_medium', name: 'Medium', color: '#e0ac69' },
+    { id: 'skin_dark', name: 'Dark', color: '#8d5524' },
+    { id: 'skin_cyber', name: 'Cyber Blue', color: '#6366f1' },
+    { id: 'skin_alien', name: 'Alien Green', color: '#4ade80' },
   ],
   eyes: [
-    { id: 'eyes_normal', name: 'Normal', color: '#000000', displayBg: 'bg-black' },
-    { id: 'eyes_big', name: 'Big Anime', color: '#4338ca', displayBg: 'bg-indigo-800' },
-    { id: 'eyes_closed', name: 'Closed', color: '#71717a', displayBg: 'bg-zinc-500' },
+    { id: 'eyes_normal', name: 'Normal' },
+    { id: 'eyes_big', name: 'Big Anime' },
+    { id: 'eyes_closed', name: 'Closed' },
   ],
   mouth: [
-    { id: 'mouth_smile', name: 'Smile', color: '#fca5a5', displayBg: 'bg-red-300' },
-    { id: 'mouth_open', name: 'Open (Happy)', color: '#ef4444', displayBg: 'bg-red-500' },
-    { id: 'mouth_sad', name: 'Sad/Pout', color: '#9ca3af', displayBg: 'bg-gray-400' },
+    { id: 'mouth_smile', name: 'Smile' },
+    { id: 'mouth_open', name: 'Open (Happy)' },
+    { id: 'mouth_sad', name: 'Sad/Pout' },
   ],
   hair: [
-    { id: 'hair_short', name: 'Short Spiky', color: '#27272a', displayBg: 'bg-zinc-800' },
-    { id: 'hair_long', name: 'Long Flowing', color: '#9333ea', displayBg: 'bg-purple-600' },
-    { id: 'hair_curly', name: 'Curly Afro', color: '#fbbf24', displayBg: 'bg-amber-400' },
-    { id: 'hair_twintails', name: 'Twin Tails', color: '#ec4899', displayBg: 'bg-pink-500' },
-    { id: 'hair_neon', name: 'Neon Cyber', color: '#22d3ee', displayBg: 'bg-cyan-400' },
-    { id: 'hair_bald', name: 'Clean', color: 'transparent', displayBg: 'bg-transparent border border-white/20' },
+    { id: 'hair_short', name: 'Short Spiky' },
+    { id: 'hair_long', name: 'Long Flowing' },
+    { id: 'hair_curly', name: 'Curly Afro' },
+    { id: 'hair_twintails', name: 'Twin Tails' },
+    { id: 'hair_bald', name: 'Clean / Bald' },
   ],
   clothes: [
-    { id: 'clothes_casual', name: 'Streetwear', color: '#f97316', displayBg: 'bg-orange-500' },
-    { id: 'clothes_suit', name: 'Corpo Suit', color: '#18181b', displayBg: 'bg-zinc-900 border border-white/10' },
-    { id: 'clothes_tech', name: 'Techwear', color: '#4f46e5', displayBg: 'bg-indigo-600' },
-    { id: 'clothes_robe', name: 'Hacker Robe', color: '#22c55e', displayBg: 'bg-green-500' },
+    { id: 'clothes_casual', name: 'Streetwear' },
+    { id: 'clothes_suit', name: 'Corpo Suit' },
+    { id: 'clothes_tech', name: 'Techwear' },
+    { id: 'clothes_robe', name: 'Hacker Robe' },
   ],
   accessory: [
-    { id: 'acc_none', name: 'None', color: 'transparent', displayBg: 'bg-transparent border border-white/20' },
-    { id: 'acc_visor', name: 'Cyber Visor', color: '#ec4899', displayBg: 'bg-pink-500' },
-    { id: 'acc_catears', name: 'Cat Ears', color: '#ffffff', displayBg: 'bg-white' },
-    { id: 'acc_halo', name: 'Neon Halo', color: '#eab308', displayBg: 'bg-yellow-500' },
-    { id: 'acc_headphones', name: 'Headphones', color: '#22c55e', displayBg: 'bg-green-500' },
-    { id: 'acc_shades', name: 'Shades', color: '#000000', displayBg: 'bg-black border border-white/20' },
-    { id: 'acc_gasmask', name: 'Gas Mask', color: '#4b5563', displayBg: 'bg-gray-600' },
-    { id: 'acc_cybermask', name: 'Cyber Mask', color: '#06b6d4', displayBg: 'bg-cyan-500' },
+    { id: 'acc_none', name: 'None' },
+    { id: 'acc_visor', name: 'Cyber Visor' },
+    { id: 'acc_catears', name: 'Cat Ears' },
+    { id: 'acc_halo', name: 'Neon Halo' },
+    { id: 'acc_headphones', name: 'Headphones' },
+    { id: 'acc_shades', name: 'Shades' },
+    { id: 'acc_gasmask', name: 'Gas Mask' },
+    { id: 'acc_cybermask', name: 'Cyber Mask' },
+  ],
+  decals: [
+    { id: 'decal_none', name: 'None' },
+    { id: 'decal_scar', name: 'Scar' },
+    { id: 'decal_bandage', name: 'Bandage' },
+    { id: 'decal_cyber', name: 'Cyber Lines' },
+  ],
+  stage: [
+    { id: 'stage_none', name: 'None' },
+    { id: 'stage_holo', name: 'Holo Deck' },
+    { id: 'stage_ring', name: 'Neon Ring' },
+    { id: 'stage_pedestal', name: 'Cyber Pedestal' },
   ]
 }
 
+const COLOR_PALETTES: Record<string, string[]> = {
+  hair: ['#27272a', '#ffffff', '#fbbf24', '#ef4444', '#ec4899', '#8b5cf6', '#06b6d4', '#22c55e', '#f97316'],
+  clothes: ['#f97316', '#18181b', '#ffffff', '#eab308', '#3b82f6', '#10b981', '#6366f1', '#f43f5e', '#a8a29e'],
+  eyes: ['#000000', '#dc2626', '#2563eb', '#16a34a', '#d946ef', '#eab308', '#ffffff', '#0ea5e9'],
+  accessory: ['#ec4899', '#eab308', '#22c55e', '#ffffff', '#000000', '#3b82f6', '#f97316', '#a855f7'],
+  decals: ['#ef4444', '#06b6d4', '#eab308', '#ffffff', '#000000', '#ec4899', '#8b5cf6']
+}
+
 export default function OnboardingPage() {
-  const [activeTab, setActiveTab] = useState<keyof typeof AVATAR_OPTIONS>('body')
+  const [activeTab, setActiveTab] = useState<keyof typeof AVATAR_OPTIONS>('hair')
+  
   const [avatarData, setAvatarData] = useState({
     body: AVATAR_OPTIONS.body[0].id,
     skin: AVATAR_OPTIONS.skin[0].id,
     eyes: AVATAR_OPTIONS.eyes[0].id,
+    eyesColor: COLOR_PALETTES.eyes[0],
     mouth: AVATAR_OPTIONS.mouth[0].id,
     hair: AVATAR_OPTIONS.hair[0].id,
+    hairColor: COLOR_PALETTES.hair[0],
     clothes: AVATAR_OPTIONS.clothes[0].id,
-    accessory: AVATAR_OPTIONS.accessory[0].id
+    clothesColor: COLOR_PALETTES.clothes[0],
+    accessory: AVATAR_OPTIONS.accessory[0].id,
+    accessoryColor: COLOR_PALETTES.accessory[0],
+    decals: AVATAR_OPTIONS.decals[0].id,
+    decalsColor: COLOR_PALETTES.decals[0],
+    stage: AVATAR_OPTIONS.stage[0].id,
   })
   const [isSaving, setIsSaving] = useState(false)
 
@@ -81,14 +109,13 @@ export default function OnboardingPage() {
 
   // Find active items for preview
   const currentSkin = AVATAR_OPTIONS.skin.find(s => s.id === avatarData.skin)
-  const currentHair = AVATAR_OPTIONS.hair.find(h => h.id === avatarData.hair)
-  const currentClothes = AVATAR_OPTIONS.clothes.find(c => c.id === avatarData.clothes)
-  const currentAccessory = AVATAR_OPTIONS.accessory.find(a => a.id === avatarData.accessory)
+
+  const hasColorPalette = Object.keys(COLOR_PALETTES).includes(activeTab)
 
   return (
     <div className="w-full h-full flex p-6 gap-6 overflow-hidden bg-black/20 text-white">
       
-      {/* Left: Avatar Preview Panel (Widened slightly but keeps good proportion) */}
+      {/* Left: Avatar Preview Panel */}
       <div className="w-2/5 flex flex-col bg-black/40 rounded-3xl border border-white/5 relative overflow-hidden backdrop-blur-xl">
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-purple-500/10 pointer-events-none"></div>
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
@@ -109,12 +136,17 @@ export default function OnboardingPage() {
               bodyId={avatarData.body}
               skinColor={currentSkin?.color || '#ffdbac'} 
               eyesId={avatarData.eyes}
+              eyesColor={avatarData.eyesColor}
               mouthId={avatarData.mouth}
-              hairColor={currentHair?.color || '#27272a'} 
-              clothesColor={currentClothes?.color || '#f97316'} 
               hairId={avatarData.hair}
+              hairColor={avatarData.hairColor} 
+              clothesId={avatarData.clothes}
+              clothesColor={avatarData.clothesColor} 
               accessoryId={avatarData.accessory}
-              accessoryColor={currentAccessory?.color || '#ffffff'}
+              accessoryColor={avatarData.accessoryColor}
+              decalsId={avatarData.decals}
+              decalsColor={avatarData.decalsColor}
+              stageId={avatarData.stage}
             />
           </div>
           
@@ -124,7 +156,7 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      {/* Right: Controls Panel (Widened to 60%) */}
+      {/* Right: Controls Panel */}
       <div className="w-3/5 flex flex-col gap-6">
         <div className="bg-black/60 rounded-3xl p-6 border border-indigo-500/20 backdrop-blur-2xl flex-1 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
           
@@ -155,10 +187,14 @@ export default function OnboardingPage() {
           </div>
 
           {/* Options Grid */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 mb-4">
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {AVATAR_OPTIONS[activeTab].map((item) => {
                 const isActive = avatarData[activeTab] === item.id;
+                // If the tab is skin, we use item.color, otherwise we use the active color palette color
+                const itemPreviewColor = activeTab === 'skin' 
+                  ? (item as any).color 
+                  : (hasColorPalette ? (avatarData as any)[`${activeTab}Color`] : '#3f3f46');
                 
                 return (
                   <button
@@ -170,10 +206,10 @@ export default function OnboardingPage() {
                         : 'bg-white/5 border border-white/5 hover:border-indigo-500/30 hover:bg-white/10'
                     }`}
                   >
-                    {/* Background Glow based on item color */}
+                    {/* Background Glow */}
                     <div 
                       className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none`}
-                      style={{ background: `radial-gradient(circle at center, ${item.color}, transparent)` }}
+                      style={{ background: `radial-gradient(circle at center, ${itemPreviewColor}, transparent)` }}
                     ></div>
 
                     {isActive && (
@@ -183,14 +219,12 @@ export default function OnboardingPage() {
                     )}
                     
                     {/* Visual representation of the item */}
-                    <div className="w-14 h-14 rounded-full mb-4 overflow-hidden border-2 flex items-center justify-center relative shadow-lg shrink-0"
+                    <div className="w-14 h-14 rounded-full mb-4 overflow-hidden border-2 flex items-center justify-center relative shadow-lg shrink-0 transition-colors duration-300"
                          style={{ 
-                           borderColor: isActive ? item.color : 'rgba(255,255,255,0.1)',
-                           boxShadow: isActive ? `0 0 20px ${item.color}40` : 'none'
+                           borderColor: isActive ? 'white' : 'rgba(255,255,255,0.1)',
+                           backgroundColor: itemPreviewColor,
+                           boxShadow: isActive ? `0 0 20px ${itemPreviewColor}40` : 'none'
                          }}>
-                      
-                      {/* Color Swatch */}
-                      <div className={`w-full h-full ${item.displayBg} absolute inset-0`}></div>
                       
                       {/* Inner ring for depth */}
                       <div className="absolute inset-0 rounded-full border border-white/20 m-1"></div>
@@ -206,8 +240,8 @@ export default function OnboardingPage() {
                     {/* Cyberpunk corner accent */}
                     {isActive && (
                       <>
-                        <div className="absolute bottom-0 left-0 w-8 h-1" style={{ backgroundColor: item.color, boxShadow: `0 0 10px ${item.color}` }}></div>
-                        <div className="absolute bottom-0 left-0 w-1 h-8" style={{ backgroundColor: item.color, boxShadow: `0 0 10px ${item.color}` }}></div>
+                        <div className="absolute bottom-0 left-0 w-8 h-1" style={{ backgroundColor: itemPreviewColor, boxShadow: `0 0 10px ${itemPreviewColor}` }}></div>
+                        <div className="absolute bottom-0 left-0 w-1 h-8" style={{ backgroundColor: itemPreviewColor, boxShadow: `0 0 10px ${itemPreviewColor}` }}></div>
                       </>
                     )}
                   </button>
@@ -215,6 +249,34 @@ export default function OnboardingPage() {
               })}
             </div>
           </div>
+
+          {/* Color Palette (Only shows if the active tab has a color palette) */}
+          {hasColorPalette && (
+            <div className="mt-auto pt-4 border-t border-white/10 shrink-0">
+              <div className="flex items-center gap-2 mb-3 text-zinc-400">
+                <Palette size={14} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Select Color</span>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {COLOR_PALETTES[activeTab].map((color) => {
+                  const isActiveColor = (avatarData as any)[`${activeTab}Color`] === color;
+                  return (
+                    <button
+                      key={color}
+                      onClick={() => setAvatarData({ ...avatarData, [`${activeTab}Color`]: color })}
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        isActiveColor ? 'border-white scale-110 shadow-lg' : 'border-transparent hover:scale-105'
+                      }`}
+                      style={{ 
+                        backgroundColor: color,
+                        boxShadow: isActiveColor ? `0 0 15px ${color}` : 'none'
+                      }}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         <button
