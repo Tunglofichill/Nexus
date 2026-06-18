@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { saveAvatarData } from './actions'
 import { User, Sparkles, Check, Palette } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-import Chibi2D from '@/components/Chibi2D'
+import { useRouter } from 'next/navigation'
+import Chibi3D from '@/components/Chibi3D'
 
 const AVATAR_OPTIONS = {
   skin: [
@@ -13,6 +14,13 @@ const AVATAR_OPTIONS = {
     { id: 'skin_dark', name: 'Dark', color: '#8d5524', icon: '🖐🏿' },
     { id: 'skin_cyber', name: 'Cyber Blue', color: '#6366f1', icon: '👽' },
     { id: 'skin_alien', name: 'Alien Green', color: '#4ade80', icon: '👾' },
+    { id: 'skin_zombie', name: 'Zombie', color: '#86efac', icon: '🧟' },
+    { id: 'skin_vampire', name: 'Pale', color: '#f1f5f9', icon: '🧛' },
+    { id: 'skin_demon', name: 'Demon', color: '#ef4444', icon: '👹' },
+    { id: 'skin_ghost', name: 'Ghost', color: '#e0f2fe', icon: '👻' },
+    { id: 'skin_gold', name: 'Gold', color: '#fbbf24', icon: '✨' },
+    { id: 'skin_silver', name: 'Silver', color: '#94a3b8', icon: '🤖' },
+    { id: 'skin_pink', name: 'Bubblegum', color: '#f9a8d4', icon: '🦄' },
   ],
   hair: [
     { id: 'hair_default', name: 'Capsule Hair', icon: '💇' },
@@ -34,6 +42,12 @@ const AVATAR_OPTIONS = {
     { id: 'eyes_line', name: 'Lines', icon: '😑' },
     { id: 'eyes_spiral', name: 'Spiral', icon: '😵' },
     { id: 'eyes_dollar', name: 'Money', icon: '🤑' },
+    { id: 'eyes_x', name: 'X Marks', icon: '✖️' },
+    { id: 'eyes_fire', name: 'Fire', icon: '🔥' },
+    { id: 'eyes_button', name: 'Button', icon: '🧵' },
+    { id: 'eyes_hypno', name: 'Hypno', icon: '🌀' },
+    { id: 'eyes_alien', name: 'Alien', icon: '👽' },
+    { id: 'eyes_pixel', name: 'Pixel', icon: '👾' },
   ],
   mouth: [
     { id: 'mouth_smile', name: 'Smile', icon: '😊' },
@@ -48,27 +62,23 @@ const AVATAR_OPTIONS = {
     { id: 'mouth_wobbly', name: 'Nervous', icon: '😖' },
     { id: 'mouth_mask', name: 'Mask', icon: '😷' },
     { id: 'mouth_kiss', name: 'Kiss', icon: '😚' },
+    { id: 'mouth_buckteeth', name: 'Buckteeth', icon: '🤓' },
+    { id: 'mouth_bubble', name: 'Gum Bubble', icon: '🎈' },
+    { id: 'mouth_zip', name: 'Zipper', icon: '🤐' },
+    { id: 'mouth_uwu', name: 'UwU', icon: '🌸' },
+    { id: 'mouth_owo', name: 'OwO', icon: '😲' },
+    { id: 'mouth_teeth_grit', name: 'Grit Teeth', icon: '😬' },
+    { id: 'mouth_whistle', name: 'Whistle', icon: '😗' },
   ],
   accessory: [
     { id: 'acc_none', name: 'None', icon: '🚫' },
-    { id: 'acc_catears', name: 'Cat Ears', icon: '🐱' },
-    { id: 'acc_bear_ears', name: 'Bear Ears', icon: '🐻' },
-    { id: 'acc_bunny_ears', name: 'Bunny Ears', icon: '🐰' },
-    { id: 'acc_halo', name: 'Halo', icon: '😇' },
-    { id: 'acc_shades', name: 'Shades', icon: '🕶️' },
+    { id: 'acc_shades', name: 'Cool Shades', icon: '🕶️' },
     { id: 'acc_glasses', name: 'Glasses', icon: '👓' },
     { id: 'acc_eyepatch', name: 'Eyepatch', icon: '🏴‍☠️' },
-    { id: 'acc_crown', name: 'Crown', icon: '👑' },
-    { id: 'acc_cap', name: 'Baseball Cap', icon: '🧢' },
-    { id: 'acc_beanie', name: 'Beanie', icon: '🪖' },
-    { id: 'acc_chef', name: 'Chef Hat', icon: '👨‍🍳' },
-    { id: 'acc_magic_hat', name: 'Wizard Hat', icon: '🧙' },
+    { id: 'acc_goggles', name: 'Goggles', icon: '🥽' },
+    { id: 'acc_vr', name: 'VR Headset', icon: '🕶️' },
+    { id: 'acc_mask_hero', name: 'Hero Mask', icon: '🦸' },
     { id: 'acc_ninja', name: 'Ninja Band', icon: '🥷' },
-    { id: 'acc_headphones', name: 'Headphones', icon: '🎧' },
-    { id: 'acc_sprout', name: 'Sprout', icon: '🌱' },
-    { id: 'acc_flower', name: 'Flower', icon: '🌸' },
-    { id: 'acc_antenna', name: 'Antenna', icon: '📡' },
-    { id: 'acc_wings', name: 'Angel Wings', icon: '🪽' },
   ],
   decals: [
     { id: 'decal_none', name: 'None', icon: '🚫' },
@@ -84,6 +94,13 @@ const AVATAR_OPTIONS = {
     { id: 'decal_beard', name: 'Beard', icon: '🧔' },
     { id: 'decal_mustache', name: 'Mustache', icon: '🥸' },
     { id: 'decal_stitches', name: 'Stitches', icon: '🧟' },
+    { id: 'decal_tattoo', name: 'Tribal Tattoo', icon: '🐉' },
+    { id: 'decal_paint_splash', name: 'Paint Splash', icon: '🎨' },
+    { id: 'decal_third_eye', name: 'Third Eye', icon: '👁️' },
+    { id: 'decal_clown', name: 'Clown', icon: '🤡' },
+    { id: 'decal_kitty_whiskers', name: 'Whiskers', icon: '🐱' },
+    { id: 'decal_spiderweb', name: 'Spiderweb', icon: '🕸️' },
+    { id: 'decal_crescent', name: 'Crescent Moon', icon: '🌙' },
   ],
 }
 
@@ -124,12 +141,14 @@ export default function OnboardingPage() {
     decalsColor: COLOR_PALETTES.decals[0],
   })
   const [isSaving, setIsSaving] = useState(false)
+  const router = useRouter()
 
   const handleSave = async () => {
     setIsSaving(true)
     try {
       await saveAvatarData(avatarData)
-      toast.success('Avatar configured! Welcome to Nexus OS.')
+      toast.success('Avatar đã lưu! Giờ chọn nhà thôi nào 🏠')
+      router.push('/onboarding/base')
     } catch (err: any) {
       toast.error(err.message || 'Failed to save avatar')
       setIsSaving(false)
@@ -153,7 +172,7 @@ export default function OnboardingPage() {
           <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border-indigo-500/20 flex items-center justify-center border border-indigo-500/50 backdrop-blur-md">
             <User size={16} className="text-indigo-600" />
           </div>
-          <h2 className="font-bold tracking-widest uppercase text-sm drop-shadow-md text-slate-800">Chibi Preview 2D</h2>
+          <h2 className="font-bold tracking-widest uppercase text-sm drop-shadow-md text-slate-800">Chibi Preview 3D</h2>
         </div>
 
         <div className="flex-1 w-full h-full relative cursor-move">
@@ -161,7 +180,7 @@ export default function OnboardingPage() {
           <div className="absolute inset-0 opacity-20 pointer-events-none z-0" style={{ backgroundImage: 'radial-gradient(circle at center, rgba(99,102,241,0.5) 0%, transparent 70%)' }}></div>
           
           <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
-            <Chibi2D 
+            <Chibi3D 
               skinColor={currentSkin?.color || '#ffdbac'} 
               hairColor={avatarData.hairColor} 
               clothesColor={avatarData.clothesColor} 
@@ -176,7 +195,7 @@ export default function OnboardingPage() {
           </div>
           
           <div className="absolute bottom-4 left-0 w-full text-center text-[10px] text-slate-500 tracking-widest uppercase pointer-events-none z-20">
-            Live 2D Avatar
+            Live 3D Avatar (Drag to Rotate)
           </div>
         </div>
       </div>

@@ -19,6 +19,7 @@ interface Chibi2DProps {
   decalsColor?: string
   stageId?: string
   className?: string
+  transparentBody?: boolean
 }
 
 const darken = (hex: string, amt: number) => {
@@ -43,6 +44,7 @@ export default function Chibi2D({
   decalsId = 'decal_none',
   decalsColor = '#ef4444',
   className = '',
+  transparentBody = false,
   ...rest
 }: Chibi2DProps) {
   const rawId = useId()
@@ -77,24 +79,28 @@ export default function Chibi2D({
         </>)}
 
         {/* ── CAPSULE ── */}
-        <g clipPath={`url(#cap-${uid})`}>
-          {/* Skin (top) */}
-          <rect x={CX - R} y={TOP} width={W} height={H} fill={skinColor} />
-          {/* Clothes color (bottom) — just a flat color */}
-          <rect x={CX - R} y={SPLIT} width={W} height={H - (SPLIT - TOP)} fill={clothesColor} />
-          <rect x={CX - R} y={SPLIT + 60} width={W} height={H - (SPLIT - TOP) - 60} fill={clothesDark} opacity="0.3" />
-          {/* Highlight stripe */}
-          <rect x={CX - R + 12} y={SPLIT + 5} width={7} height={75} rx={3.5} fill="#fff" opacity="0.12" />
+        {!transparentBody && (
+          <g clipPath={`url(#cap-${uid})`}>
+            {/* Skin (top) */}
+            <rect x={CX - R} y={TOP} width={W} height={H} fill={skinColor} />
+            {/* Clothes color (bottom) — just a flat color */}
+            <rect x={CX - R} y={SPLIT} width={W} height={H - (SPLIT - TOP)} fill={clothesColor} />
+            <rect x={CX - R} y={SPLIT + 60} width={W} height={H - (SPLIT - TOP) - 60} fill={clothesDark} opacity="0.3" />
+            {/* Highlight stripe */}
+            <rect x={CX - R + 12} y={SPLIT + 5} width={7} height={75} rx={3.5} fill="#fff" opacity="0.12" />
 
-          {/* ── HAIR — just a small cap on the very top, HIGH forehead ── */}
-          <ellipse cx={CX} cy={TOP + 12} rx={R + 2} ry={28} fill={hairColor} />
-          {/* Hair shine */}
-          <ellipse cx={CX + 10} cy={TOP + 8} rx={14} ry={5} fill="#fff" opacity="0.1" />
-        </g>
+            {/* ── HAIR — just a small cap on the very top, HIGH forehead ── */}
+            <ellipse cx={CX} cy={TOP + 12} rx={R + 2} ry={28} fill={hairColor} />
+            {/* Hair shine */}
+            <ellipse cx={CX + 10} cy={TOP + 8} rx={14} ry={5} fill="#fff" opacity="0.1" />
+          </g>
+        )}
 
         {/* Capsule outline */}
-        <rect x={CX - R} y={TOP} width={W} height={H} rx={R} ry={R}
-              fill="none" stroke="#2d2d3d" strokeWidth="3" />
+        {!transparentBody && (
+          <rect x={CX - R} y={TOP} width={W} height={H} rx={R} ry={R}
+                fill="none" stroke="#2d2d3d" strokeWidth="3" />
+        )}
 
         {/* ── FACE ── */}
         <g className={`cb-${uid}`}>
@@ -168,15 +174,63 @@ export default function Chibi2D({
             <text x={CX-22} y={155} fontSize="20" fill={eyesColor} fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">$</text>
             <text x={CX+22} y={155} fontSize="20" fill={eyesColor} fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">$</text>
           </>)}
+          {eyesId === 'eyes_x' && (<>
+            <path d={`M ${CX-28} 142 L ${CX-16} 154 M ${CX-16} 142 L ${CX-28} 154`} stroke={eyesColor} strokeWidth="3" strokeLinecap="round" />
+            <path d={`M ${CX+16} 142 L ${CX+28} 154 M ${CX+28} 142 L ${CX+16} 154`} stroke={eyesColor} strokeWidth="3" strokeLinecap="round" />
+          </>)}
+          {eyesId === 'eyes_fire' && (<>
+            <path d={`M ${CX-22} 140 Q ${CX-10} 150 ${CX-22} 160 Q ${CX-34} 150 ${CX-22} 140 Z`} fill="#f97316" />
+            <path d={`M ${CX-22} 146 Q ${CX-16} 152 ${CX-22} 158 Q ${CX-28} 152 ${CX-22} 146 Z`} fill="#fde047" />
+            <path d={`M ${CX+22} 140 Q ${CX+34} 150 ${CX+22} 160 Q ${CX+10} 150 ${CX+22} 140 Z`} fill="#f97316" />
+            <path d={`M ${CX+22} 146 Q ${CX+28} 152 ${CX+22} 158 Q ${CX+16} 152 ${CX+22} 146 Z`} fill="#fde047" />
+          </>)}
+          {eyesId === 'eyes_button' && (<>
+            <circle cx={CX-22} cy={148} r={12} fill={eyesColor} />
+            <circle cx={CX-25} cy={145} r={2} fill="#111" />
+            <circle cx={CX-19} cy={145} r={2} fill="#111" />
+            <circle cx={CX-25} cy={151} r={2} fill="#111" />
+            <circle cx={CX-19} cy={151} r={2} fill="#111" />
+            <path d={`M ${CX-25} 145 L ${CX-19} 151 M ${CX-19} 145 L ${CX-25} 151`} stroke="#111" strokeWidth="1" />
+            <circle cx={CX+22} cy={148} r={12} fill={eyesColor} />
+            <circle cx={CX+25} cy={145} r={2} fill="#111" />
+            <circle cx={CX+19} cy={145} r={2} fill="#111" />
+            <circle cx={CX+25} cy={151} r={2} fill="#111" />
+            <circle cx={CX+19} cy={151} r={2} fill="#111" />
+            <path d={`M ${CX+25} 145 L ${CX+19} 151 M ${CX+19} 145 L ${CX+25} 151`} stroke="#111" strokeWidth="1" />
+          </>)}
+          {eyesId === 'eyes_hypno' && (<>
+            <circle cx={CX-22} cy={148} r={12} fill="none" stroke={eyesColor} strokeWidth="2" />
+            <circle cx={CX-22} cy={148} r={8} fill="none" stroke={eyesColor} strokeWidth="2" />
+            <circle cx={CX-22} cy={148} r={4} fill="none" stroke={eyesColor} strokeWidth="2" />
+            <circle cx={CX+22} cy={148} r={12} fill="none" stroke={eyesColor} strokeWidth="2" />
+            <circle cx={CX+22} cy={148} r={8} fill="none" stroke={eyesColor} strokeWidth="2" />
+            <circle cx={CX+22} cy={148} r={4} fill="none" stroke={eyesColor} strokeWidth="2" />
+          </>)}
+          {eyesId === 'eyes_alien' && (<>
+            <ellipse cx={CX-22} cy={148} rx={10} ry={16} fill="#111" transform={`rotate(15 ${CX-22} 148)`} />
+            <circle cx={CX-24} cy={143} r={3} fill="#fff" />
+            <ellipse cx={CX+22} cy={148} rx={10} ry={16} fill="#111" transform={`rotate(-15 ${CX+22} 148)`} />
+            <circle cx={CX+20} cy={143} r={3} fill="#fff" />
+          </>)}
+          {eyesId === 'eyes_pixel' && (<>
+            <rect x={CX-28} y={142} width={12} height={12} fill={eyesColor} />
+            <rect x={CX-26} y={144} width={4} height={4} fill="#fff" />
+            <rect x={CX+16} y={142} width={12} height={12} fill={eyesColor} />
+            <rect x={CX+22} y={144} width={4} height={4} fill="#fff" />
+          </>)}
         </g>
 
         {/* Blush */}
-        <ellipse cx={CX - 32} cy={163} rx={10} ry={6} fill="#f9a8d4" opacity="0.5" />
-        <line x1={CX-36} y1={162} x2={CX-33} y2={164} stroke="#e88" strokeWidth="1.5" opacity="0.6" />
-        <line x1={CX-32} y1={161} x2={CX-29} y2={163} stroke="#e88" strokeWidth="1.5" opacity="0.6" />
-        <ellipse cx={CX + 32} cy={163} rx={10} ry={6} fill="#f9a8d4" opacity="0.5" />
-        <line x1={CX+29} y1={162} x2={CX+32} y2={164} stroke="#e88" strokeWidth="1.5" opacity="0.6" />
-        <line x1={CX+33} y1={161} x2={CX+36} y2={163} stroke="#e88" strokeWidth="1.5" opacity="0.6" />
+        {!transparentBody && (
+          <>
+            <ellipse cx={CX - 32} cy={163} rx={10} ry={6} fill="#f9a8d4" opacity="0.5" />
+            <line x1={CX-36} y1={162} x2={CX-33} y2={164} stroke="#e88" strokeWidth="1.5" opacity="0.6" />
+            <line x1={CX-32} y1={161} x2={CX-29} y2={163} stroke="#e88" strokeWidth="1.5" opacity="0.6" />
+            <ellipse cx={CX + 32} cy={163} rx={10} ry={6} fill="#f9a8d4" opacity="0.5" />
+            <line x1={CX+29} y1={162} x2={CX+32} y2={164} stroke="#e88" strokeWidth="1.5" opacity="0.6" />
+            <line x1={CX+33} y1={161} x2={CX+36} y2={163} stroke="#e88" strokeWidth="1.5" opacity="0.6" />
+          </>
+        )}
 
         {/* Mouth */}
         {mouthId === 'mouth_smile' && <path d={`M ${CX-8} 172 Q ${CX} 180 ${CX+8} 172`} fill="none" stroke="#2d2d3d" strokeWidth="2" strokeLinecap="round" />}
@@ -208,7 +262,36 @@ export default function Chibi2D({
           <line x1={CX+15} y1={174} x2={CX+25} y2={168} stroke="#cbd5e1" strokeWidth="1.5" />
         </>)}
         {mouthId === 'mouth_kiss' && <path d={`M ${CX-2} 170 Q ${CX+4} 170 ${CX+2} 174 Q ${CX+4} 178 ${CX-2} 178`} fill="none" stroke="#2d2d3d" strokeWidth="2" strokeLinecap="round" />}
-
+        {mouthId === 'mouth_buckteeth' && (<>
+          <path d={`M ${CX-8} 172 Q ${CX} 176 ${CX+8} 172`} fill="none" stroke="#2d2d3d" strokeWidth="2" />
+          <rect x={CX-4} y={174} width={4} height={5} fill="#fff" stroke="#2d2d3d" strokeWidth="1" />
+          <rect x={CX} y={174} width={4} height={5} fill="#fff" stroke="#2d2d3d" strokeWidth="1" />
+        </>)}
+        {mouthId === 'mouth_bubble' && (<>
+          <circle cx={CX} cy={174} r={14} fill="#fbcfe8" opacity="0.8" stroke="#f472b6" strokeWidth="1" />
+          <path d={`M ${CX-6} 168 Q ${CX-2} 166 ${CX+2} 168`} fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
+        </>)}
+        {mouthId === 'mouth_zip' && (<>
+          <path d={`M ${CX-10} 174 L ${CX-6} 172 L ${CX-2} 176 L ${CX+2} 172 L ${CX+6} 176 L ${CX+10} 174`} fill="none" stroke="#2d2d3d" strokeWidth="1.5" strokeLinejoin="round" />
+          <rect x={CX+10} y={172} width={4} height={6} fill="#94a3b8" />
+        </>)}
+        {mouthId === 'mouth_uwu' && (<>
+          <path d={`M ${CX-8} 172 Q ${CX-4} 178 ${CX} 174 Q ${CX+4} 178 ${CX+8} 172`} fill="none" stroke="#2d2d3d" strokeWidth="2" strokeLinecap="round" />
+        </>)}
+        {mouthId === 'mouth_owo' && (<>
+          <ellipse cx={CX} cy={174} rx={4} ry={6} fill="none" stroke="#2d2d3d" strokeWidth="2" />
+        </>)}
+        {mouthId === 'mouth_teeth_grit' && (<>
+          <rect x={CX-8} y={172} width={16} height={6} rx={2} fill="#fff" stroke="#2d2d3d" strokeWidth="1.5" />
+          <line x1={CX-4} y1={172} x2={CX-4} y2={178} stroke="#2d2d3d" strokeWidth="1" />
+          <line x1={CX} y1={172} x2={CX} y2={178} stroke="#2d2d3d" strokeWidth="1" />
+          <line x1={CX+4} y1={172} x2={CX+4} y2={178} stroke="#2d2d3d" strokeWidth="1" />
+          <line x1={CX-8} y1={175} x2={CX+8} y2={175} stroke="#2d2d3d" strokeWidth="1" />
+        </>)}
+        {mouthId === 'mouth_whistle' && (<>
+          <circle cx={CX-2} cy={174} r={3} fill="none" stroke="#2d2d3d" strokeWidth="2" />
+          <path d={`M ${CX+4} 170 Q ${CX+8} 168 ${CX+6} 165`} fill="none" stroke="#2d2d3d" strokeWidth="1" />
+        </>)}
         {/* Decals */}
         {decalsId === 'decal_scar' && <path d={`M ${CX-30} 130 L ${CX-20} 155 M ${CX-28} 140 L ${CX-22} 138`} stroke={decalsColor} strokeWidth="2" strokeLinecap="round" />}
         {decalsId === 'decal_freckles' && (<>
@@ -257,6 +340,42 @@ export default function Chibi2D({
           <line x1={CX+27} y1={133} x2={CX+23} y2={137} stroke={decalsColor} strokeWidth="2" />
           <line x1={CX+32} y1={138} x2={CX+28} y2={142} stroke={decalsColor} strokeWidth="2" />
           <line x1={CX+37} y1={143} x2={CX+33} y2={147} stroke={decalsColor} strokeWidth="2" />
+        </>)}
+        {decalsId === 'decal_tattoo' && (<>
+          <path d={`M ${CX-15} 140 Q ${CX-5} 150 ${CX-10} 165 Q ${CX-25} 155 ${CX-30} 160 Q ${CX-20} 145 ${CX-15} 140 Z`} fill={decalsColor} opacity="0.6" />
+        </>)}
+        {decalsId === 'decal_paint_splash' && (<>
+          <path d={`M ${CX+15} 140 Q ${CX+25} 135 ${CX+30} 145 Q ${CX+35} 155 ${CX+25} 160 Q ${CX+15} 165 ${CX+10} 155 Q ${CX+5} 145 ${CX+15} 140 Z`} fill={decalsColor} opacity="0.7" />
+          <circle cx={CX+35} cy={138} r={3} fill={decalsColor} opacity="0.7" />
+          <circle cx={CX+12} cy={165} r={2} fill={decalsColor} opacity="0.7" />
+          <circle cx={CX+28} cy={168} r={4} fill={decalsColor} opacity="0.7" />
+        </>)}
+        {decalsId === 'decal_third_eye' && (<>
+          <path d={`M ${CX-8} 125 Q ${CX} 118 ${CX+8} 125 Q ${CX} 132 ${CX-8} 125 Z`} fill="#fff" stroke="#111" strokeWidth="1" />
+          <circle cx={CX} cy={125} r={3} fill={decalsColor} />
+          <circle cx={CX+1} cy={124} r={1} fill="#fff" />
+        </>)}
+        {decalsId === 'decal_clown' && (<>
+          <circle cx={CX} cy={165} r={8} fill="#ef4444" />
+          <circle cx={CX+3} cy={162} r={2} fill="#fff" opacity="0.6" />
+          <path d={`M ${CX-22} 130 L ${CX-20} 140 L ${CX-24} 140 Z`} fill="#3b82f6" />
+          <path d={`M ${CX-22} 165 L ${CX-20} 155 L ${CX-24} 155 Z`} fill="#3b82f6" />
+          <path d={`M ${CX+22} 130 L ${CX+20} 140 L ${CX+24} 140 Z`} fill="#3b82f6" />
+          <path d={`M ${CX+22} 165 L ${CX+20} 155 L ${CX+24} 155 Z`} fill="#3b82f6" />
+        </>)}
+        {decalsId === 'decal_kitty_whiskers' && (<>
+          <line x1={CX-15} y1={160} x2={CX-30} y2={155} stroke="#111" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+          <line x1={CX-15} y1={163} x2={CX-32} y2={163} stroke="#111" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+          <line x1={CX-15} y1={166} x2={CX-30} y2={171} stroke="#111" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+          <line x1={CX+15} y1={160} x2={CX+30} y2={155} stroke="#111" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+          <line x1={CX+15} y1={163} x2={CX+32} y2={163} stroke="#111" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+          <line x1={CX+15} y1={166} x2={CX+30} y2={171} stroke="#111" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+        </>)}
+        {decalsId === 'decal_spiderweb' && (<>
+          <path d={`M ${CX-R} 130 L ${CX-15} 145 M ${CX-R} 140 L ${CX-15} 145 M ${CX-R} 150 L ${CX-15} 145 M ${CX-R+5} 133 Q ${CX-20} 138 ${CX-R+2} 142 M ${CX-R+2} 142 Q ${CX-18} 146 ${CX-R+5} 148`} stroke={decalsColor} strokeWidth="1" fill="none" opacity="0.6" />
+        </>)}
+        {decalsId === 'decal_crescent' && (<>
+          <path d={`M ${CX} 125 A 6 6 0 1 1 ${CX} 113 A 8 8 0 1 0 ${CX} 125 Z`} fill={decalsColor} />
         </>)}
 
         {/* Accessories (outside capsule) */}

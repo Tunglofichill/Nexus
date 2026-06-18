@@ -12,10 +12,12 @@ export async function saveAvatarData(data: { hair: string; clothes: string; skin
     redirect('/login')
   }
 
-  // Update user metadata with avatar configuration
+  // Update user metadata with avatar configuration, starting coins, and empty base
   const { error } = await supabase.auth.updateUser({
     data: {
-      avatar_data: data
+      avatar_data: data,
+      coins: userData.user.user_metadata.coins ?? 1000,
+      base_data: userData.user.user_metadata.base_data ?? []
     }
   })
 
@@ -23,5 +25,5 @@ export async function saveAvatarData(data: { hair: string; clothes: string; skin
     throw new Error('Failed to save avatar: ' + error.message)
   }
 
-  redirect('/')
+  return { success: true }
 }

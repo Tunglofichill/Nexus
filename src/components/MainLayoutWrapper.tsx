@@ -7,28 +7,28 @@ import NexusHub from './NexusHub';
 export default function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLogin = pathname?.startsWith('/login') || false;
+  const isOnboarding = pathname?.startsWith('/onboarding') || false;
   const isHome = pathname === '/';
 
-  if (isLogin) {
-     return <div className="w-full min-h-screen">{children}</div>;
+  // Fullscreen pages — no Base, no Dock, no OS chrome
+  if (isLogin || isOnboarding) {
+     return <div className="w-full min-h-screen bg-[#0f101a]">{children}</div>;
   }
 
   let windowTitle = "Nexus Application";
   if (pathname?.startsWith('/explore')) windowTitle = "Khám Phá";
   else if (pathname?.startsWith('/messages')) windowTitle = "Trạm Liên Lạc";
   else if (pathname?.startsWith('/profile')) windowTitle = "Hồ Sơ";
-  else if (pathname?.startsWith('/onboarding')) windowTitle = "Phòng Thay Đồ";
 
   return (
     <>
       <div className="w-full h-screen overflow-hidden relative bg-[#111222]">
-        {/* Layer 1: The Interactive 2.5D Wallpaper (Nexus Hub) */}
-        <div className="absolute inset-0 z-0">
+        {/* Layer 1: The Interactive 3D Room (Nexus Hub) */}
+        <div className={`absolute inset-0 ${isHome ? 'z-10' : 'z-0 pointer-events-none'}`}>
            <NexusHub />
         </div>
 
         {/* Layer 2: Floating Application Windows */}
-        {/* Render children safely to prevent Next.js layout crash */}
         <div className={`absolute inset-0 z-20 pointer-events-none ${isHome ? 'hidden' : ''}`}>
            <div className="pointer-events-auto">
               <DraggableWindow title={windowTitle}>
